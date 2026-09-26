@@ -1,0 +1,33 @@
+{
+  "name": "myworkschedule-backend",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "cross-env NODE_ENV=test node --test --test-concurrency=1",
+    "lint": "eslint .",
+    "migrate": "knex migrate:latest",
+    "migrate:test": "cross-env NODE_ENV=test knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback",
+    "seed": "knex seed:run"
+  },
+  "author": "Hannu Rautiainen",
+  "license": "MIT",
+  "description": "Backend for the bar work shift schedule",
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "knex": "^3.3.0",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "supertest": "^7.3.0"
+  }
+}

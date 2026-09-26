@@ -1,32 +1,19 @@
-import { dayOrders, employees, shifts } from '../data/mockData'
+import api from './api'
 
-// Mock implementations. When the backend exists these become e.g.
-//   api.get('/shifts', { params: { from, to } }).then((res) => res.data)
+const getEmployees = () => api.get('/employees').then((res) => res.data)
 
-const getEmployees = () => Promise.resolve(employees)
-
+// Shifts starting in [from, to)
 const getShifts = (from, to) =>
-  Promise.resolve(
-    shifts.filter((shift) => {
-      const start = new Date(shift.start)
-      return start >= from && start < to
-    })
-  )
+  api
+    .get('/shifts', { params: { from: from.toISOString(), to: to.toISOString() } })
+    .then((res) => res.data)
 
-// Later: api.put(`/shifts/${id}`, changes)
-const updateShift = (id, changes) => {
-  const shift = shifts.find((s) => s.id === id)
-  Object.assign(shift, changes)
-  return Promise.resolve({ ...shift })
-}
+const updateShift = (id, changes) => api.put(`/shifts/${id}`, changes).then((res) => res.data)
 
 // Side-by-side employee order per day: { 'yyyy-MM-dd': [employeeId, ...] }
-const getDayOrders = () => Promise.resolve({ ...dayOrders })
+const getDayOrders = () => api.get('/day-orders').then((res) => res.data)
 
-// Later: api.put(`/day-orders/${key}`, { order })
-const saveDayOrder = (key, order) => {
-  dayOrders[key] = order
-  return Promise.resolve(order)
-}
+const saveDayOrder = (key, order) =>
+  api.put(`/day-orders/${key}`, { order }).then((res) => res.data)
 
 export default { getEmployees, getShifts, updateShift, getDayOrders, saveDayOrder }
