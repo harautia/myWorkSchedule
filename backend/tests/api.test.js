@@ -1,17 +1,18 @@
 const { test, describe, beforeEach, after } = require('node:test')
 const assert = require('node:assert')
-const supertest = require('supertest')
-const app = require('../app')
 const db = require('../db/db')
-const { resetDb } = require('./helper')
+const { resetDb, loginAs } = require('./helper')
 
-const api = supertest(app)
 const WEEK = { from: '2026-09-21T00:00:00Z', to: '2026-09-28T00:00:00Z' }
 
+// Everything here runs as a manager of "Own Bar"; access per group is
+// tested in auth.test.js.
 let data
+let api
 
 beforeEach(async () => {
   data = await resetDb()
+  api = await loginAs('anna')
 })
 
 after(() => db.destroy())

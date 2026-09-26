@@ -1,9 +1,45 @@
+const jwt = require('jsonwebtoken')
 const logger = require('./logger')
+const config = require('./config')
+const Users = require('../models/users')
+
+const SESSION_COOKIE = 'session'
+
+// Verifies the session cookie and loads the user (with groups) into
+// request.user. Loading from the database on every request means group
+// changes take effect immediately, not only after the next login.
+const requireAuth = async (request, response, next) => {
+  const token = request.cookies?.[SESSION_COOKIE]
+  if (!token) return response.status(401).json({ error: 'not authenticated' })
+
+  let payload
+  try {
+    payload = jwt.verify(token, config.SESSION_SECRET)
+  } catch {
+    return response.status(401).json({ error: 'not authenticated' })
+  }
+
+  const user = await Users.getById(payload.userId)
+  if (!user) return response.status(401).json({ error: 'not authenticated' })
+
+  request.user = user
+  next()
+}
+
+// Allows the request if the user is in at least one of the given groups.
+const requireGroup = (...groups) => (request, response, next) => {
+  if (!groups.some((group) => request.user.groups.includes(group))) {
+    return response.status(403).json({ error: 'forbidden' })
+  }
+  next()
+}
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
   logger.info('Path:  ', request.path)
-  logger.info('Body:  ', request.body)
+  // Never log passwords.
+  const { password, ...body } = request.body || {}
+  logger.info('Body:  ', password === undefined ? body : { ...body, password: '***' })
   logger.info('---')
   next()
 }
@@ -22,4 +58,11 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-module.exports = { requestLogger, unknownEndpoint, errorHandler }
+module.exports = {
+  SESSION_COOKIE,
+  requireAuth,
+  requireGroup,
+  requestLogger,
+  unknownEndpoint,
+  errorHandler
+}

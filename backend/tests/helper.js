@@ -1,9 +1,23 @@
+const supertest = require('supertest')
+const app = require('../app')
 const db = require('../db/db')
+const { hashPassword } = require('../utils/passwords')
 
-// Two bars: "own" gets id 1, which is the bar every request acts on until
-// login exists (config.DEFAULT_BAR_ID). "other" must stay invisible.
+const PASSWORD = 'test-password'
+let passwordHash
+
+const insertUser = async (username, { barId = null, employeeId = null, groups }) => {
+  passwordHash ??= await hashPassword(PASSWORD)
+  const [user] = await db('users')
+    .insert({ username, name: username, bar_id: barId, employee_id: employeeId, password_hash: passwordHash })
+    .returning('*')
+  await db('user_groups').insert(groups.map((group) => ({ user_id: user.id, group_name: group })))
+  return user
+}
+
+// Two bars. Users of "own" must never see or change anything in "other".
 const resetDb = async () => {
-  await db.raw('TRUNCATE day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
+  await db.raw('TRUNCATE user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
 
   const [own, other] = await db('bars')
     .insert([{ name: 'Own Bar' }, { name: 'Other Bar' }])
@@ -28,7 +42,19 @@ const resetDb = async () => {
 
   await db('day_orders').insert({ bar_id: other.id, day: '2026-09-21', employee_ids: JSON.stringify([olli.id]) })
 
+  await insertUser('admin', { groups: ['adminGroup'] })
+  await insertUser('anna', { barId: own.id, employeeId: anna.id, groups: ['managerGroup'] })
+  await insertUser('mikko', { barId: own.id, employeeId: mikko.id, groups: ['employeeGroup'] })
+  await insertUser('olli', { barId: other.id, employeeId: olli.id, groups: ['managerGroup'] })
+
   return { own, other, anna, mikko, olli, ownShift, otherShift }
 }
 
-module.exports = { resetDb }
+// A supertest agent that keeps the session cookie between requests.
+const loginAs = async (username) => {
+  const agent = supertest.agent(app)
+  await agent.post('/api/login').send({ username, password: PASSWORD }).expect(200)
+  return agent
+}
+
+module.exports = { resetDb, loginAs, PASSWORD }

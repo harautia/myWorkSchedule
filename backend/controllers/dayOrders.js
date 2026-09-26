@@ -2,6 +2,8 @@ const dayOrdersRouter = require('express').Router()
 const DayOrders = require('../models/dayOrders')
 const Employees = require('../models/employees')
 const { isDayKey, isId } = require('../utils/validation')
+const { requireGroup } = require('../utils/middleware')
+const { MANAGER } = require('../utils/groups')
 
 // GET /api/day-orders[?from=yyyy-MM-dd&to=yyyy-MM-dd] -> { 'yyyy-MM-dd': [employeeId, ...] }
 dayOrdersRouter.get('/', async (request, response) => {
@@ -15,7 +17,7 @@ dayOrdersRouter.get('/', async (request, response) => {
 })
 
 // PUT /api/day-orders/:day { order: [employeeId, ...] }
-dayOrdersRouter.put('/:day', async (request, response) => {
+dayOrdersRouter.put('/:day', requireGroup(MANAGER), async (request, response) => {
   const { day } = request.params
   const { order } = request.body
 

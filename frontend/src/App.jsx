@@ -1,114 +1,79 @@
-import { useEffect, useMemo, useState } from 'react'
-import CalendarToolbar from './components/CalendarToolbar'
-import EmployeeLegend from './components/EmployeeLegend'
-import MonthView from './components/MonthView'
-import WeekView from './components/WeekView'
-import shiftService from './services/shifts'
-import {
-  formatRangeLabel,
-  monthGrid,
-  shiftDate,
-  visibleRange,
-  weekDays
-} from './utils/dates'
-import { dayKey } from './utils/lanes'
+import { useEffect, useState } from 'react'
+import BarsPage from './components/BarsPage'
+import EmployeesPage from './components/EmployeesPage'
+import GroupBadges from './components/GroupBadges'
+import LoginPage from './components/LoginPage'
+import SchedulePage from './components/SchedulePage'
+import authService from './services/auth'
+import { setUnauthorizedHandler } from './services/api'
+import { canEditSchedule, pagesFor } from './utils/access'
+
+const PAGE_LABELS = {
+  schedule: 'Schedule',
+  employees: 'Employees',
+  bars: 'Bars'
+}
 
 const App = () => {
-  const [view, setView] = useState('week')
-  const [currentDate, setCurrentDate] = useState(() => new Date())
-  const [employees, setEmployees] = useState([])
-  const [shifts, setShifts] = useState([])
-  const [dayOrders, setDayOrders] = useState({})
-  const [hiddenIds, setHiddenIds] = useState(() => new Set())
-  const today = new Date()
+  // undefined = still checking the session, null = logged out
+  const [user, setUser] = useState(undefined)
+  const [page, setPage] = useState(null)
 
   useEffect(() => {
-    shiftService.getEmployees().then(setEmployees)
-    shiftService.getDayOrders().then(setDayOrders)
+    setUnauthorizedHandler(() => setUser(null))
+    authService
+      .getCurrentUser()
+      .then(setUser)
+      .catch(() => setUser(null))
   }, [])
 
-  const { from, to } = visibleRange(view, currentDate)
-  const fromTime = from.getTime()
-  const toTime = to.getTime()
-
-  useEffect(() => {
-    shiftService.getShifts(new Date(fromTime), new Date(toTime)).then((data) => {
-      setShifts(data.map((s) => ({ ...s, start: new Date(s.start), end: new Date(s.end) })))
-    })
-  }, [fromTime, toTime])
-
-  const employeesById = useMemo(
-    () => Object.fromEntries(employees.map((e) => [e.id, e])),
-    [employees]
-  )
-
-  const visibleShifts = shifts.filter(
-    (shift) => employeesById[shift.employeeId] && !hiddenIds.has(shift.employeeId)
-  )
-
-  const toggleEmployee = (id) => {
-    setHiddenIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  const handleLogout = async () => {
+    await authService.logout()
+    setUser(null)
+    setPage(null)
   }
 
-  const handleShiftChange = (id, { start, end }) => {
-    setShifts((prev) => prev.map((s) => (s.id === id ? { ...s, start, end } : s)))
-    shiftService.updateShift(id, { start: start.toISOString(), end: end.toISOString() })
-  }
+  if (user === undefined) return <div className="app-loading">Checking session…</div>
+  if (user === null) return <LoginPage onLogin={setUser} />
 
-  const handleOrderChange = (day, order) => {
-    const key = dayKey(day)
-    setDayOrders((prev) => ({ ...prev, [key]: order }))
-    shiftService.saveDayOrder(key, order)
-  }
-
-  const showWeekOf = (day) => {
-    setCurrentDate(day)
-    setView('week')
-  }
+  const pages = pagesFor(user)
+  const activePage = pages.includes(page) ? page : pages[0]
+  const title = user.barName ? `${user.barName} Work Schedule` : 'Work Schedule Service'
 
   return (
     <div>
       <header className="app-header">
         <img src="/App-logo.png" alt="" width="32" height="32" />
-        <h1>Imaginary Bar Work Schedule</h1>
+        <h1>{title}</h1>
+        <div className="user-menu">
+          <span className="user-name">{user.name}</span>
+          <GroupBadges groups={user.groups} />
+          <button type="button" className="btn btn-nav" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
       </header>
 
-      <CalendarToolbar
-        label={formatRangeLabel(view, currentDate)}
-        view={view}
-        onViewChange={setView}
-        onPrev={() => setCurrentDate((d) => shiftDate(view, d, -1))}
-        onNext={() => setCurrentDate((d) => shiftDate(view, d, 1))}
-        onToday={() => setCurrentDate(new Date())}
-      />
-      <EmployeeLegend employees={employees} hiddenIds={hiddenIds} onToggle={toggleEmployee} />
-
-      {view === 'week' ? (
-        <WeekView
-          days={weekDays(currentDate)}
-          shifts={visibleShifts}
-          employeesById={employeesById}
-          today={today}
-          dayOrders={dayOrders}
-          onShiftChange={handleShiftChange}
-          onOrderChange={handleOrderChange}
-        />
-      ) : (
-        <MonthView
-          days={monthGrid(currentDate)}
-          currentDate={currentDate}
-          shifts={visibleShifts}
-          employeesById={employeesById}
-          today={today}
-          dayOrders={dayOrders}
-          onSelectDay={showWeekOf}
-        />
+      {pages.length > 1 && (
+        <nav aria-label="Pages">
+          {pages.map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={`btn btn-nav${activePage === key ? ' is-active' : ''}`}
+              aria-current={activePage === key ? 'page' : undefined}
+              onClick={() => setPage(key)}
+            >
+              {PAGE_LABELS[key]}
+            </button>
+          ))}
+        </nav>
       )}
+
+      {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} />}
+      {activePage === 'employees' && <EmployeesPage />}
+      {activePage === 'bars' && <BarsPage />}
+      {!activePage && <p className="page-note">Your account has no pages yet. Ask an admin to add you to a group.</p>}
 
       <footer className="app-footer">
         <p>

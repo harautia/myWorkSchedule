@@ -2,6 +2,8 @@ const shiftsRouter = require('express').Router()
 const Shifts = require('../models/shifts')
 const Employees = require('../models/employees')
 const { parseTimestamp, isId } = require('../utils/validation')
+const { requireGroup } = require('../utils/middleware')
+const { MANAGER } = require('../utils/groups')
 
 const MAX_SHIFT_HOURS = 24
 
@@ -31,7 +33,8 @@ shiftsRouter.get('/', async (request, response) => {
   response.json(shifts)
 })
 
-shiftsRouter.post('/', async (request, response) => {
+// Changing the schedule is for managers; employees can only view it.
+shiftsRouter.post('/', requireGroup(MANAGER), async (request, response) => {
   const shift = {
     employeeId: request.body.employeeId,
     start: parseTimestamp(request.body.start),
@@ -46,7 +49,7 @@ shiftsRouter.post('/', async (request, response) => {
 })
 
 // Partial update: any of employeeId, start, end.
-shiftsRouter.put('/:id', async (request, response) => {
+shiftsRouter.put('/:id', requireGroup(MANAGER), async (request, response) => {
   const id = parseId(request.params.id)
   const existing = id && await Shifts.getById(request.barId, id)
   if (!existing) {
@@ -71,7 +74,7 @@ shiftsRouter.put('/:id', async (request, response) => {
   response.json(updated)
 })
 
-shiftsRouter.delete('/:id', async (request, response) => {
+shiftsRouter.delete('/:id', requireGroup(MANAGER), async (request, response) => {
   const id = parseId(request.params.id)
   const removed = id && await Shifts.remove(request.barId, id)
   if (!removed) {

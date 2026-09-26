@@ -16,4 +16,21 @@ const getById = async (barId) => {
   return row ? toDto(row) : null
 }
 
-module.exports = { getById }
+// Admin only: every bar, with how many employees and user accounts it has.
+const getAllWithCounts = async () => {
+  const rows = await db('bars')
+    .select(
+      'bars.*',
+      db('employees').count('*').whereRaw('employees.bar_id = bars.id').as('employee_count'),
+      db('users').count('*').whereRaw('users.bar_id = bars.id').as('user_count')
+    )
+    .orderBy('bars.name')
+  return rows.map((row) => ({
+    ...toDto(row),
+    createdAt: row.created_at.toISOString(),
+    employeeCount: Number(row.employee_count),
+    userCount: Number(row.user_count)
+  }))
+}
+
+module.exports = { getById, getAllWithCounts }
