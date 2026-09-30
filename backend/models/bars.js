@@ -33,4 +33,25 @@ const getAllWithCounts = async () => {
   }))
 }
 
-module.exports = { getById, getAllWithCounts }
+const toRow = ({ name, timezone, opensAt, closesAt }) => ({
+  name: name.trim(),
+  timezone,
+  opens_at: opensAt,
+  closes_at: closesAt
+})
+
+const create = async (bar, conn = db) => {
+  const [row] = await conn('bars').insert(toRow(bar)).returning('id')
+  return row.id
+}
+
+const update = async (barId, bar) => {
+  const count = await db('bars').where({ id: barId }).update(toRow(bar))
+  return count > 0
+}
+
+// Deletes the bar and, through ON DELETE CASCADE, its employees, shifts,
+// day orders and user accounts.
+const remove = async (barId) => (await db('bars').where({ id: barId }).del()) > 0
+
+module.exports = { getById, getAllWithCounts, create, update, remove }

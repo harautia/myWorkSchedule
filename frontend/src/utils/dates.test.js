@@ -5,6 +5,7 @@ import {
   hoursFromOpening,
   monthGrid,
   snapMinutes,
+  timeOnBarDay,
   weekDays
 } from './dates'
 
@@ -76,5 +77,16 @@ describe('adjustShift', () => {
     expect(adjustShift(shift, { mode: 'resize', minutesDelta: -1000, days }).end)
       .toEqual(new Date(2026, 8, 23, 16, 30))
     expect(adjustShift(shift, { mode: 'resize', minutesDelta: 1000, days }).end).toEqual(at(24, 4))
+  })
+})
+
+describe('timeOnBarDay', () => {
+  test('evening times are on the bar day itself', () => {
+    expect(timeOnBarDay(new Date(2026, 8, 25), '20:30')).toEqual(new Date(2026, 8, 25, 20, 30))
+  })
+
+  test('times after midnight are on the next calendar day', () => {
+    expect(timeOnBarDay(new Date(2026, 8, 25), '02:00')).toEqual(new Date(2026, 8, 26, 2))
+    expect(timeOnBarDay(new Date(2026, 8, 30), '00:15')).toEqual(new Date(2026, 9, 1, 0, 15))
   })
 })

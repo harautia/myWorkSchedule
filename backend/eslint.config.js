@@ -10,7 +10,7 @@ module.exports = [
       globals: { ...globals.node }
     },
     rules: {
-      'no-unused-vars': ['error', { args: 'none' }]
+      'no-unused-vars': ['error', { args: 'none', ignoreRestSiblings: true }]
     }
   }
 ]

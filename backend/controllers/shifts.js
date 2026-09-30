@@ -1,14 +1,11 @@
 const shiftsRouter = require('express').Router()
 const Shifts = require('../models/shifts')
 const Employees = require('../models/employees')
-const { parseTimestamp, isId } = require('../utils/validation')
+const { parseTimestamp, isId, parseId } = require('../utils/validation')
 const { requireGroup } = require('../utils/middleware')
 const { MANAGER } = require('../utils/groups')
 
 const MAX_SHIFT_HOURS = 24
-
-// Route ids are strings; anything that isn't a positive integer can't match a shift.
-const parseId = (value) => (/^\d+$/.test(value) ? Number(value) : null)
 
 // Checks a complete shift; returns an error message or null.
 const validateShift = async (barId, { employeeId, start, end }) => {

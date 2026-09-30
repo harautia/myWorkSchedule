@@ -31,7 +31,11 @@ authRouter.post('/login', loginLimiter, async (request, response) => {
     return response.status(401).json({ error: 'invalid username or password' })
   }
 
-  const token = jwt.sign({ userId: row.id }, config.SESSION_SECRET, { expiresIn: '7d' })
+  const token = jwt.sign(
+    { userId: row.id, sessionVersion: row.session_version },
+    config.SESSION_SECRET,
+    { expiresIn: '7d' }
+  )
   response.cookie(SESSION_COOKIE, token, { ...baseCookieOptions, maxAge: SESSION_MAX_AGE_MS })
   response.json(await Users.getById(row.id))
 })

@@ -9,7 +9,16 @@ const columnAt = (rects, x) => {
   return index === -1 ? rects.length - 1 : index
 }
 
-const sameOrder = (a, b) => a.length === b.length && a.every((id, i) => id === b[i])
+// The browser sends a click after a drag ends (to the element under both the
+// press and the release, e.g. the day column). It isn't a real click, so stop
+// it before it opens anything. The timeout cleans up if no click comes.
+const swallowNextClick = () => {
+  const swallow = (event) => event.stopPropagation()
+  window.addEventListener('click', swallow, { capture: true, once: true })
+  setTimeout(() => window.removeEventListener('click', swallow, { capture: true }), 0)
+}
+
+const sameOrder =(a, b) => a.length === b.length && a.every((id, i) => id === b[i])
 
 // Mouse/touch dragging of shift blocks in the week view.
 //  - 'move': vertical = time, the column under the pointer = day, and the
@@ -58,6 +67,7 @@ const useShiftDrag = ({ days, hourHeight, orderForDay, onShiftChange, onOrderCha
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onCancel)
       setPreview(null)
+      if (latest) swallowNextClick()
       if (!commit || !latest) return
       if (latest.start - shift.start || latest.end - shift.end) {
         onShiftChange(shift.id, { start: latest.start, end: latest.end })

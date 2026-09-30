@@ -19,9 +19,13 @@ const requireAuth = async (request, response, next) => {
     return response.status(401).json({ error: 'not authenticated' })
   }
 
-  const user = await Users.getById(payload.userId)
-  if (!user) return response.status(401).json({ error: 'not authenticated' })
+  const sessionUser = await Users.getSessionUser(payload.userId)
+  // A token issued before the last password change is no longer valid.
+  if (!sessionUser || payload.sessionVersion !== sessionUser.sessionVersion) {
+    return response.status(401).json({ error: 'not authenticated' })
+  }
 
+  const { sessionVersion, ...user } = sessionUser
   request.user = user
   next()
 }

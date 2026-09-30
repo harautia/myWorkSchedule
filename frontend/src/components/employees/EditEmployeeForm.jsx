@@ -1,0 +1,67 @@
+import { useState } from 'react'
+import PasswordField from '../PasswordField'
+import employeeService from '../../services/employees'
+import { errorMessage } from '../../utils/forms'
+
+// Rename an employee, or set a new password for their login account. A new
+// password also logs the employee out of any open sessions.
+const EditEmployeeForm = ({ employee, onSaved, onCancel }) => {
+  const [name, setName] = useState(employee.name)
+  const [changePassword, setChangePassword] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const changes = {}
+    if (name.trim() !== employee.name) changes.name = name.trim()
+    if (changePassword) changes.password = password
+    if (!Object.keys(changes).length) return onCancel()
+
+    setSaving(true)
+    setError(null)
+    try {
+      await employeeService.update(employee.id, changes)
+      onSaved(changes.password ? `New password set for ${employee.account.username}` : `Saved ${name.trim()}`)
+    } catch (err) {
+      setError(errorMessage(err))
+      setSaving(false)
+    }
+  }
+
+  return (
+    <form className="inline-form" onSubmit={handleSubmit} aria-label={`Edit ${employee.name}`}>
+      <div className="form-grid">
+        <label className="form-field">
+          Name
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required />
+        </label>
+        {employee.account && (changePassword ? (
+          <PasswordField label="New password" value={password} onChange={setPassword} />
+        ) : (
+          <div className="form-field">
+            Password
+            <button type="button" className="btn btn-nav" onClick={() => setChangePassword(true)}>
+              Set new password
+            </button>
+          </div>
+        ))}
+      </div>
+      {changePassword && (
+        <p className="field-hint">Saving a new password logs {employee.name} out on all devices.</p>
+      )}
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary" disabled={saving}>
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+        <button type="button" className="btn btn-nav" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
+export default EditEmployeeForm

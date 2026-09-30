@@ -5,7 +5,9 @@ import {
   DAY_START_HOUR,
   formatDayHeader,
   hoursFromOpening,
-  isSameDay
+  isSameDay,
+  OPEN_MINUTES,
+  SNAP_MINUTES
 } from '../utils/dates'
 import { dayKey, employeeOrder, layoutLanes, shiftsOnDay } from '../utils/lanes'
 
@@ -22,7 +24,9 @@ const WeekView = ({
   today,
   dayOrders = {},
   onShiftChange,
-  onOrderChange
+  onOrderChange,
+  onCreateAt,
+  onDeleteShift
 }) => {
   const orderForDay = (day, list = shifts) =>
     employeeOrder(shiftsOnDay(list, day), dayOrders[dayKey(day)])
@@ -35,6 +39,15 @@ const WeekView = ({
     onOrderChange
   })
   const displayedShifts = withPreview(shifts)
+
+  // A click on an empty spot of a day: the start of the clicked 15 min slot,
+  // in minutes from opening. Clicks on shifts (also the end of a drag) are ignored.
+  const handleColumnClick = (event, day) => {
+    if (event.target.closest('.shift-block')) return
+    const rect = event.currentTarget.getBoundingClientRect()
+    const minutes = Math.floor(((event.clientY - rect.top) / HOUR_HEIGHT) * 60 / SNAP_MINUTES) * SNAP_MINUTES
+    onCreateAt(day, Math.min(Math.max(minutes, 0), OPEN_MINUTES - SNAP_MINUTES))
+  }
 
   return (
     <div className="week-scroll">
@@ -62,8 +75,9 @@ const WeekView = ({
           return (
             <div
               key={day.toISOString()}
-              className={`week-column${isSameDay(day, today) ? ' is-today' : ''}`}
+              className={`week-column${isSameDay(day, today) ? ' is-today' : ''}${onCreateAt ? ' is-creatable' : ''}`}
               data-testid="week-column"
+              onClick={onCreateAt && ((event) => handleColumnClick(event, day))}
             >
               {layoutLanes(dayShifts, order).map(({ shift, lane, lanes }) => {
                 const top = hoursFromOpening(day, shift.start)
@@ -75,6 +89,7 @@ const WeekView = ({
                     employee={employeesById[shift.employeeId]}
                     dragging={shift.id === draggingId}
                     onDragStart={onShiftChange && startDrag}
+                    onDelete={onDeleteShift}
                     style={{
                       top: top * HOUR_HEIGHT,
                       height: (bottom - top) * HOUR_HEIGHT,

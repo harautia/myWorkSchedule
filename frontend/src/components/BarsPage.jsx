@@ -1,52 +1,19 @@
-import { useEffect, useState } from 'react'
-import adminService from '../services/admin'
+import { useState } from 'react'
+import BarDetail from './admin/BarDetail'
+import BarList from './admin/BarList'
+import NewBarForm from './admin/NewBarForm'
 
-// adminGroup: every bar that uses the service.
+// adminGroup: every bar that uses the service, and managing each bar.
+// view = { name: 'list', notice? } | { name: 'new' } | { name: 'bar', barId }
 const BarsPage = () => {
-  const [bars, setBars] = useState(null)
-  const [error, setError] = useState(null)
+  const [view, setView] = useState({ name: 'list' })
+  const showList = () => setView({ name: 'list' })
+  const openBar = (barId) => setView({ name: 'bar', barId })
+  const showDeleted = (notice) => setView({ name: 'list', notice })
 
-  useEffect(() => {
-    adminService
-      .getBars()
-      .then(setBars)
-      .catch(() => setError('Could not load bars'))
-  }, [])
-
-  if (error) return <p className="form-error" role="alert">{error}</p>
-  if (!bars) return <p className="page-note">Loading…</p>
-
-  return (
-    <section>
-      <h2 className="page-title">Bars using the service ({bars.length})</h2>
-      <div className="table-scroll">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Opening hours</th>
-              <th>Timezone</th>
-              <th className="num">Employees</th>
-              <th className="num">Users</th>
-              <th>Customer since</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bars.map((bar) => (
-              <tr key={bar.id}>
-                <td>{bar.name}</td>
-                <td>{bar.opensAt}–{bar.closesAt}</td>
-                <td>{bar.timezone}</td>
-                <td className="num">{bar.employeeCount}</td>
-                <td className="num">{bar.userCount}</td>
-                <td>{new Date(bar.createdAt).toLocaleDateString('fi-FI')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )
+  if (view.name === 'new') return <NewBarForm onCreated={openBar} onCancel={showList} />
+  if (view.name === 'bar') return <BarDetail key={view.barId} barId={view.barId} onBack={showList} onDeleted={showDeleted} />
+  return <BarList notice={view.notice} onOpen={openBar} onNew={() => setView({ name: 'new' })} />
 }
 
 export default BarsPage

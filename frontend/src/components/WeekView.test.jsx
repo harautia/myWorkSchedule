@@ -7,6 +7,9 @@ const employeesById = {
   2: { id: 2, name: 'Mikko', role: 'waiter', color: '#1c7ed6' }
 }
 
+// Let the drag hook's click-swallowing timeout run between tests.
+afterEach(() => new Promise((resolve) => setTimeout(resolve, 0)))
+
 const days = weekDays(new Date(2026, 8, 24))
 const shifts = [
   { id: 1, employeeId: 1, start: new Date(2026, 8, 21, 10), end: new Date(2026, 8, 21, 18) },
@@ -83,4 +86,41 @@ test('moving a shift only in time does not change the order', () => {
     onShiftChange={() => {}} onOrderChange={onOrderChange} />)
   drag(screen.getByText('Anna').closest('.shift-block'), 80)
   expect(onOrderChange).not.toHaveBeenCalled()
+})
+
+test('clicking an empty spot in a day asks to create a shift there', () => {
+  const onCreateAt = vi.fn()
+  render(<WeekView days={days} shifts={shifts} employeesById={employeesById} today={days[0]} onCreateAt={onCreateAt} />)
+  // jsdom has no layout: the column starts at y = 0, so 130px = 3h15min after opening
+  fireEvent.click(screen.getAllByTestId('week-column')[4], { clientY: 130 })
+  expect(onCreateAt).toHaveBeenCalledWith(days[4], 195)
+})
+
+test('clicking a shift does not create one', () => {
+  const onCreateAt = vi.fn()
+  render(<WeekView days={days} shifts={shifts} employeesById={employeesById} today={days[0]} onCreateAt={onCreateAt} />)
+  fireEvent.click(screen.getByText('Anna'))
+  expect(onCreateAt).not.toHaveBeenCalled()
+})
+
+test('the click that ends a drag does not create a shift', () => {
+  const onCreateAt = vi.fn()
+  render(<WeekView days={days} shifts={shifts} employeesById={employeesById} today={days[0]}
+    onShiftChange={() => {}} onCreateAt={onCreateAt} />)
+  drag(screen.getByText('Anna').closest('.shift-block'), 80)
+  fireEvent.click(screen.getAllByTestId('week-column')[0], { clientY: 80 })
+  expect(onCreateAt).not.toHaveBeenCalled()
+})
+
+test('a shift can be deleted with its × button', () => {
+  const onDeleteShift = vi.fn()
+  render(<WeekView days={days} shifts={shifts} employeesById={employeesById} today={days[0]} onDeleteShift={onDeleteShift} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Delete shift of Anna 10:00–18:00' }))
+  expect(onDeleteShift).toHaveBeenCalledWith(shifts[0])
+})
+
+test('without editing props there is nothing to create or delete', () => {
+  render(<WeekView days={days} shifts={shifts} employeesById={employeesById} today={days[0]} />)
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(screen.getAllByTestId('week-column')[0]).not.toHaveClass('is-creatable')
 })

@@ -44,4 +44,10 @@ const getById = async (barId, id) => {
   return row ? toDto(row) : null
 }
 
-module.exports = { getInRange, getById, create, update, remove }
+// { employeeId -> number of shifts } for the bar's employees that have shifts.
+const countsByEmployee = async (barId) => {
+  const rows = await db('shifts').where({ bar_id: barId }).groupBy('employee_id').select('employee_id').count('* as count')
+  return new Map(rows.map((row) => [row.employee_id, Number(row.count)]))
+}
+
+module.exports = { getInRange, getById, create, update, remove, countsByEmployee }

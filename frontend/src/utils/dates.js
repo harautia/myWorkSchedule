@@ -55,6 +55,14 @@ export const hoursFromOpening = (day, date) => {
   return Math.min(Math.max(hours, 0), DAY_END_HOUR - DAY_START_HOUR)
 }
 
+// The moment 'HH:mm' happens on a bar day. Times before opening are after
+// midnight, i.e. on the next calendar day (02:00 on Monday = Tuesday 02:00).
+export const timeOnBarDay = (day, time) => {
+  const [hours, minutes] = time.split(':').map(Number)
+  const base = addMinutes(startOfDay(day), hours * 60 + minutes)
+  return hours < DAY_START_HOUR ? addDays(base, 1) : base
+}
+
 export const formatTime = (date) => format(date, 'HH:mm')
 export const formatShortTime = (date) => format(date, date.getMinutes() ? 'HH:mm' : 'HH')
 export const formatDayHeader = (date) => format(date, 'EEE d.M.')
@@ -67,7 +75,7 @@ export const formatRangeLabel = (view, date) => {
 
 export const SNAP_MINUTES = 15
 const MIN_SHIFT_MINUTES = 30
-const OPEN_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60
+export const OPEN_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
