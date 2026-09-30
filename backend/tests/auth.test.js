@@ -106,6 +106,21 @@ describe('employeeGroup', () => {
     await mikko.get('/api/day-orders').expect(200)
   })
 
+  test('sees only their own bar, whatever the request says', async () => {
+    const mikko = await loginAs('mikko')
+
+    const bar = await mikko.get('/api/bar').query({ barId: data.other.id }).expect(200)
+    assert.strictEqual(bar.body.name, 'Own Bar')
+    // Other Bar has a saved day order and a shift in this range; neither is shown.
+    const orders = await mikko.get('/api/day-orders').query({ barId: data.other.id }).expect(200)
+    assert.deepStrictEqual(orders.body, {})
+    const shifts = await mikko
+      .get('/api/shifts')
+      .query({ from: '2026-09-21T00:00:00Z', to: '2026-09-28T00:00:00Z', barId: data.other.id })
+      .expect(200)
+    assert.ok(shifts.body.every((shift) => shift.id !== data.otherShift.id))
+  })
+
   test('cannot see employee details or change the schedule', async () => {
     const mikko = await loginAs('mikko')
     await mikko.get('/api/employees/details').expect(403)
