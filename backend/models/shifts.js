@@ -7,10 +7,11 @@ const toDto = (row) => ({
   end: row.end.toISOString()
 })
 
-// Shifts starting in [from, to).
-const getInRange = async (barId, from, to) => {
-  const rows = await db('shifts')
-    .where({ bar_id: barId })
+// Shifts starting in [from, to), optionally only one employee's.
+const getInRange = async (barId, from, to, { employeeId } = {}) => {
+  let query = db('shifts').where({ bar_id: barId })
+  if (employeeId !== undefined) query = query.where({ employee_id: employeeId })
+  const rows = await query
     .where('start', '>=', from)
     .where('start', '<', to)
     .orderBy('start')

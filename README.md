@@ -21,6 +21,12 @@ React (Vite) frontend, Node.js/Express backend and PostgreSQL.
   week to employees; after unlocking, employees keep seeing that snapshot until the week is locked again.
   Weeks never locked show employees no shifts ("not published yet"). The migration locked every week that
   already had shifts; new weeks start in planning.
+- **Step 7 (done):** several bar days can be chosen when adding a shift (one request, all or nothing).
+- **Step 8 (done):** mobile + PWA (phase A). On phones the app has a "My shifts" list, which is the
+  default for employees. The week view shows one day at a time with a day strip, and tables become cards.
+  On touch screens, managers tap a shift to edit or delete it instead of dragging. The app can be installed
+  as a PWA, and the last loaded schedule is shown offline. Phase B ideas: web push when a week is locked,
+  and a personal iCal feed.
 - **Next:** use the bar's opening hours from `GET /api/bar` in the frontend (still constants in `src/utils/dates.js`).
 
 ## Frontend
@@ -47,6 +53,17 @@ npm run lint
 - Above the week view, managers see the week's state with **Lock week** / **Unlock week**. Shifts of a
   locked week can't be added, dragged or deleted. The month view marks locked weeks with 🔒.
 - Click an employee in the legend to hide/show their shifts; click a date in the month view to open that week.
+- **Phones (≤ 640px):**
+  - **My shifts** (toolbar) lists your own shifts for 4 weeks, and it is the default view for employees.
+  - The week view shows one day, picked from a Mon–Sun strip.
+  - The new and edit shift forms open as a sheet from the bottom.
+- **Touch screens:** shifts aren't draggable, so the page scrolls normally. Managers tap a shift to change
+  its employee or times, or to delete it.
+- **PWA:**
+  - `vite-plugin-pwa` builds a manifest (icons in `public/icons/`) and a service worker.
+  - The service worker precaches the app and caches bar data GETs, network first, so the last loaded
+    schedule works offline. The cache is cleared on login and logout.
+  - It only works in a production build (`npm run build`), served over HTTPS or on `localhost`, not in `npm run dev`.
 - The code talking to the backend is in `src/services/`.
 
 ### Data shape
@@ -132,6 +149,7 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | PUT | `/api/employees/:id` | manager | `{ name?, password? }`; renames on the schedule and the account, a new password ends old sessions; not for managers |
 | DELETE | `/api/employees/:id` | manager | deletes the login account, the employee and all their shifts; not for managers |
 | GET | `/api/shifts?from=ISO&to=ISO` | manager, employee | shifts starting in [from, to); managers get live shifts, employees the locked version |
+| GET | `/api/shifts/mine?from=ISO&to=ISO` | manager, employee | the same, but only the logged-in user's own shifts |
 | POST | `/api/shifts` | manager | `{ employeeId, start, end }` |
 | POST | `/api/shifts/batch` | manager | `{ shifts: [{ employeeId, start, end }, ...] }` (1–62); all or nothing |
 | PUT | `/api/shifts/:id` | manager | any of `employeeId`, `start`, `end` |

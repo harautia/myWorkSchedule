@@ -26,7 +26,8 @@ const WeekView = ({
   onShiftChange,
   onOrderChange,
   onCreateAt,
-  onDeleteShift
+  onDeleteShift,
+  onSelectShift
 }) => {
   const orderForDay = (day, list = shifts) =>
     employeeOrder(shiftsOnDay(list, day), dayOrders[dayKey(day)])
@@ -51,7 +52,7 @@ const WeekView = ({
 
   return (
     <div className="week-scroll">
-      <div className="week-grid" style={{ '--hour-height': `${HOUR_HEIGHT}px` }}>
+      <div className="week-grid" style={{ '--hour-height': `${HOUR_HEIGHT}px`, '--days': days.length }}>
         <div className="week-corner" />
         {days.map((day) => (
           <div
@@ -90,6 +91,7 @@ const WeekView = ({
                     dragging={shift.id === draggingId}
                     onDragStart={onShiftChange && startDrag}
                     onDelete={onDeleteShift}
+                    onSelect={onSelectShift}
                     style={{
                       top: top * HOUR_HEIGHT,
                       height: (bottom - top) * HOUR_HEIGHT,

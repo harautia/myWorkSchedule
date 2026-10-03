@@ -92,10 +92,10 @@ const EmployeesPage = () => {
                       <span className="legend-swatch" style={{ '--shift-color': employee.color }} />{' '}
                       {employee.name}
                     </td>
-                    <td>{employee.role}</td>
-                    <td>{employee.account ? employee.account.username : <span className="muted">none</span>}</td>
-                    <td>{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
-                    <td>{employee.shiftCount}</td>
+                    <td data-label="Role">{employee.role}</td>
+                    <td data-label="Login">{employee.account ? employee.account.username : <span className="muted">none</span>}</td>
+                    <td data-label="Groups">{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
+                    <td data-label="Shifts">{employee.shiftCount}</td>
                     <td className="row-actions">
                       {isManager && <span className="muted">managed by admin</span>}
                       {!isManager && editingId !== employee.id && (

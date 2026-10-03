@@ -5,6 +5,7 @@ import SchedulePage from './SchedulePage'
 import shiftService from '../services/shifts'
 import { weekStart } from '../utils/dates'
 import { dayKey } from '../utils/lanes'
+import { clearMedia, mockMedia } from '../test/media'
 
 vi.mock('../services/shifts')
 
@@ -26,6 +27,8 @@ beforeEach(() => {
   shiftService.getDayOrders.mockResolvedValue({})
   withWeek(PLANNING)
 })
+
+afterEach(clearMedia)
 
 const editControls = (container) => container.querySelector('.is-draggable, .is-creatable, .shift-resize, .shift-delete')
 
@@ -123,4 +126,65 @@ test('shifts chosen on several days are saved in one request', async () => {
   expect(shiftService.createShifts).toHaveBeenCalledTimes(1)
   expect(shiftService.createShifts.mock.calls[0][0]).toHaveLength(2)
   expect(screen.queryByRole('form', { name: 'New shift' })).not.toBeInTheDocument()
+})
+
+describe('on a phone', () => {
+  const PHONE = { '(max-width: 640px)': true, '(pointer: coarse)': true }
+
+  test('employees start in My shifts, loaded from their own shifts', async () => {
+    mockMedia(PHONE)
+    withWeek(LOCKED)
+    shiftService.getMyShifts.mockResolvedValue([{ id: 7, employeeId: 2, start: start.toISOString(), end: end.toISOString() }])
+    render(<SchedulePage canEdit={false} employeeId={2} />)
+
+    expect(screen.getByRole('button', { name: 'My shifts' })).toHaveAttribute('aria-pressed', 'true')
+    expect(await screen.findByText('18:00–23:00')).toBeInTheDocument()
+    expect(shiftService.getMyShifts).toHaveBeenCalled()
+    expect(shiftService.getShifts).not.toHaveBeenCalled()
+  })
+
+  test('the week view shows one day at a time, chosen from the day strip', async () => {
+    mockMedia(PHONE)
+    render(<SchedulePage canEdit employeeId={1} />)
+
+    expect(await screen.findAllByTestId('week-column')).toHaveLength(1)
+    const strip = screen.getByRole('group', { name: 'Day' })
+    const days = within(strip).getAllByRole('button')
+    expect(days).toHaveLength(7)
+    const other = days.find((day) => day.getAttribute('aria-pressed') === 'false')
+    await userEvent.click(other)
+    expect(other).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  test('managers tap a shift to edit it instead of dragging', async () => {
+    mockMedia(PHONE)
+    shiftService.updateShift.mockImplementation((id, changes) => Promise.resolve({ id, ...changes }))
+    const { container } = render(<SchedulePage canEdit employeeId={1} />)
+
+    await userEvent.click(await screen.findByRole('button', { name: /Edit shift of Mikko/ }))
+    expect(container.querySelector('.is-draggable, .shift-resize, .shift-delete')).toBeNull()
+
+    const form = screen.getByRole('form', { name: 'Edit shift' })
+    await userEvent.clear(within(form).getByLabelText('Start'))
+    await userEvent.type(within(form).getByLabelText('Start'), '19:00')
+    await userEvent.click(within(form).getByRole('button', { name: 'Save' }))
+
+    expect(shiftService.updateShift).toHaveBeenCalledWith(7, expect.objectContaining({ employeeId: 2 }))
+    expect(screen.queryByRole('form', { name: 'Edit shift' })).not.toBeInTheDocument()
+  })
+
+  test('nothing can be tapped open in a locked week', async () => {
+    mockMedia(PHONE)
+    withWeek(LOCKED)
+    render(<SchedulePage canEdit employeeId={1} />)
+
+    expect(await screen.findByText('Mikko', { selector: 'strong' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Edit shift of/ })).not.toBeInTheDocument()
+  })
+})
+
+test('people not on the schedule get no My shifts view', async () => {
+  render(<SchedulePage canEdit />)
+  await screen.findByText('Mikko', { selector: 'strong' })
+  expect(screen.queryByRole('button', { name: 'My shifts' })).not.toBeInTheDocument()
 })

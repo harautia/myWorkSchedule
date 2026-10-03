@@ -2,6 +2,12 @@ import api from './api'
 
 const getEmployees = () => api.get('/employees').then((res) => res.data)
 
+// The logged-in user's own shifts starting in [from, to) (published ones for employees).
+const getMyShifts = (from, to) =>
+  api
+    .get('/shifts/mine', { params: { from: from.toISOString(), to: to.toISOString() } })
+    .then((res) => res.data)
+
 // Shifts starting in [from, to)
 const getShifts = (from, to) =>
   api
@@ -32,4 +38,4 @@ const lockWeek = (week) => api.post(`/schedule-weeks/${week}/lock`).then((res) =
 // Allows changes again; employees keep seeing the locked version until it is locked again.
 const unlockWeek = (week) => api.post(`/schedule-weeks/${week}/unlock`).then((res) => res.data)
 
-export default { getEmployees, getShifts, createShifts, updateShift, deleteShift, getWeeks, lockWeek, unlockWeek, getDayOrders, saveDayOrder }
+export default { getEmployees, getShifts, getMyShifts, createShifts, updateShift, deleteShift, getWeeks, lockWeek, unlockWeek, getDayOrders, saveDayOrder }

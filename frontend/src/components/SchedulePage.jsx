@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import CalendarToolbar from './CalendarToolbar'
+import DayStrip from './DayStrip'
+import EditShiftForm from './EditShiftForm'
 import EmployeeLegend from './EmployeeLegend'
 import MonthView from './MonthView'
+import MyShiftsList from './MyShiftsList'
 import NewShiftForm from './NewShiftForm'
 import WeekStatusBar from './WeekStatusBar'
 import WeekView from './WeekView'
 import shiftService from '../services/shifts'
+import useMediaQuery, { NARROW_SCREEN, TOUCH_POINTER } from '../hooks/useMediaQuery'
 import {
+  agendaWeeks,
   formatRangeLabel,
   formatTime,
   isSameDay,
@@ -25,8 +30,14 @@ const toShift = (data) => ({ ...data, start: new Date(data.start), end: new Date
 // Managers (canEdit) add, drag and delete shifts in weeks being planned, and
 // lock a week when it is ready. Employees only see it; the backend gives them
 // the locked version of each week.
-const SchedulePage = ({ canEdit }) => {
-  const [view, setView] = useState('week')
+// On phones the week view shows one day at a time, and on touch screens
+// shifts are tapped to edit instead of dragged. Anyone on the schedule
+// (employeeId) also has "My shifts", the default for employees on phones.
+const SchedulePage = ({ canEdit, employeeId }) => {
+  const isNarrow = useMediaQuery(NARROW_SCREEN)
+  const isTouch = useMediaQuery(TOUCH_POINTER)
+  const views = employeeId ? ['mine', 'week', 'month'] : ['week', 'month']
+  const [view, setView] = useState(() => (employeeId && !canEdit && isNarrow ? 'mine' : 'week'))
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [employees, setEmployees] = useState([])
   const [shifts, setShifts] = useState([])
@@ -37,6 +48,8 @@ const SchedulePage = ({ canEdit }) => {
   const [hiddenIds, setHiddenIds] = useState(() => new Set())
   // Where the new shift form was opened: { day, startMinutes }, or null.
   const [newShiftAt, setNewShiftAt] = useState(null)
+  // Touch screens: the shift tapped for editing, or null.
+  const [editingShift, setEditingShift] = useState(null)
   const [actionError, setActionError] = useState(null)
   const today = new Date()
 
@@ -52,12 +65,13 @@ const SchedulePage = ({ canEdit }) => {
   const loadSchedule = useCallback(() => {
     const rangeFrom = new Date(fromTime)
     const rangeTo = new Date(toTime)
+    const getShifts = view === 'mine' ? shiftService.getMyShifts : shiftService.getShifts
     return Promise.all([
-      shiftService.getShifts(rangeFrom, rangeTo).then((data) => setShifts(data.map(toShift))),
+      getShifts(rangeFrom, rangeTo).then((data) => setShifts(data.map(toShift))),
       shiftService.getWeeks(dayKey(rangeFrom), dayKey(rangeTo)).then(setWeeks),
       shiftService.getDayOrders().then(setDayOrders)
     ])
-  }, [fromTime, toTime])
+  }, [fromTime, toTime, view])
 
   useEffect(() => {
     loadSchedule()
@@ -132,11 +146,43 @@ const SchedulePage = ({ canEdit }) => {
     }
   }
 
-  // "Add shift": today if it's on screen, otherwise the first visible day.
-  const openNewShift = () => {
-    const days = weekDays(currentDate)
-    setNewShiftAt({ day: days.find((d) => isSameDay(d, today)) ?? days[0], startMinutes: 0 })
+  // Only one of the new and edit forms is open at a time.
+  const openNewShiftAt = (day, startMinutes) => {
+    setEditingShift(null)
+    setNewShiftAt({ day, startMinutes })
   }
+
+  const openEdit = (shift) => {
+    setNewShiftAt(null)
+    setEditingShift(shift)
+  }
+
+  // Saves the changes from the touch edit form.
+  const handleEditSave = async (changes) => {
+    const saved = toShift(await shiftService.updateShift(editingShift.id, {
+      employeeId: changes.employeeId,
+      start: changes.start.toISOString(),
+      end: changes.end.toISOString()
+    }))
+    setShifts((prev) => prev.map((s) => (s.id === saved.id ? saved : s)))
+    setEditingShift(null)
+  }
+
+  const handleEditDelete = async () => {
+    if (!window.confirm('Delete this shift?')) return
+    await shiftService.deleteShift(editingShift.id)
+    setShifts((prev) => prev.filter((s) => s.id !== editingShift.id))
+    setEditingShift(null)
+  }
+
+  // The week view's days: the whole week, or on phones only the chosen day.
+  const weekViewDays = isNarrow
+    ? weekDays(currentDate).filter((day) => isSameDay(day, currentDate))
+    : weekDays(currentDate)
+
+  // "Add shift": today if it's on screen, otherwise the first shown day.
+  const openNewShift = () =>
+    openNewShiftAt(weekViewDays.find((d) => isSameDay(d, today)) ?? weekViewDays[0], 0)
 
   const handleOrderChange = (day, order) => {
     const key = dayKey(day)
@@ -150,6 +196,7 @@ const SchedulePage = ({ canEdit }) => {
       const saved = await change(weekKey)
       setWeeks((prev) => ({ ...prev, [weekKey]: saved }))
       setNewShiftAt(null)
+      setEditingShift(null)
       setActionError(null)
     } catch (err) {
       handleSaveError(err)
@@ -167,13 +214,16 @@ const SchedulePage = ({ canEdit }) => {
       <CalendarToolbar
         label={formatRangeLabel(view, currentDate)}
         view={view}
+        views={views}
         onViewChange={setView}
         onPrev={() => setCurrentDate((d) => shiftDate(view, d, -1))}
         onNext={() => setCurrentDate((d) => shiftDate(view, d, 1))}
         onToday={() => setCurrentDate(new Date())}
       />
-      <EmployeeLegend employees={employees} hiddenIds={hiddenIds} onToggle={toggleEmployee} />
-      {!canEdit && <p className="page-note">View only: ask a manager to change shifts.</p>}
+      {view !== 'mine' && (
+        <EmployeeLegend employees={employees} hiddenIds={hiddenIds} onToggle={toggleEmployee} />
+      )}
+      {!canEdit && view !== 'mine' && <p className="page-note">View only: ask a manager to change shifts.</p>}
       {view === 'week' && (
         <WeekStatusBar
           week={week}
@@ -195,21 +245,47 @@ const SchedulePage = ({ canEdit }) => {
           onCancel={() => setNewShiftAt(null)}
         />
       )}
+      {weekEditable && editingShift && (
+        <EditShiftForm
+          key={editingShift.id}
+          shift={editingShift}
+          employees={employees}
+          onSave={handleEditSave}
+          onDelete={handleEditDelete}
+          onCancel={() => setEditingShift(null)}
+        />
+      )}
       {actionError && <p className="form-error" role="alert">{actionError}</p>}
 
-      {view === 'week' ? (
+      {view === 'week' && isNarrow && (
+        <DayStrip days={weekDays(currentDate)} selected={currentDate} today={today} onSelect={setCurrentDate} />
+      )}
+      {view === 'mine' && (
+        <MyShiftsList
+          weekStarts={agendaWeeks(currentDate)}
+          weeks={weeks}
+          shifts={shifts}
+          employee={employeesById[employeeId]}
+          today={today}
+          canEdit={canEdit}
+        />
+      )}
+      {view === 'week' && (
         <WeekView
-          days={weekDays(currentDate)}
+          days={weekViewDays}
           shifts={visibleShifts}
           employeesById={employeesById}
           today={today}
           dayOrders={dayOrders}
-          onShiftChange={weekEditable ? handleShiftChange : undefined}
-          onOrderChange={weekEditable ? handleOrderChange : undefined}
-          onCreateAt={weekEditable ? (day, startMinutes) => setNewShiftAt({ day, startMinutes }) : undefined}
-          onDeleteShift={weekEditable ? handleDelete : undefined}
+          // Dragging only with a mouse; on touch screens shifts are tapped.
+          onShiftChange={weekEditable && !isTouch ? handleShiftChange : undefined}
+          onOrderChange={weekEditable && !isTouch ? handleOrderChange : undefined}
+          onDeleteShift={weekEditable && !isTouch ? handleDelete : undefined}
+          onSelectShift={weekEditable && isTouch ? openEdit : undefined}
+          onCreateAt={weekEditable ? openNewShiftAt : undefined}
         />
-      ) : (
+      )}
+      {view === 'month' && (
         <MonthView
           days={monthGrid(currentDate)}
           currentDate={currentDate}

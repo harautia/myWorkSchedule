@@ -65,7 +65,7 @@ const NewShiftForm = ({ employees, day, startMinutes, onSave, onCancel }) => {
 
   const count = chosenDays.length
   return (
-    <form className="card" onSubmit={handleSubmit} aria-label="New shift">
+    <form className="card shift-sheet" onSubmit={handleSubmit} aria-label="New shift">
       <h3 className="card-title">New shift</h3>
       <div className="form-grid">
         <label className="form-field">

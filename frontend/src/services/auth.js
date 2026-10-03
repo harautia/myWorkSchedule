@@ -1,11 +1,18 @@
 import api from './api'
+import { clearOfflineData } from './offline'
 
 // user = { id, username, name, groups: [...], barId, barName, employeeId }
 
-const login = (username, password) =>
-  api.post('/login', { username, password }).then((res) => res.data)
+const login = async (username, password) => {
+  const res = await api.post('/login', { username, password })
+  await clearOfflineData()
+  return res.data
+}
 
-const logout = () => api.post('/logout')
+const logout = async () => {
+  await clearOfflineData()
+  return api.post('/logout')
+}
 
 // The logged-in user, or null when there is no valid session.
 const getCurrentUser = () =>

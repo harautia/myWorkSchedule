@@ -1,9 +1,10 @@
-const VIEWS = [
-  { key: 'week', label: 'Week' },
-  { key: 'month', label: 'Month' }
-]
+const VIEW_LABELS = {
+  mine: 'My shifts',
+  week: 'Week',
+  month: 'Month'
+}
 
-const CalendarToolbar = ({ label, view, onViewChange, onPrev, onNext, onToday }) => (
+const CalendarToolbar = ({ label, view, views = ['week', 'month'], onViewChange, onPrev, onNext, onToday }) => (
   <div className="calendar-toolbar">
     <div className="toolbar-group">
       <button type="button" className="btn btn-nav" onClick={onPrev} aria-label="Previous">
@@ -18,7 +19,7 @@ const CalendarToolbar = ({ label, view, onViewChange, onPrev, onNext, onToday })
     </div>
     <h2 className="calendar-label">{label}</h2>
     <div className="toolbar-group segmented" role="group" aria-label="Calendar view">
-      {VIEWS.map(({ key, label }) => (
+      {views.map((key) => (
         <button
           key={key}
           type="button"
@@ -26,7 +27,7 @@ const CalendarToolbar = ({ label, view, onViewChange, onPrev, onNext, onToday })
           aria-pressed={view === key}
           onClick={() => onViewChange(key)}
         >
-          {label}
+          {VIEW_LABELS[key]}
         </button>
       ))}
     </div>

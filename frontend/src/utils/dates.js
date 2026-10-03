@@ -36,13 +36,24 @@ export const monthGrid = (date) => {
   return Array.from({ length: 42 }, (_, i) => addDays(start, i))
 }
 
+// The "My shifts" list shows this many weeks at a time.
+export const AGENDA_WEEKS = 4
+
+// The weeks (their Mondays) of the "My shifts" list starting from date's week.
+export const agendaWeeks = (date) =>
+  Array.from({ length: AGENDA_WEEKS }, (_, i) => addWeeks(weekStart(date), i))
+
+// Views: 'mine' (My shifts list), 'week', 'month'.
 export const visibleRange = (view, date) => {
+  if (view === 'mine') return { from: weekStart(date), to: addWeeks(weekStart(date), AGENDA_WEEKS) }
   const days = view === 'week' ? weekDays(date) : monthGrid(date)
   return { from: days[0], to: addDays(days[days.length - 1], 1) }
 }
 
-export const shiftDate = (view, date, amount) =>
-  view === 'week' ? addWeeks(date, amount) : addMonths(date, amount)
+export const shiftDate = (view, date, amount) => {
+  if (view === 'mine') return addWeeks(date, amount * AGENDA_WEEKS)
+  return view === 'week' ? addWeeks(date, amount) : addMonths(date, amount)
+}
 
 // A shift starting at 01:00 still belongs to the previous evening's bar day.
 export const barDay = (date) => startOfDay(subHours(date, DAY_END_HOUR - 24))
@@ -70,8 +81,8 @@ export const formatDayHeader = (date) => format(date, 'EEE d.M.')
 
 export const formatRangeLabel = (view, date) => {
   if (view === 'month') return format(date, 'MMMM yyyy')
-  const days = weekDays(date)
-  return `${format(days[0], 'd.M.')} – ${format(days[6], 'd.M.yyyy')}`
+  const { from, to } = visibleRange(view, date)
+  return `${format(from, 'd.M.')} – ${format(addDays(to, -1), 'd.M.yyyy')}`
 }
 
 export const SNAP_MINUTES = 15

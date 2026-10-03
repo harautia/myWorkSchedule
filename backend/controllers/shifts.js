@@ -32,19 +32,34 @@ const lockedWeekOf = async (barId, ...starts) => {
   return null
 }
 
-// GET /api/shifts?from=ISO&to=ISO -> shifts starting in [from, to). Managers
-// see the live schedule; employees see the version of the last lock.
-shiftsRouter.get('/', async (request, response) => {
+// Managers see the live schedule; employees see the version of the last lock.
+const shiftsFor = (request, from, to, filter) =>
+  request.user.groups.includes(MANAGER)
+    ? Shifts.getInRange(request.barId, from, to, filter)
+    : ScheduleWeeks.publishedShifts(request.barId, from, to, filter)
+
+// Reads ?from=ISO&to=ISO into request.range, or answers 400.
+const parseRange = (request, response, next) => {
   const from = parseTimestamp(request.query.from)
   const to = parseTimestamp(request.query.to)
   if (!from || !to) {
     return response.status(400).json({ error: 'from and to query parameters must be ISO timestamps' })
   }
+  request.range = { from, to }
+  next()
+}
 
-  const shifts = request.user.groups.includes(MANAGER)
-    ? await Shifts.getInRange(request.barId, from, to)
-    : await ScheduleWeeks.publishedShifts(request.barId, from, to)
-  response.json(shifts)
+// GET /api/shifts?from=ISO&to=ISO -> shifts starting in [from, to)
+shiftsRouter.get('/', parseRange, async (request, response) => {
+  response.json(await shiftsFor(request, request.range.from, request.range.to))
+})
+
+// GET /api/shifts/mine?from=ISO&to=ISO -> the logged-in user's own shifts,
+// for the "My shifts" list. Empty for an account without a schedule entry.
+shiftsRouter.get('/mine', parseRange, async (request, response) => {
+  const { employeeId } = request.user
+  if (!employeeId) return response.json([])
+  response.json(await shiftsFor(request, request.range.from, request.range.to, { employeeId }))
 })
 
 // Changing the schedule is for managers, and only in weeks that aren't

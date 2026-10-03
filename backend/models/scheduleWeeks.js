@@ -82,9 +82,10 @@ const unlock = (barId, week) =>
     .update({ status: PLANNING, updated_at: db.fn.now() })
 
 // The locked version of shifts starting in [from, to), shaped like live shifts.
-const publishedShifts = async (barId, from, to) => {
-  const rows = await db('published_shifts')
-    .where({ bar_id: barId })
+const publishedShifts = async (barId, from, to, { employeeId } = {}) => {
+  let query = db('published_shifts').where({ bar_id: barId })
+  if (employeeId !== undefined) query = query.where({ employee_id: employeeId })
+  const rows = await query
     .where('start', '>=', from)
     .where('start', '<', to)
     .orderBy('start')

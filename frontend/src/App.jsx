@@ -6,6 +6,7 @@ import LoginPage from './components/LoginPage'
 import SchedulePage from './components/SchedulePage'
 import authService from './services/auth'
 import { setUnauthorizedHandler } from './services/api'
+import useOnline from './hooks/useOnline'
 import { canEditSchedule, pagesFor } from './utils/access'
 
 const PAGE_LABELS = {
@@ -18,6 +19,7 @@ const App = () => {
   // undefined = still checking the session, null = logged out
   const [user, setUser] = useState(undefined)
   const [page, setPage] = useState(null)
+  const online = useOnline()
 
   useEffect(() => {
     setUnauthorizedHandler(() => setUser(null))
@@ -54,6 +56,12 @@ const App = () => {
         </div>
       </header>
 
+      {!online && (
+        <p className="offline-banner" role="status">
+          You are offline. Showing the schedule as it was last loaded; changes can&apos;t be saved.
+        </p>
+      )}
+
       {pages.length > 1 && (
         <nav aria-label="Pages">
           {pages.map((key) => (
@@ -70,7 +78,7 @@ const App = () => {
         </nav>
       )}
 
-      {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} />}
+      {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} employeeId={user.employeeId} />}
       {activePage === 'employees' && <EmployeesPage />}
       {activePage === 'bars' && <BarsPage />}
       {!activePage && <p className="page-note">Your account has no pages yet. Ask an admin to add you to a group.</p>}

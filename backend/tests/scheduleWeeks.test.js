@@ -180,3 +180,31 @@ describe('adding shifts in one go', () => {
     await mikko.post('/api/shifts/batch').send({ shifts: [evening(22)] }).expect(403)
   })
 })
+
+describe('my shifts', () => {
+  const mine = async (agent) => (await agent.get('/api/shifts/mine').query(RANGE).expect(200)).body
+
+  test('an employee sees only their own published shifts', async () => {
+    await anna.post('/api/shifts/batch').send({
+      shifts: [{ employeeId: data.mikko.id, start: '2026-09-22T15:00:00Z', end: '2026-09-22T23:00:00Z' }]
+    }).expect(201)
+    assert.deepStrictEqual(await mine(mikko), [])
+
+    await lock().expect(200)
+    const shifts = await mine(mikko)
+    assert.deepStrictEqual(shifts.map((s) => [s.employeeId, s.start]), [[data.mikko.id, '2026-09-22T15:00:00.000Z']])
+  })
+
+  test('a manager sees their own live shifts', async () => {
+    const shifts = await mine(anna)
+    assert.deepStrictEqual(shifts.map((s) => s.id), [data.ownShift.id])
+  })
+
+  test('an account without a schedule entry has none, and the range is required', async () => {
+    const [kalle] = await db('users').insert({ username: 'kalle', name: 'Kalle', bar_id: data.own.id, password_hash: (await db('users').where({ username: 'mikko' }).first()).password_hash }).returning('id')
+    await db('user_groups').insert({ user_id: kalle.id, group_name: 'employeeGroup' })
+
+    assert.deepStrictEqual(await mine(await loginAs('kalle')), [])
+    await mikko.get('/api/shifts/mine').expect(400)
+  })
+})

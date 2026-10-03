@@ -129,9 +129,9 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
                 <Fragment key={user.id}>
                   <tr>
                     <td>{user.name}</td>
-                    <td>{user.username}</td>
-                    <td><GroupBadges groups={user.groups} /></td>
-                    <td>
+                    <td data-label="Username">{user.username}</td>
+                    <td data-label="Groups"><GroupBadges groups={user.groups} /></td>
+                    <td data-label="On schedule as">
                       {user.employee ? `${user.employee.name} (${user.employee.role})` : <span className="muted">not linked</span>}
                     </td>
                     <td className="row-actions">

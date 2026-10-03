@@ -233,9 +233,10 @@ nav {
 }
 
 .week-grid {
+  /* --days is set by WeekView: 7, or 1 on phones */
   display: grid;
-  grid-template-columns: 52px repeat(7, minmax(170px, 1fr));
-  min-width: 1242px;
+  grid-template-columns: 52px repeat(var(--days, 7), minmax(170px, 1fr));
+  min-width: calc(52px + var(--days, 7) * 170px);
 }
 
 .week-corner,
@@ -926,4 +927,202 @@ nav {
 
 .danger-zone .card-title {
   color: var(--color-error);
+}
+
+/* ---------- Phones and touch screens ---------- */
+
+.offline-banner {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-sm);
+}
+
+.shift-block.is-selectable {
+  cursor: pointer;
+}
+
+.form-actions-end {
+  margin-left: auto;
+}
+
+/* Phones: the week's days as buttons above the one-day view */
+.day-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.day-strip-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 48px;
+  padding: var(--space-1) 0;
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.day-strip-weekday {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.day-strip-date {
+  font-weight: 600;
+}
+
+.day-strip-day.is-today {
+  border-color: var(--color-brand-500);
+}
+
+.day-strip-day[aria-pressed='true'] {
+  color: var(--color-text-inverse);
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-600);
+}
+
+.day-strip-day[aria-pressed='true'] .day-strip-weekday {
+  color: inherit;
+}
+
+/* My shifts: the person's own shifts as a list */
+.my-shifts {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.my-shifts-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-base);
+}
+
+.my-shifts-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.my-shift {
+  display: grid;
+  grid-template-columns: 7rem 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--shift-color, var(--color-brand-500)) 10%, white);
+  border-left: 4px solid var(--shift-color, var(--color-brand-500));
+  border-radius: var(--radius-sm);
+}
+
+.my-shift-time {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.my-shift.is-today {
+  box-shadow: 0 0 0 2px var(--color-brand-500);
+}
+
+.my-shift.is-past {
+  opacity: 0.55;
+}
+
+/* Fingers need bigger targets */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+  }
+
+  .legend-item {
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: var(--space-2);
+  }
+
+  .week-status .btn {
+    flex: 1 1 auto;
+  }
+
+  /* New and edit shift forms slide up from the bottom */
+  .shift-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    max-height: 85vh;
+    margin: 0;
+    overflow-y: auto;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 0.18);
+  }
+
+  .day-picker {
+    max-width: none;
+  }
+
+  /* Tables become one card per row, each value labelled */
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .data-table tr {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .data-table td {
+    padding: var(--space-1) var(--space-3);
+    border: none;
+  }
+
+  .data-table .num {
+    text-align: left;
+  }
+
+  .data-table td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .data-table td:empty {
+    display: none;
+  }
+
+  .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
 }

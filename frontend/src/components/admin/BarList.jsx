@@ -46,11 +46,11 @@ const BarList = ({ notice, onOpen, onNew }) => {
                     {bar.name}
                   </button>
                 </td>
-                <td>{bar.opensAt}–{bar.closesAt}</td>
-                <td>{bar.timezone}</td>
-                <td className="num">{bar.employeeCount}</td>
-                <td className="num">{bar.userCount}</td>
-                <td>{new Date(bar.createdAt).toLocaleDateString('fi-FI')}</td>
+                <td data-label="Open">{bar.opensAt}–{bar.closesAt}</td>
+                <td data-label="Timezone">{bar.timezone}</td>
+                <td className="num" data-label="Employees">{bar.employeeCount}</td>
+                <td className="num" data-label="Users">{bar.userCount}</td>
+                <td data-label="Created">{new Date(bar.createdAt).toLocaleDateString('fi-FI')}</td>
               </tr>
             ))}
           </tbody>
