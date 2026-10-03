@@ -16,6 +16,11 @@ React (Vite) frontend, Node.js/Express backend and PostgreSQL.
   waiter, with an `employeeGroup` login in the manager's own bar), rename, set a new password, remove
   (deletes the login, the employee and all their shifts). Managers' accounts stay admin-only.
   On the schedule, managers add shifts (click an empty spot in the week view, or "Add shift") and delete them (×).
+- **Step 6 (done):** planning and locked weeks. Each bar week (Mon–Sun bar days) is either in
+  *planning* (managers can change it) or *locked* (nobody can). Locking publishes a snapshot of the
+  week to employees; after unlocking, employees keep seeing that snapshot until the week is locked again.
+  Weeks never locked show employees no shifts ("not published yet"). The migration locked every week that
+  already had shifts; new weeks start in planning.
 - **Next:** use the bar's opening hours from `GET /api/bar` in the frontend (still constants in `src/utils/dates.js`).
 
 ## Frontend
@@ -37,6 +42,10 @@ npm run lint
   left/right = position in the day), or drag its bottom edge to
   change the end time. Snaps to 15 min and stays within opening hours. Changes are saved to the backend.
 - Managers add a shift by clicking an empty spot in a day (or with "Add shift"), and delete one with its × button.
+  In the new-shift form several bar days can be chosen in a small calendar; the same shift is then added on
+  every chosen day in one request (days in locked weeks can't be chosen).
+- Above the week view, managers see the week's state with **Lock week** / **Unlock week**. Shifts of a
+  locked week can't be added, dragged or deleted. The month view marks locked weeks with 🔒.
 - Click an employee in the legend to hide/show their shifts; click a date in the month view to open that week.
 - The code talking to the backend is in `src/services/`.
 
@@ -122,9 +131,17 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | POST | `/api/employees` | manager | `{ username, name, password }`; adds a waiter with an employeeGroup login to the manager's bar |
 | PUT | `/api/employees/:id` | manager | `{ name?, password? }`; renames on the schedule and the account, a new password ends old sessions; not for managers |
 | DELETE | `/api/employees/:id` | manager | deletes the login account, the employee and all their shifts; not for managers |
-| GET | `/api/shifts?from=ISO&to=ISO` | manager, employee | shifts starting in [from, to) |
+| GET | `/api/shifts?from=ISO&to=ISO` | manager, employee | shifts starting in [from, to); managers get live shifts, employees the locked version |
 | POST | `/api/shifts` | manager | `{ employeeId, start, end }` |
+| POST | `/api/shifts/batch` | manager | `{ shifts: [{ employeeId, start, end }, ...] }` (1–62); all or nothing |
 | PUT | `/api/shifts/:id` | manager | any of `employeeId`, `start`, `end` |
 | DELETE | `/api/shifts/:id` | manager | |
-| GET | `/api/day-orders` | manager, employee | `{ 'yyyy-MM-dd': [employeeId, ...] }`, optional `from`/`to` dates |
+| GET | `/api/day-orders` | manager, employee | `{ 'yyyy-MM-dd': [employeeId, ...] }`, optional `from`/`to` dates; employees get the locked version |
 | PUT | `/api/day-orders/:day` | manager | `{ order: [employeeId, ...] }` |
+| GET | `/api/schedule-weeks?from=yyyy-MM-dd&to=yyyy-MM-dd` | manager, employee | `{ monday: { status, lockedAt, lockedBy, published } }` for weeks overlapping the range |
+| POST | `/api/schedule-weeks/:monday/lock` | manager | publishes the week's shifts and day orders to employees and stops changes |
+| POST | `/api/schedule-weeks/:monday/unlock` | manager | allows changes again; employees keep the last locked version |
+
+Changing a shift or day order in a locked week answers 409 (also moving a shift into or out of one).
+The week of a shift is the Monday of its bar day in the bar's timezone (before `closes_at` counts as the
+previous day), see `backend/utils/weeks.js`. Removing an employee also removes their shifts from locked weeks.

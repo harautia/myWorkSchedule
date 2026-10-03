@@ -23,6 +23,7 @@ beforeEach(() => {
   shiftService.getEmployees.mockResolvedValue([])
   shiftService.getShifts.mockResolvedValue([])
   shiftService.getDayOrders.mockResolvedValue({})
+  shiftService.getWeeks.mockResolvedValue({})
   adminService.getBars.mockResolvedValue([
     { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', employeeCount: 7, userCount: 3, createdAt: '2026-09-26T00:00:00Z' },
     { id: 2, name: 'Harbour Pub', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', employeeCount: 3, userCount: 2, createdAt: '2026-09-26T00:00:00Z' }

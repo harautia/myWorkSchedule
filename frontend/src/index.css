@@ -371,6 +371,125 @@ nav {
   }
 }
 
+/* Week planning state */
+.week-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.week-status.is-planning {
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
+}
+
+.week-status-text {
+  flex: 1 1 16rem;
+}
+
+.status-badge {
+  padding: 2px var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: 999px;
+}
+
+.status-badge.is-locked {
+  color: var(--color-brand-700);
+  background: var(--color-brand-100);
+}
+
+.status-badge.is-planning {
+  color: var(--color-warning);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-warning-border);
+}
+
+.month-day.is-locked {
+  background-color: color-mix(in srgb, var(--color-brand-100) 45%, transparent);
+}
+
+.month-lock {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  font-size: 0.7rem;
+}
+
+/* Choosing several bar days for new shifts */
+.day-picker {
+  max-width: 22rem;
+  color: var(--color-text);
+}
+
+.day-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-1);
+}
+
+.day-picker-month {
+  font-weight: 600;
+}
+
+.day-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day-picker-weekday {
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.day-picker-day {
+  aspect-ratio: 1;
+  padding: 0;
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.day-picker-day.is-outside {
+  color: var(--color-text-placeholder);
+}
+
+.day-picker-day:hover:not(:disabled) {
+  border-color: var(--color-brand-500);
+}
+
+.day-picker-day.is-selected {
+  color: var(--color-text-inverse);
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-600);
+}
+
+.day-picker-day:disabled {
+  cursor: not-allowed;
+  background: var(--color-bg);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.day-picker-day:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 /* Month view */
 .month-grid {
   display: grid;
@@ -391,6 +510,7 @@ nav {
 }
 
 .month-day {
+  position: relative;
   min-height: 108px;
   padding: var(--space-1);
   border-right: 1px solid var(--color-border);

@@ -10,6 +10,7 @@ const barRouter = require('./controllers/bar')
 const employeesRouter = require('./controllers/employees')
 const shiftsRouter = require('./controllers/shifts')
 const dayOrdersRouter = require('./controllers/dayOrders')
+const scheduleWeeksRouter = require('./controllers/scheduleWeeks')
 
 const app = express()
 
@@ -38,6 +39,7 @@ app.use('/api/bar', barMember, barRouter)
 app.use('/api/employees', barMember, employeesRouter)
 app.use('/api/shifts', barMember, shiftsRouter)
 app.use('/api/day-orders', barMember, dayOrdersRouter)
+app.use('/api/schedule-weeks', barMember, scheduleWeeksRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

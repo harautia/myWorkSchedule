@@ -47,3 +47,15 @@ test('clicking a day number selects that day', async () => {
   await userEvent.click(screen.getByLabelText(`Show week of ${new Date(2026, 8, 10).toDateString()}`))
   expect(onSelectDay).toHaveBeenCalledWith(new Date(2026, 8, 10))
 })
+
+test('marks the days of locked weeks, with a lock on the Monday', () => {
+  render(
+    <MonthView days={days} currentDate={currentDate} shifts={[]} employeesById={employeesById}
+      today={days[0]} lockedWeeks={new Set(['2026-09-14'])} onSelectDay={() => {}} />
+  )
+  const cells = screen.getAllByTestId('month-day')
+  // The grid starts on Monday 31.8., so 14.9. is at index 14.
+  expect(cells.slice(14, 21).every((cell) => cell.classList.contains('is-locked'))).toBe(true)
+  expect(cells[21]).not.toHaveClass('is-locked')
+  expect(screen.getAllByTitle('Week locked')).toHaveLength(1)
+})

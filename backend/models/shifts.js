@@ -24,6 +24,15 @@ const create = async (barId, { employeeId, start, end }) => {
   return toDto(row)
 }
 
+// Several shifts at once, e.g. the same shift on several days. Pass a
+// transaction to make it all-or-nothing.
+const createMany = async (barId, shifts, conn = db) => {
+  const rows = await conn('shifts')
+    .insert(shifts.map(({ employeeId, start, end }) => ({ bar_id: barId, employee_id: employeeId, start, end })))
+    .returning('*')
+  return rows.map(toDto).sort((a, b) => a.start.localeCompare(b.start))
+}
+
 const update = async (barId, id, { employeeId, start, end }) => {
   const changes = { updated_at: db.fn.now() }
   if (employeeId !== undefined) changes.employee_id = employeeId
@@ -50,4 +59,4 @@ const countsByEmployee = async (barId) => {
   return new Map(rows.map((row) => [row.employee_id, Number(row.count)]))
 }
 
-module.exports = { getInRange, getById, create, update, remove, countsByEmployee }
+module.exports = { getInRange, getById, create, createMany, update, remove, countsByEmployee }

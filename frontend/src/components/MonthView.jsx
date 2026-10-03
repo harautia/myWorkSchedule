@@ -1,4 +1,4 @@
-import { formatShortTime, isSameDay, isSameMonth } from '../utils/dates'
+import { formatShortTime, isSameDay, isSameMonth, weekStart } from '../utils/dates'
 import { dayKey, employeeOrder, shiftsOnDay } from '../utils/lanes'
 
 const MAX_CHIPS = 3
@@ -11,6 +11,7 @@ const MonthView = ({
   employeesById,
   today,
   dayOrders = {},
+  lockedWeeks,
   onSelectDay
 }) => (
   <div className="month-grid">
@@ -27,6 +28,9 @@ const MonthView = ({
       const classes = ['month-day']
       if (!isSameMonth(day, currentDate)) classes.push('is-outside')
       if (isSameDay(day, today)) classes.push('is-today')
+      // Managers: mark the days of locked weeks, with a lock on each Monday.
+      const locked = lockedWeeks?.has(dayKey(weekStart(day)))
+      if (locked) classes.push('is-locked')
 
       return (
         <div key={day.toISOString()} className={classes.join(' ')} data-testid="month-day">
@@ -38,6 +42,9 @@ const MonthView = ({
           >
             {day.getDate()}
           </button>
+          {locked && day.getDay() === 1 && (
+            <span className="month-lock" title="Week locked">🔒</span>
+          )}
           <ul className="month-chips">
             {dayShifts.slice(0, MAX_CHIPS).map((shift) => {
               const employee = employeesById[shift.employeeId]

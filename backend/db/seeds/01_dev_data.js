@@ -1,9 +1,12 @@
 // Development data: two bars with employees, shifts and login accounts.
 // Shifts are generated for the previous, current and next four weeks
 // (relative to when the seed is run) so the calendar has something to show.
+// The previous, current and next week are locked (published to employees);
+// the later weeks are still in planning.
 //
 // All accounts use the password DEV_PASSWORD. Never run this in production.
 const { hashPassword } = require('../../utils/passwords')
+const ScheduleWeeks = require('../../models/scheduleWeeks')
 
 const DEV_PASSWORD = 'secret'
 
@@ -34,6 +37,12 @@ const weekStart = (date) => {
   monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
   return monday
 }
+
+const LOCKED_WEEKS = 3
+
+// 'yyyy-MM-dd' of a local date.
+const toDayKey = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
 const atHour = (day, dayOffset, hour) =>
   new Date(day.getFullYear(), day.getMonth(), day.getDate() + dayOffset, hour)
@@ -87,6 +96,7 @@ const insertUser = async (knex, { username, name, barId, employeeId, groups, pas
     .insert({ username, name, bar_id: barId, employee_id: employeeId, password_hash: passwordHash })
     .returning('id')
   await knex('user_groups').insert(groups.map((group) => ({ user_id: user.id, group_name: group })))
+  return user.id
 }
 
 const insertBar = async (knex, { bar, employees, template, users, passwordHash }) => {
@@ -99,8 +109,9 @@ const insertBar = async (knex, { bar, employees, template, users, passwordHash }
 
   await knex('shifts').insert(buildShifts(barId, employeeIds, template))
 
+  let managerId = null
   for (const [username, employeeNumber, groups] of users) {
-    await insertUser(knex, {
+    const userId = await insertUser(knex, {
       username,
       name: employees[employeeNumber - 1].name,
       barId,
@@ -108,11 +119,19 @@ const insertBar = async (knex, { bar, employees, template, users, passwordHash }
       groups,
       passwordHash
     })
+    if (groups.includes('managerGroup')) managerId ??= userId
+  }
+
+  const firstWeek = weekStart(new Date())
+  firstWeek.setDate(firstWeek.getDate() - 7)
+  for (let week = 0; week < LOCKED_WEEKS; week++) {
+    const monday = new Date(firstWeek.getFullYear(), firstWeek.getMonth(), firstWeek.getDate() + week * 7)
+    await ScheduleWeeks.lock(barId, toDayKey(monday), managerId, knex)
   }
 }
 
 exports.seed = async (knex) => {
-  await knex.raw('TRUNCATE user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
+  await knex.raw('TRUNCATE published_shifts, schedule_weeks, user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
 
   const passwordHash = await hashPassword(DEV_PASSWORD)
 

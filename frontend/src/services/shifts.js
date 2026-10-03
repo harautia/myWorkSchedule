@@ -8,8 +8,9 @@ const getShifts = (from, to) =>
     .get('/shifts', { params: { from: from.toISOString(), to: to.toISOString() } })
     .then((res) => res.data)
 
-// shift = { employeeId, start, end } with ISO timestamps
-const createShift = (shift) => api.post('/shifts', shift).then((res) => res.data)
+// One or more shifts in one go, all or nothing: [{ employeeId, start, end }, ...]
+// with ISO timestamps.
+const createShifts = (shifts) => api.post('/shifts/batch', { shifts }).then((res) => res.data)
 
 const updateShift = (id, changes) => api.put(`/shifts/${id}`, changes).then((res) => res.data)
 
@@ -21,4 +22,14 @@ const getDayOrders = () => api.get('/day-orders').then((res) => res.data)
 const saveDayOrder = (key, order) =>
   api.put(`/day-orders/${key}`, { order }).then((res) => res.data)
 
-export default { getEmployees, getShifts, createShift, updateShift, deleteShift, getDayOrders, saveDayOrder }
+// Week statuses (keyed by Monday) for weeks overlapping [from, to):
+// { 'yyyy-MM-dd': { status: 'planning' | 'locked', lockedAt, lockedBy, published } }
+const getWeeks = (from, to) => api.get('/schedule-weeks', { params: { from, to } }).then((res) => res.data)
+
+// Locking publishes the week to employees and stops changes.
+const lockWeek = (week) => api.post(`/schedule-weeks/${week}/lock`).then((res) => res.data)
+
+// Allows changes again; employees keep seeing the locked version until it is locked again.
+const unlockWeek = (week) => api.post(`/schedule-weeks/${week}/unlock`).then((res) => res.data)
+
+export default { getEmployees, getShifts, createShifts, updateShift, deleteShift, getWeeks, lockWeek, unlockWeek, getDayOrders, saveDayOrder }

@@ -93,6 +93,12 @@ describe('managerGroup', () => {
 })
 
 describe('employeeGroup', () => {
+  // Employees only see locked weeks; lock the fixture week in both bars.
+  beforeEach(async () => {
+    await (await loginAs('anna')).post('/api/schedule-weeks/2026-09-21/lock').expect(200)
+    await (await loginAs('olli')).post('/api/schedule-weeks/2026-09-21/lock').expect(200)
+  })
+
   test('sees the bar\'s schedule and employees', async () => {
     const mikko = await loginAs('mikko')
     const shifts = await mikko
@@ -118,7 +124,7 @@ describe('employeeGroup', () => {
       .get('/api/shifts')
       .query({ from: '2026-09-21T00:00:00Z', to: '2026-09-28T00:00:00Z', barId: data.other.id })
       .expect(200)
-    assert.ok(shifts.body.every((shift) => shift.id !== data.otherShift.id))
+    assert.deepStrictEqual(shifts.body.map((s) => s.id), [data.ownShift.id])
   })
 
   test('cannot see employee details or change the schedule', async () => {

@@ -65,6 +65,7 @@ export const timeOnBarDay = (day, time) => {
 
 export const formatTime = (date) => format(date, 'HH:mm')
 export const formatShortTime = (date) => format(date, date.getMinutes() ? 'HH:mm' : 'HH')
+export const formatDateTime = (date) => format(date, 'd.M. HH:mm')
 export const formatDayHeader = (date) => format(date, 'EEE d.M.')
 
 export const formatRangeLabel = (view, date) => {
