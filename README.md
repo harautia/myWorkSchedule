@@ -4,6 +4,10 @@ Work shift schedule for an imaginary bar. Sibling project to
 [myBarInventory](https://github.com/harautia/myBarInventory) — same stack:
 React (Vite) frontend, Node.js/Express backend and PostgreSQL.
 
+The project is going to be **open source (AGPL-3.0)**: anyone can run their own copy, or use the
+hosted service run by the author. Both have the same features. The plan for getting there is in
+[docs/SPECIFICATION.md](docs/SPECIFICATION.md).
+
 ## Status
 
 - **Step 1 (done):** frontend calendar with week and month views, using mock data.
