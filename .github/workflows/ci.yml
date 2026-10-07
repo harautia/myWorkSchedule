@@ -1,0 +1,131 @@
+# Runs on every push to master and every pull request, including from forks.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (lint + tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: myworkschedule
+          POSTGRES_PASSWORD: myworkschedule
+          POSTGRES_DB: myworkschedule_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U myworkschedule"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      TEST_DATABASE_URL: postgres://myworkschedule:myworkschedule@localhost:5432/myworkschedule_test
+      # Only for the test run; not used anywhere else.
+      SESSION_SECRET: ci-test-secret-0123456789abcdef0123456789abcdef
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run migrate:test
+      - run: npm test
+
+  frontend:
+    name: Frontend (lint + tests + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  website:
+    name: Website builds
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  licences:
+    name: Dependency licences (AGPL compatible)
+    runs-on: ubuntu-latest
+    env:
+      ALLOWED: MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;BlueOak-1.0.0;CC0-1.0;Python-2.0;Unlicense
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check runtime dependencies
+        run: |
+          for dir in backend frontend; do
+            (cd "$dir" && npm ci --omit=dev --ignore-scripts --silent && \
+              npx --yes license-checker-rseidelsohn@4 --production --excludePrivatePackages \
+                --excludePackages "myworkschedule-backend@$(node -p 'require("./package.json").version')" \
+                --onlyAllow "$ALLOWED" --summary)
+          done
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: myworkschedule:ci
+
+  dco:
+    name: DCO sign-off
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Every commit has a Signed-off-by line
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=0
+          for commit in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            if ! git log -1 --format=%B "$commit" | grep -q '^Signed-off-by: '; then
+              echo "::error::Commit $(git log -1 --format='%h %s' "$commit") is not signed off. See CONTRIBUTING.md (git commit -s)."
+              missing=1
+            fi
+          done
+          exit $missing

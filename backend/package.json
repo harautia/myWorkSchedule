@@ -1,6 +1,6 @@
 {
   "name": "myworkschedule-backend",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
@@ -11,10 +11,11 @@
     "migrate": "knex migrate:latest",
     "migrate:test": "cross-env NODE_ENV=test knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
-    "seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "create-admin": "node scripts/createAdmin.js"
   },
   "author": "Hannu Rautiainen",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "description": "Backend for the bar work shift schedule",
   "dependencies": {
     "cookie-parser": "^1.4.7",

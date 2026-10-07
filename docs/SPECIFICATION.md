@@ -103,8 +103,8 @@ The codebase already covers most of the scheduling product. Summary as of 2026-1
 | Translations | ❌ English UI with fixed Finnish-style dates (`d.M.`). |
 | Sign-up, billing, project website, email | ❌ Not started. |
 | Deleting a bar | ⚠️ Immediate hard delete, with no export and no grace period. |
-| Operations | ❌ No staging environment, CI, monitoring or backup process yet. |
-| Open-source readiness | ⚠️ Public GitHub repository planned (`github.com/harautia/myWorkSchedule`). No LICENSE or community files yet. No secrets in git history (`backend/.env` was never committed). The app footer hard-codes the author's name and email. Development data comes from a seed with fixed passwords; there is no first-admin setup. |
+| Operations | ⚠️ CI (lint, tests, licence check, Docker build, DCO) and release workflows exist. No staging environment or monitoring yet. Self-hosters have a backup guide. |
+| Open-source readiness | ✅ Phase 1a (see §13): the public repository (`github.com/harautia/myWorkSchedule`) has AGPL-3.0, community files, a trademark policy, a Docker image and Compose files, settings from environment variables (the footer no longer hard-codes the author), `npm run create-admin`, a health check and the project website in `website/`. No secrets in git history. ⚠️ The author's email remains in older commits. |
 
 ---
 

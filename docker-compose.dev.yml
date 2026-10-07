@@ -1,0 +1,20 @@
+# For development: just PostgreSQL, with the development and test databases.
+#   docker compose -f docker-compose.dev.yml up -d
+# Then use in backend/.env:
+#   DATABASE_URL=postgres://myworkschedule:myworkschedule@localhost:5432/myworkschedule
+#   TEST_DATABASE_URL=postgres://myworkschedule:myworkschedule@localhost:5432/myworkschedule_test
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myworkschedule
+      POSTGRES_PASSWORD: myworkschedule
+      POSTGRES_DB: myworkschedule
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+      - ./docker/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
+
+volumes:
+  dev-db-data:

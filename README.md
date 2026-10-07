@@ -1,12 +1,44 @@
 # myWorkSchedule
 
-Work shift schedule for an imaginary bar. Sibling project to
-[myBarInventory](https://github.com/harautia/myBarInventory) — same stack:
-React (Vite) frontend, Node.js/Express backend and PostgreSQL.
+Open-source work schedules for bars. Managers plan the week and publish it; every employee
+sees their own shifts on their phone.
 
-The project is going to be **open source (AGPL-3.0)**: anyone can run their own copy, or use the
-hosted service run by the author. Both have the same features. The plan for getting there is in
-[docs/SPECIFICATION.md](docs/SPECIFICATION.md).
+- **Website and documentation:** <https://harautia.github.io/myWorkSchedule/>
+- **Self-hosting:** [install with Docker](https://harautia.github.io/myWorkSchedule/self-hosting/install/)
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md)
+- **Where it's heading:** [docs/SPECIFICATION.md](docs/SPECIFICATION.md) · [Changelog](CHANGELOG.md)
+
+Anyone can run their own copy. A hosted service run by the author, with exactly the same
+features, is planned for bars that would rather not maintain a server.
+
+## Quick start (self-hosting)
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/harautia/myWorkSchedule/master/docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/harautia/myWorkSchedule/master/.env.example -o .env
+# fill in POSTGRES_PASSWORD and SESSION_SECRET in .env (openssl rand -hex 32)
+docker compose up -d
+docker compose exec app npm run create-admin -- --username admin --name "Your Name"
+```
+
+Then put a reverse proxy with HTTPS in front of `127.0.0.1:3003`; see the
+[installation guide](https://harautia.github.io/myWorkSchedule/self-hosting/install/).
+
+## Licence
+
+Copyright © 2026 Hannu Rautiainen and contributors.
+
+myWorkSchedule is free software: you can redistribute it and/or modify it under the terms
+of the [GNU Affero General Public License](LICENSE) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version. If
+you run a changed version for others over a network, you must offer them its source code.
+The name and logo are covered by the [trademark policy](TRADEMARK.md).
+
+---
+
+# Developer notes
+
+The rest of this file explains the code. Local setup is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Status
 
@@ -31,6 +63,13 @@ hosted service run by the author. Both have the same features. The plan for gett
   On touch screens, managers tap a shift to edit or delete it instead of dragging. The app can be installed
   as a PWA, and the last loaded schedule is shown offline. Phase B ideas: web push when a week is locked,
   and a personal iCal feed.
+- **Step 9 (done):** open-source ready (spec phase 1a):
+  - AGPL-3.0 licence, community files, trademark policy, issue/PR templates
+  - Docker image and Compose files, settings from environment variables, migrations on start
+  - `npm run create-admin`, `/api/health` and `/api/app-info`
+  - footer from settings with a source code link
+  - CI (lint, tests, licences, Docker build, DCO) and a release workflow
+  - the project website in `website/`
 - **Next:** use the bar's opening hours from `GET /api/bar` in the frontend (still constants in `src/utils/dates.js`).
 
 ## Frontend
@@ -135,6 +174,8 @@ Log in with one of the seeded development accounts (password `secret` for all of
 
 | Method | Path | Who | Notes |
 | --- | --- | --- | --- |
+| GET | `/api/health` | anyone | `{ status, version }`; 503 when the database can't be reached |
+| GET | `/api/app-info` | anyone | version, deployment mode and the `APP_*` operator settings for the footer |
 | POST | `/api/login` | anyone | `{ username, password }`, returns the user and sets the session cookie |
 | POST | `/api/logout` | anyone | |
 | GET | `/api/me` | logged in | `{ id, username, name, groups, barId, barName, employeeId }` |

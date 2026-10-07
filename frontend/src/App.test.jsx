@@ -4,11 +4,13 @@ import { vi } from 'vitest'
 import App from './App'
 import authService from './services/auth'
 import adminService from './services/admin'
+import appInfoService from './services/appInfo'
 import employeeService from './services/employees'
 import shiftService from './services/shifts'
 
 vi.mock('./services/auth')
 vi.mock('./services/admin')
+vi.mock('./services/appInfo')
 vi.mock('./services/employees')
 vi.mock('./services/shifts')
 
@@ -20,6 +22,7 @@ const users = {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  appInfoService.getAppInfo.mockResolvedValue({ version: '0.1.0', sourceUrl: 'https://example.org/src' })
   shiftService.getEmployees.mockResolvedValue([])
   shiftService.getShifts.mockResolvedValue([])
   shiftService.getDayOrders.mockResolvedValue({})
@@ -98,4 +101,12 @@ test('logging out returns to the login page', async () => {
 
   await userEvent.click(await screen.findByRole('button', { name: 'Log out' }))
   expect(await screen.findByLabelText('Username')).toBeInTheDocument()
+})
+
+test('the login page shows the version and the source code link', async () => {
+  authService.getCurrentUser.mockResolvedValue(null)
+  render(<App />)
+
+  expect(await screen.findByText(/myWorkSchedule 0\.1\.0/)).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'Source code' })).toHaveAttribute('href', 'https://example.org/src')
 })

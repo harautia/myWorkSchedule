@@ -1,4 +1,5 @@
-require('dotenv').config()
+require('dotenv').config({ quiet: true })
+const path = require('path')
 
 const connectionString = process.env.NODE_ENV === 'test'
   ? process.env.TEST_DATABASE_URL
@@ -15,10 +16,11 @@ const connection = process.env.DATABASE_SSL === 'true'
 module.exports = {
   client: 'pg',
   connection,
+  // Absolute, so the server and knex CLI work from any working directory.
   migrations: {
-    directory: './db/migrations'
+    directory: path.join(__dirname, 'db', 'migrations')
   },
   seeds: {
-    directory: './db/seeds'
+    directory: path.join(__dirname, 'db', 'seeds')
   }
 }

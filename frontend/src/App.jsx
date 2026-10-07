@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import AppFooter from './components/AppFooter'
 import BarsPage from './components/BarsPage'
 import EmployeesPage from './components/EmployeesPage'
 import GroupBadges from './components/GroupBadges'
 import LoginPage from './components/LoginPage'
 import SchedulePage from './components/SchedulePage'
+import appInfoService from './services/appInfo'
 import authService from './services/auth'
 import { setUnauthorizedHandler } from './services/api'
 import useOnline from './hooks/useOnline'
@@ -19,6 +21,7 @@ const App = () => {
   // undefined = still checking the session, null = logged out
   const [user, setUser] = useState(undefined)
   const [page, setPage] = useState(null)
+  const [appInfo, setAppInfo] = useState(null)
   const online = useOnline()
 
   useEffect(() => {
@@ -27,6 +30,8 @@ const App = () => {
       .getCurrentUser()
       .then(setUser)
       .catch(() => setUser(null))
+    // The footer works without it, e.g. offline.
+    appInfoService.getAppInfo().then(setAppInfo).catch(() => {})
   }, [])
 
   const handleLogout = async () => {
@@ -36,7 +41,14 @@ const App = () => {
   }
 
   if (user === undefined) return <div className="app-loading">Checking session…</div>
-  if (user === null) return <LoginPage onLogin={setUser} />
+  if (user === null) {
+    return (
+      <>
+        <LoginPage onLogin={setUser} />
+        <AppFooter info={appInfo} />
+      </>
+    )
+  }
 
   const pages = pagesFor(user)
   const activePage = pages.includes(page) ? page : pages[0]
@@ -83,12 +95,7 @@ const App = () => {
       {activePage === 'bars' && <BarsPage />}
       {!activePage && <p className="page-note">Your account has no pages yet. Ask an admin to add you to a group.</p>}
 
-      <footer className="app-footer">
-        <p>
-          &copy; {new Date().getFullYear()} Riverbend Solutions &mdash; Hannu Rautiainen &mdash;{' '}
-          <a href="mailto:harautia1976@gmail.com">harautia1976@gmail.com</a>
-        </p>
-      </footer>
+      <AppFooter info={appInfo} />
     </div>
   )
 }

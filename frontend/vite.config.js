@@ -36,7 +36,7 @@ export default defineConfig({
             urlPattern: ({ url, request }) =>
               request.method === 'GET' &&
               url.origin === self.location.origin &&
-              /^\/api\/(me|bar|employees|shifts|schedule-weeks|day-orders)(\/|$)/.test(url.pathname),
+              /^\/api\/(me|app-info|bar|employees|shifts|schedule-weeks|day-orders)(\/|$)/.test(url.pathname),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api',

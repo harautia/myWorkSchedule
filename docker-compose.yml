@@ -1,0 +1,40 @@
+# Self-hosting myWorkSchedule: the app and its PostgreSQL database.
+#
+#   cp .env.example .env        # then fill it in
+#   docker compose up -d
+#   docker compose exec app npm run create-admin -- --username admin --name "Your Name"
+#
+# The app listens on 127.0.0.1:3003; put a reverse proxy with HTTPS in front of
+# it (see the self-hosting guide). To build the image from this source instead
+# of pulling it: docker compose build
+services:
+  app:
+    image: ghcr.io/harautia/myworkschedule:${MYWORKSCHEDULE_VERSION:-latest}
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://myworkschedule:${POSTGRES_PASSWORD}@db:5432/myworkschedule
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3003}:3003"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myworkschedule
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: myworkschedule
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myworkschedule -d myworkschedule"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

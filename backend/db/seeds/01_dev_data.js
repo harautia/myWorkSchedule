@@ -131,6 +131,9 @@ const insertBar = async (knex, { bar, employees, template, users, passwordHash }
 }
 
 exports.seed = async (knex) => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('The development seed deletes all data and uses known passwords; it never runs in production')
+  }
   await knex.raw('TRUNCATE published_shifts, schedule_weeks, user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
 
   const passwordHash = await hashPassword(DEV_PASSWORD)

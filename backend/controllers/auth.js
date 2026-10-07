@@ -11,7 +11,7 @@ const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 const baseCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: config.COOKIE_SECURE,
   sameSite: 'lax'
 }
 

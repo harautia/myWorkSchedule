@@ -1,0 +1,13 @@
+# Keep secrets, local builds and things the image doesn't need out of it.
+**/.env
+**/node_modules
+**/dist
+**/dev-dist
+**/*.log
+.git
+.github
+.vscode
+docs
+website
+backend/tests
+**/.DS_Store

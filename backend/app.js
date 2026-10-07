@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser')
 const middleware = require('./utils/middleware')
 const { resolveBar } = require('./utils/tenant')
 const { ADMIN, MANAGER, EMPLOYEE } = require('./utils/groups')
+const systemRouter = require('./controllers/system')
 const authRouter = require('./controllers/auth')
 const adminRouter = require('./controllers/admin')
 const barRouter = require('./controllers/bar')
@@ -25,6 +26,9 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(express.static('dist'))
 app.use(middleware.requestLogger)
+
+// /api/health and /api/app-info, public
+app.use('/api', systemRouter)
 
 // /api/login, /api/logout and /api/me
 app.use('/api', authRouter)
