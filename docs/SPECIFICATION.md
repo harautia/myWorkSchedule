@@ -485,7 +485,7 @@ An OpenAPI description should be written as part of this work. New endpoint grou
 
 | Phase | Content | Done when |
 |---|---|---|
-| **0. Decide** | This spec reviewed | The owner has approved the spec |
+| **0. Decide** | ✅ This spec reviewed | The owner has approved the spec on 10.10.2026 (Hannu) |
 | **1. Groundwork** | ✅ Per-bar settings used in the UI (TEN-01–02), translations (English, Finnish), email login, invites and password reset (AUTH-01–03), email through SMTP (NOT-01). CI exists. *Moved to phases 2–3:* staging and production environments, backups and Sentry for the hosted service. | A manager can invite staff by email, and the app shows the bar's own hours and timezone |
 | **1a. Open-source ready** | LICENSE, trademark policy and community files (OSS-01–05, OSS-10). Operator details and footer from configuration (SELF-09). Docker image and Compose file, health check, first-admin command (SELF-01–04, SELF-08). `DEPLOYMENT_MODE` switch. Project website with the Docs section and the self-hosting guide (LAND-01, LAND-09–10). Publish the GitHub repository with a v0.1.0 release. | Someone else installs it from the guide and plans a week |
 | **2. Sign-up** | Organizations and memberships (§10). Self-service sign-up and trial (SIGN-01–04). Onboarding checklist. | A stranger can start a trial and publish a week without our help |
