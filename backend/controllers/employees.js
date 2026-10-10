@@ -38,6 +38,15 @@ const details = async (barId) => {
   }))
 }
 
+// Someone who signed up must confirm their own email before sending
+// invitations, so the service can't be used to send email to strangers.
+const UNVERIFIED = 'confirm your email address before inviting staff; check your inbox'
+
+const requireVerifiedEmail = (request, response, next) => {
+  if (!request.user.emailVerified) return response.status(403).json({ error: UNVERIFIED })
+  next()
+}
+
 // Creates an invitation for an employee: { token, address }.
 const createInvite = async (request, conn, { employeeId, address }) => {
   const token = await Invites.create(
@@ -121,6 +130,7 @@ employeesRouter.post('/', requireGroup(MANAGER), async (request, response) => {
 // The employee is on the schedule straight away, so shifts can be planned
 // before they accept the invitation.
 const addByInvitation = async (request, response) => {
+  if (!request.user.emailVerified) return response.status(403).json({ error: UNVERIFIED })
   const name = typeof request.body.name === 'string' ? request.body.name.trim() : request.body.name
   const address = typeof request.body.email === 'string' ? request.body.email.trim().toLowerCase() : request.body.email
   const error = inviteError({ name, email: address })
@@ -143,7 +153,7 @@ const addByInvitation = async (request, response) => {
 
 // Invites an employee who has no login account yet (again, e.g. when the
 // first invitation expired). { email? }: defaults to the open invitation's email.
-employeesRouter.post('/:employeeId/invite', manageEmployee, async (request, response) => {
+employeesRouter.post('/:employeeId/invite', manageEmployee, requireVerifiedEmail, async (request, response) => {
   if (request.account) {
     return response.status(409).json({ error: `${request.employee.name} already has a login account` })
   }

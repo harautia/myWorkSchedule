@@ -41,6 +41,16 @@ const TEMPLATES = {
       text: `Hei ${name},\n\nSinut on lisätty baarin ${barName} työvuoroihin. Avaa tämä linkki, aseta salasana ja näet vuorosi:\n\n${url}\n\nLinkki on voimassa ${days} päivää.\n`
     })
   },
+  verifyEmail: {
+    en: ({ name, barName, url, days }) => ({
+      subject: 'Confirm your email for the work schedule',
+      text: `Hi ${name},\n\nWelcome to myWorkSchedule! ${barName} is ready. Open this link to confirm your email address, so you can invite your staff:\n\n${url}\n\nThe link works for ${days} days. If you didn't sign up, you can ignore this email.\n`
+    }),
+    fi: ({ name, barName, url, days }) => ({
+      subject: 'Vahvista sähköpostiosoitteesi työvuoroihin',
+      text: `Hei ${name},\n\nTervetuloa myWorkScheduleen! ${barName} on valmis. Vahvista sähköpostiosoitteesi avaamalla tämä linkki, niin voit kutsua henkilökuntasi:\n\n${url}\n\nLinkki on voimassa ${days} päivää. Jos et rekisteröitynyt, voit jättää tämän viestin huomiotta.\n`
+    })
+  },
   passwordReset: {
     en: ({ name, url, minutes }) => ({
       subject: 'Reset your work schedule password',

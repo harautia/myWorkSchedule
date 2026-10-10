@@ -23,6 +23,9 @@ systemRouter.get('/app-info', (request, response) => {
     deploymentMode: config.DEPLOYMENT_MODE,
     // Whether "forgot password" can send an email.
     emailEnabled: email.isEnabled(),
+    // Whether anyone can create a bar, and the bot check the sign-up form shows.
+    signupEnabled: config.ALLOW_SIGNUP,
+    turnstileSiteKey: config.TURNSTILE_SITE_KEY || null,
     ...config.APP_INFO
   })
 })

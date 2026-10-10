@@ -4,8 +4,9 @@ import accountLinkService from '../services/accountLinks'
 import authService from '../services/auth'
 
 // Log in with an email address or a username. "Forgot password?" is only
-// offered when the server can send email (emailEnabled).
-const LoginPage = ({ onLogin, emailEnabled }) => {
+// offered when the server can send email (emailEnabled), and creating a new
+// bar when sign-up is open (onSignup).
+const LoginPage = ({ onLogin, emailEnabled, onSignup }) => {
   const { t } = useTranslation()
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
@@ -102,6 +103,14 @@ const LoginPage = ({ onLogin, emailEnabled }) => {
           <button type="button" className="link-button" onClick={() => { setNotice(null); setError(null); setForgotten(true) }}>
             {t('login.forgot')}
           </button>
+        )}
+        {onSignup && (
+          <p className="login-signup">
+            {t('login.newBar')}{' '}
+            <button type="button" className="link-button" onClick={onSignup}>
+              {t('login.signup')}
+            </button>
+          </p>
         )}
       </form>
     </main>

@@ -7,8 +7,12 @@ import BarsPage from './components/BarsPage'
 import EmployeesPage from './components/EmployeesPage'
 import GroupBadges from './components/GroupBadges'
 import LoginPage from './components/LoginPage'
+import OnboardingChecklist from './components/OnboardingChecklist'
 import ResetPasswordPage from './components/ResetPasswordPage'
 import SchedulePage from './components/SchedulePage'
+import SignupPage from './components/SignupPage'
+import VerifyEmailBanner from './components/VerifyEmailBanner'
+import VerifyEmailPage from './components/VerifyEmailPage'
 import appInfoService from './services/appInfo'
 import authService from './services/auth'
 import barService from './services/bar'
@@ -70,9 +74,16 @@ const App = () => {
     setLink(null)
   }
 
-  const handleInviteAccepted = (newUser) => {
+  // Logged in by accepting an invitation or by signing up.
+  const handleNewAccount = (newUser) => {
     closeLink()
     setUser(newUser)
+  }
+
+  // After confirming the email: the logged-in user (if any) is now verified.
+  const handleVerified = () => {
+    closeLink()
+    authService.getCurrentUser().then(setUser).catch(() => {})
   }
 
   const handleLogout = async () => {
@@ -85,7 +96,7 @@ const App = () => {
   if (link?.type === 'invite') {
     return (
       <>
-        <AcceptInvitePage token={link.token} onLogin={handleInviteAccepted} onCancel={closeLink} />
+        <AcceptInvitePage token={link.token} onLogin={handleNewAccount} onCancel={closeLink} />
         <AppFooter info={appInfo} />
       </>
     )
@@ -99,11 +110,29 @@ const App = () => {
     )
   }
 
-  if (user === undefined) return <div className="app-loading">{t('app.checkingSession')}</div>
-  if (user === null) {
+  if (link?.type === 'verify') {
     return (
       <>
-        <LoginPage onLogin={setUser} emailEnabled={Boolean(appInfo?.emailEnabled)} />
+        <VerifyEmailPage token={link.token} onDone={handleVerified} />
+        <AppFooter info={appInfo} />
+      </>
+    )
+  }
+
+  if (user === undefined) return <div className="app-loading">{t('app.checkingSession')}</div>
+  if (user === null) {
+    const signupEnabled = Boolean(appInfo?.signupEnabled)
+    return (
+      <>
+        {link?.type === 'signup' && signupEnabled ? (
+          <SignupPage turnstileSiteKey={appInfo.turnstileSiteKey} onSignup={handleNewAccount} onCancel={closeLink} />
+        ) : (
+          <LoginPage
+            onLogin={setUser}
+            emailEnabled={Boolean(appInfo?.emailEnabled)}
+            onSignup={signupEnabled ? () => setLink({ type: 'signup' }) : undefined}
+          />
+        )}
         <AppFooter info={appInfo} />
       </>
     )
@@ -136,6 +165,7 @@ const App = () => {
           {t('app.offline')}
         </p>
       )}
+      {user.emailVerified === false && <VerifyEmailBanner email={user.email} />}
 
       {pages.length > 1 && (
         <nav aria-label={t('app.pagesLabel')}>
@@ -153,6 +183,8 @@ const App = () => {
         </nav>
       )}
 
+      {/* Read again when the page changes, so a step just done is ticked. */}
+      {canEditSchedule(user) && online && <OnboardingChecklist key={activePage} onGo={setPage} />}
       {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} employeeId={user.employeeId} />}
       {activePage === 'employees' && <EmployeesPage />}
       {activePage === 'settings' && bar && <BarSettingsPage bar={bar} onSaved={handleBarSaved} />}

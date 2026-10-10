@@ -56,6 +56,37 @@ export const timezoneGroups = (current) => {
   return [...groups]
 }
 
+// This browser's timezone, if the form offers it; otherwise Helsinki.
+export const browserTimezone = () => {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  return TIMEZONES.includes(zone) ? zone : 'Europe/Helsinki'
+}
+
+// Codes Intl names but that aren't countries (EU, UN, pseudo-regions…).
+const NOT_COUNTRIES = new Set(['EU', 'EZ', 'QO', 'UN', 'XA', 'XB', 'ZZ'])
+
+// Every country as [{ code, name }] (ISO 3166-1 alpha-2), named and sorted in
+// the given language.
+export const countryOptions = (language) => {
+  const names = new Intl.DisplayNames([language], { type: 'region', fallback: 'none' })
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const options = []
+  for (const first of letters) {
+    for (const second of letters) {
+      const code = first + second
+      const name = !NOT_COUNTRIES.has(code) && names.of(code)
+      if (name) options.push({ code, name })
+    }
+  }
+  return options.sort((a, b) => a.name.localeCompare(b.name, language))
+}
+
+// The country of the browser's language setting (fi-FI -> FI), or ''.
+export const browserCountry = () => {
+  const region = typeof navigator !== 'undefined' && navigator.language?.split('-')[1]
+  return region && /^[A-Za-z]{2}$/.test(region) ? region.toUpperCase() : ''
+}
+
 // The current time in a timezone, e.g. '22:50', to confirm the choice.
 export const timeNowIn = (timezone) => {
   try {

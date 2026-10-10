@@ -22,4 +22,14 @@ const accountLinkLimiter = rateLimit({
   message: { error: 'too many requests, please try again later' }
 })
 
-module.exports = { loginLimiter, accountLinkLimiter }
+// Sign-up creates a bar and sends an email, so allow only a few per address an hour.
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { error: 'too many sign-ups from this address, please try again later' }
+})
+
+module.exports = { loginLimiter, accountLinkLimiter, signupLimiter }

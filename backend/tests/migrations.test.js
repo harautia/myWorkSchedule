@@ -5,6 +5,8 @@ const assert = require('node:assert')
 const db = require('../db/db')
 
 const MIGRATION = '20261010000011_create_organizations_and_memberships.js'
+// Newest first.
+const LATER_MIGRATIONS = ['20261010000012_add_signup_verification_and_onboarding.js']
 
 // The test database as a 0.1.0 installation would have it.
 const insertVersion010Data = async () => {
@@ -24,9 +26,9 @@ const insertVersion010Data = async () => {
   const fred = await employee(riverbend, 'Fred', 'manager')
   const dan = await employee(harbour, 'Dan', 'manager')
 
-  const user = async (username, barId, employeeId, group, createdAt) => {
+  const user = async (username, barId, employeeId, group, createdAt, email = null) => {
     const [row] = await db('users')
-      .insert({ username, name: username, bar_id: barId, employee_id: employeeId, password_hash: 'x', created_at: createdAt })
+      .insert({ username, email, name: username, bar_id: barId, employee_id: employeeId, password_hash: 'x', created_at: createdAt })
       .returning('*')
     await db('user_groups').insert({ user_id: row.id, group_name: group })
     return row
@@ -35,7 +37,7 @@ const insertVersion010Data = async () => {
   // manager becomes the owner, not the first id.
   await user('ben', riverbend.id, ben.id, 'managerGroup', '2026-09-20T10:00:00Z')
   await user('ann', riverbend.id, ann.id, 'managerGroup', '2026-09-10T10:00:00Z')
-  await user('cat', riverbend.id, cat.id, 'employeeGroup', '2026-09-05T10:00:00Z')
+  await user('cat', riverbend.id, cat.id, 'employeeGroup', '2026-09-05T10:00:00Z', 'cat@example.com')
   await user('dan', harbour.id, dan.id, 'managerGroup', '2026-09-15T10:00:00Z')
   await user('admin', null, null, 'adminGroup', '2026-09-01T10:00:00Z')
 
@@ -74,6 +76,8 @@ describe('migration 11: organizations and memberships', () => {
 
   before(async () => {
     await db.migrate.latest()
+    // Undo the later migrations first, then this one.
+    for (const name of LATER_MIGRATIONS) await db.migrate.down({ name })
     await db.migrate.down({ name: MIGRATION })
     data = await insertVersion010Data()
     await db.migrate.up({ name: MIGRATION })
@@ -149,5 +153,15 @@ describe('migration 11: organizations and memberships', () => {
       await db.migrate.up({ name: MIGRATION })
     }
     assert.strictEqual((await memberships()).length, 4)
+  })
+
+  test('migration 12: existing emails count as verified, and existing bars have no checklist', async () => {
+    await db.migrate.up({ name: LATER_MIGRATIONS[0] })
+    const cat = await db('users').where({ username: 'cat' }).first()
+    assert.ok(cat.email_verified_at)
+    const ann = await db('users').where({ username: 'ann' }).first()
+    assert.strictEqual(ann.email_verified_at, null)
+    const bars = await db('bars').whereNull('onboarding_dismissed_at')
+    assert.deepStrictEqual(bars, [])
   })
 })

@@ -11,6 +11,17 @@ breaking changes, which are always described under **Upgrading**.
   Every bar belongs to an organization, and a user's bars and roles are kept as
   memberships. Each bar has an **owner** (shown with an Owner badge); when the owner is
   removed, the oldest remaining manager becomes the owner.
+- **Self-service sign-up** (when `ALLOW_SIGNUP=true`): "Create an account" on the
+  login page, or `/?signup`, creates a bar with its owner, who is also on the
+  schedule as a manager. Optional Cloudflare Turnstile bot check
+  (`TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`), and at most five sign-ups an hour
+  from one address.
+- **Email verification** for new owners: a link in the welcome email. Inviting staff
+  waits until the email is confirmed; the link can be sent again.
+- **Onboarding checklist** for new bars: invite staff, plan the first week, lock it.
+  Steps are ticked from the bar's data, and the list can be hidden.
+- On the hosted service, a new organization gets a 30-day trial (billing follows in a
+  later version).
 
 ### Changed
 - `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
@@ -22,6 +33,9 @@ breaking changes, which are always described under **Upgrading**.
   every account's bar and group into memberships, gives each bar an organization of its
   own, and makes each bar's oldest manager its owner. It runs automatically on start.
   The `user_groups` table is removed.
+- A second migration adds email verification and the onboarding checklist. Existing
+  accounts count as verified, and existing bars don't get the checklist.
+- To open sign-up on your installation, see "Sign-up" in the configuration reference.
 
 ## [0.1.0] – 2026-10-10
 

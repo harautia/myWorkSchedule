@@ -1,7 +1,8 @@
 import api from './api'
 import { clearOfflineData } from './offline'
 
-// user = { id, username, email, name, groups: [...], role, barId, barName, organizationId, employeeId }
+// user = { id, username, email, name, groups: [...], role, barId, barName,
+//   organizationId, employeeId, emailVerified }
 
 // login is an email address or a username.
 const login = async (login, password) => {

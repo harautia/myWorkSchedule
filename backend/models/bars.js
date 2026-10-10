@@ -63,6 +63,30 @@ const update = async (barId, bar) => {
   return count > 0
 }
 
+// The onboarding checklist of a new bar (spec SIGN-05). Each step is read from
+// the bar's data, so it stays done:
+// { invite: staff invited or added, plan: a shift planned, lock: a week
+//   locked, dismissed: the manager hid the checklist }
+const getOnboarding = async (barId) => {
+  const exists = (query) => db.raw('select exists (?) as done', [query]).then((result) => result.rows[0].done)
+  const [bar, invite, staff, plan, lock] = await Promise.all([
+    db('bars').where({ id: barId }).first('onboarding_dismissed_at'),
+    exists(db('invites').where({ bar_id: barId }).select(1)),
+    db('memberships').where({ bar_id: barId }).count('* as count').first(),
+    exists(db('shifts').where({ bar_id: barId }).select(1)),
+    exists(db('schedule_weeks').where({ bar_id: barId }).whereNotNull('locked_at').select(1))
+  ])
+  return {
+    invite: invite || Number(staff.count) > 1,
+    plan,
+    lock,
+    dismissed: Boolean(bar.onboarding_dismissed_at)
+  }
+}
+
+const dismissOnboarding = (barId) =>
+  db('bars').where({ id: barId }).update({ onboarding_dismissed_at: db.fn.now() })
+
 // Deletes the bar and, through ON DELETE CASCADE, its employees, shifts and
 // day orders. Accounts left without any bar are deleted too, and so is the
 // organization when this was its last bar.
@@ -80,4 +104,4 @@ const remove = (barId) =>
     return true
   })
 
-module.exports = { getById, getAllWithCounts, create, update, remove }
+module.exports = { getById, getAllWithCounts, create, update, getOnboarding, dismissOnboarding, remove }

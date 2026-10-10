@@ -25,8 +25,19 @@ const SESSION_SECRET = env.SESSION_SECRET
 const DEPLOYMENT_MODE = env.DEPLOYMENT_MODE || 'self-hosted'
 const DEPLOYMENT_MODES = ['self-hosted', 'hosted']
 
-// Public sign-up of new organizations; reserved for the sign-up feature.
+// Public sign-up: anyone can create an organization with its first bar.
+// Always on for the hosted service; off by default when self-hosting, where
+// the admin creates bars.
 const ALLOW_SIGNUP = flag(env.ALLOW_SIGNUP, DEPLOYMENT_MODE === 'hosted')
+
+// The free trial of the hosted service, in days (D4). Self-hosted bars have none.
+const TRIAL_DAYS = 30
+
+// Cloudflare Turnstile bot protection on the sign-up form (optional; both
+// keys from the Cloudflare dashboard). Without them sign-up relies on the
+// rate limit only.
+const TURNSTILE_SITE_KEY = env.TURNSTILE_SITE_KEY || ''
+const TURNSTILE_SECRET_KEY = env.TURNSTILE_SECRET_KEY || ''
 
 // Run database migrations when the server starts.
 const MIGRATE_ON_START = flag(env.MIGRATE_ON_START, true)
@@ -70,6 +81,9 @@ const problems = () => {
   }
   if (SMTP_URL && !EMAIL_FROM) found.push('EMAIL_FROM must be set when SMTP_URL is, e.g. "myWorkSchedule <schedule@yourbar.com>"')
   if (APP_URL && !/^https?:\/\//.test(APP_URL)) found.push('APP_URL must start with https:// (or http://)')
+  if (Boolean(TURNSTILE_SITE_KEY) !== Boolean(TURNSTILE_SECRET_KEY)) {
+    found.push('TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY must be set together')
+  }
   return found
 }
 
@@ -81,6 +95,9 @@ module.exports = {
   SESSION_SECRET,
   DEPLOYMENT_MODE,
   ALLOW_SIGNUP,
+  TRIAL_DAYS,
+  TURNSTILE_SITE_KEY,
+  TURNSTILE_SECRET_KEY,
   MIGRATE_ON_START,
   COOKIE_SECURE,
   APP_INFO,

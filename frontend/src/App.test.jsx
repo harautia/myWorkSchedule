@@ -33,6 +33,7 @@ beforeEach(() => {
   barService.getBar.mockResolvedValue({
     id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff'
   })
+  barService.getOnboarding.mockResolvedValue({ invite: true, plan: true, lock: true, dismissed: true })
   appInfoService.getAppInfo.mockResolvedValue({ version: '0.1.0', sourceUrl: 'https://example.org/src' })
   shiftService.getEmployees.mockResolvedValue([])
   shiftService.getShifts.mockResolvedValue([])
@@ -195,4 +196,42 @@ test('a reset link opens the password reset page', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Back to login' }))
   expect(await screen.findByLabelText('Email or username')).toBeInTheDocument()
   expect(window.location.search).toBe('')
+})
+
+test('when sign-up is open, the login page leads to it, and so does /?signup', async () => {
+  appInfoService.getAppInfo.mockResolvedValue({ version: '0.1.0', signupEnabled: true, turnstileSiteKey: null })
+  authService.getCurrentUser.mockResolvedValue(null)
+  const { unmount } = render(<App />)
+
+  await userEvent.click(await screen.findByRole('button', { name: 'Create an account' }))
+  expect(screen.getByRole('heading', { name: 'Create your bar\'s schedule' })).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Already have an account? Log in' }))
+  expect(await screen.findByLabelText('Email or username')).toBeInTheDocument()
+  unmount()
+
+  window.history.replaceState(null, '', '/?signup')
+  render(<App />)
+  expect(await screen.findByRole('heading', { name: 'Create your bar\'s schedule' })).toBeInTheDocument()
+  window.history.replaceState(null, '', '/')
+})
+
+test('/?signup shows the login page when sign-up is closed', async () => {
+  window.history.replaceState(null, '', '/?signup')
+  authService.getCurrentUser.mockResolvedValue(null)
+  render(<App />)
+
+  expect(await screen.findByLabelText('Email or username')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Create an account' })).not.toBeInTheDocument()
+  window.history.replaceState(null, '', '/')
+})
+
+test('a new owner sees the verification reminder and the onboarding checklist', async () => {
+  authService.getCurrentUser.mockResolvedValue({ ...users.anna, role: 'owner', email: 'anna@example.com', emailVerified: false })
+  barService.getOnboarding.mockResolvedValue({ invite: false, plan: false, lock: false, dismissed: false })
+  render(<App />)
+
+  expect(await screen.findByText(/Please confirm your email address/)).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Get your bar started' })).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Go to Employees' }))
+  expect(screen.getByRole('button', { name: 'Employees' })).toHaveAttribute('aria-current', 'page')
 })

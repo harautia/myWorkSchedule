@@ -54,7 +54,22 @@ These appear in the footer of every page, including the login page.
 | `COOKIE_SECURE` | `true` in production | Send the login cookie over HTTPS only. Set `false` only for testing without HTTPS. |
 | `DATABASE_SSL` | `false` | Set `true` when your database requires SSL, typically a managed database reached over the internet. |
 | `DEPLOYMENT_MODE` | `self-hosted` | `self-hosted` for your own copy. `hosted` is for the official hosted service and turns on its billing features (in a later version). |
-| `ALLOW_SIGNUP` | `false` (self-hosted) | Reserved for public sign-up of new organizations, coming in a later version. |
+
+## Sign-up
+
+By default only the admin creates bars. With sign-up on, the login page also offers
+**Create an account**, where anyone can create a bar of their own and become its owner.
+The website or a link can open the form directly at `https://your-app/?signup`.
+
+| Variable | Default | What it is |
+|---|---|---|
+| `ALLOW_SIGNUP` | `false` (self-hosted) | `true` turns sign-up on. |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | empty | Optional [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/) bot check on the sign-up form. Set both or neither. |
+
+Sign-ups are limited to five an hour from one address. With email configured, a new
+owner gets a link to confirm their email address and can invite staff once it's
+confirmed. Without email, the address is taken as given, so anyone could sign up with
+someone else's address: turn sign-up on only with email configured.
 
 ## Running without Docker
 

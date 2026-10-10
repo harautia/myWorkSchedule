@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { MIN_PASSWORD_LENGTH } from '../utils/forms'
 
 // Choosing one's own password: typed twice. value = { password, repeat }
-const NewPasswordFields = ({ value, onChange }) => {
+const NewPasswordFields = ({ value, onChange, autoFocus = true }) => {
   const { t } = useTranslation()
   const set = (field) => (event) => onChange({ ...value, [field]: event.target.value })
   return (
@@ -15,7 +15,7 @@ const NewPasswordFields = ({ value, onChange }) => {
           onChange={set('password')}
           minLength={MIN_PASSWORD_LENGTH}
           autoComplete="new-password"
-          autoFocus
+          autoFocus={autoFocus}
           required
         />
       </label>

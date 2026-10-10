@@ -27,7 +27,9 @@
     "forgotTitle": "Unohtunut salasana",
     "forgotHint": "Anna tilisi sähköpostiosoite. Lähetämme linkin, jolla voit valita uuden salasanan.",
     "sendLink": "Lähetä linkki",
-    "resetSent": "Jos tällä sähköpostilla on tili, siihen lähetettiin linkki uuden salasanan valitsemiseen. Linkki toimii tunnin."
+    "resetSent": "Jos tällä sähköpostilla on tili, siihen lähetettiin linkki uuden salasanan valitsemiseen. Linkki toimii tunnin.",
+    "newBar": "Uusi baari?",
+    "signup": "Luo tili"
   },
   "calendar": {
     "previous": "Edellinen",
@@ -258,5 +260,43 @@
     "resetTitle": "Valitse uusi salasana",
     "resetSave": "Tallenna salasana",
     "resetDone": "Salasanasi on vaihdettu. Voit nyt kirjautua sillä."
+  },
+  "signup": {
+    "title": "Luo baarisi työvuorolista",
+    "intro": "Baarisi on valmis minuutissa. Voit kutsua henkilökuntasi heti sen jälkeen.",
+    "you": "Sinä",
+    "name": "Nimesi",
+    "yourBar": "Baarisi",
+    "barName": "Baarin nimi",
+    "country": "Maa",
+    "chooseCountry": "Valitse maa",
+    "changeLater": "Voit muuttaa näitä myöhemmin baarin asetuksissa.",
+    "botCheck": "Odota, että turvatarkistus valmistuu.",
+    "submit": "Luo tili",
+    "creating": "Luodaan…",
+    "haveAccount": "Onko sinulla jo tili? Kirjaudu sisään"
+  },
+  "verify": {
+    "title": "Vahvista sähköpostiosoitteesi",
+    "done": "Kiitos, sähköpostiosoitteesi on vahvistettu.",
+    "continue": "Jatka",
+    "banner": "Vahvista sähköpostiosoitteesi: lähetimme linkin osoitteeseen {{email}}. Voit kutsua henkilökuntaa, kun osoite on vahvistettu.",
+    "resend": "Lähetä linkki uudelleen",
+    "resent": "Uusi linkki lähetettiin osoitteeseen {{email}}."
+  },
+  "onboarding": {
+    "title": "Baarisi alkuun",
+    "allDone": "Valmista! Henkilökuntasi näkee nyt vuoronsa.",
+    "invite": "Kutsu henkilökuntasi",
+    "plan": "Suunnittele ensimmäinen viikko",
+    "lock": "Lukitse viikko, niin henkilökunta näkee sen",
+    "done": "tehty",
+    "go": {
+      "invite": "Työntekijät-sivulle",
+      "plan": "Avaa työvuorot",
+      "lock": "Avaa työvuorot"
+    },
+    "hide": "Piilota lista",
+    "close": "Sulje"
   }
 }

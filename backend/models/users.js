@@ -24,7 +24,9 @@ const toUser = (row) => ({
   barId: row.bar_id ?? null,
   barName: row.bar_name ?? null,
   organizationId: row.organization_id ?? null,
-  employeeId: row.employee_id ?? null
+  employeeId: row.employee_id ?? null,
+  // An account without email has nothing to verify.
+  emailVerified: !row.email || Boolean(row.email_verified_at)
 })
 
 // A user's memberships joined with their bars, the oldest first.
@@ -80,8 +82,8 @@ const getSessionUser = async (id, conn = db) => {
   return { ...toUser({ ...row, ...membership, id: row.id }), sessionVersion: row.session_version }
 }
 
-// The logged-in user:
-// { id, username, email, name, groups, role, barId, barName, organizationId, employeeId }
+// The logged-in user: { id, username, email, name, groups, role, barId,
+// barName, organizationId, employeeId, emailVerified }
 const getById = async (id) => {
   const user = await getSessionUser(id)
   if (!user) return null
@@ -145,12 +147,15 @@ const findInBar = async (barId, id) => (await listByBar(barId)).find((user) => u
 
 // An account needs a username, an email, or both. A bar account has a barId
 // and a role ('owner', 'manager' or 'employee'); a platform admin has
-// isAdmin and no bar.
-const create = async ({ barId = null, role = null, isAdmin = false, username, email, name, passwordHash, employeeId = null }, conn = db) => {
+// isAdmin and no bar. An email given by an admin or a manager, or reached
+// through an invitation link, counts as verified; sign-up passes
+// emailVerified: false and sends a verification link.
+const create = async ({ barId = null, role = null, isAdmin = false, username, email, name, passwordHash, employeeId = null, emailVerified = true }, conn = db) => {
   const [row] = await conn('users')
     .insert({
       username: username ? username.toLowerCase() : null,
       email: email ? email.trim().toLowerCase() : null,
+      email_verified_at: email && emailVerified ? conn.fn.now() : null,
       name,
       password_hash: passwordHash,
       is_admin: isAdmin
@@ -163,17 +168,25 @@ const create = async ({ barId = null, role = null, isAdmin = false, username, em
 }
 
 // Changes the name, email and/or password. A new password also ends old
-// sessions. An empty email removes it (if the account has a username).
+// sessions. An empty email removes it (if the account has a username). Only
+// admins and managers change emails, so a new one counts as verified.
 const update = async (id, { name, email, passwordHash }, conn = db) => {
   const changes = {}
   if (name !== undefined) changes.name = name
-  if (email !== undefined) changes.email = email ? email.trim().toLowerCase() : null
+  if (email !== undefined) {
+    changes.email = email ? email.trim().toLowerCase() : null
+    changes.email_verified_at = email ? conn.fn.now() : null
+  }
   if (passwordHash !== undefined) {
     changes.password_hash = passwordHash
     changes.session_version = conn.raw('session_version + 1')
   }
   if (Object.keys(changes).length) await conn('users').where({ id }).update(changes)
 }
+
+// Marks the email verified, if it is still the account's email.
+const markEmailVerified = (id, email, conn = db) =>
+  conn('users').where({ id, email }).update({ email_verified_at: conn.fn.now() })
 
 // Deletes accounts that no longer belong to any bar (admins excepted), e.g.
 // after their bar was deleted.
@@ -224,6 +237,7 @@ module.exports = {
   findInBar,
   create,
   update,
+  markEmailVerified,
   removeWithoutBar,
   removeFromBar,
   countManagers

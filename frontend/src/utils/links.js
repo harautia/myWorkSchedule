@@ -1,10 +1,15 @@
-// Links from emails open the app as /?invite=TOKEN or /?reset=TOKEN.
+// Links from emails open the app as /?invite=TOKEN, /?reset=TOKEN or
+// /?verify=TOKEN. The project website's "Start free trial" opens /?signup.
 
-// { type: 'invite' | 'reset', token } from the current address, or null.
+const TOKEN_LINKS = ['invite', 'reset', 'verify']
+
+// { type: 'invite' | 'reset' | 'verify', token } or { type: 'signup' } from
+// the current address, or null.
 export const linkFromUrl = (search = window.location.search) => {
   const params = new URLSearchParams(search)
-  if (params.get('invite')) return { type: 'invite', token: params.get('invite') }
-  if (params.get('reset')) return { type: 'reset', token: params.get('reset') }
+  const type = TOKEN_LINKS.find((name) => params.get(name))
+  if (type) return { type, token: params.get(type) }
+  if (params.has('signup')) return { type: 'signup' }
   return null
 }
 

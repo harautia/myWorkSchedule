@@ -27,7 +27,9 @@
     "forgotTitle": "Forgot password",
     "forgotHint": "Enter the email of your account. We'll send you a link to choose a new password.",
     "sendLink": "Send link",
-    "resetSent": "If an account has this email, we've sent it a link to choose a new password. The link works for one hour."
+    "resetSent": "If an account has this email, we've sent it a link to choose a new password. The link works for one hour.",
+    "newBar": "New bar?",
+    "signup": "Create an account"
   },
   "calendar": {
     "previous": "Previous",
@@ -258,5 +260,43 @@
     "resetTitle": "Choose a new password",
     "resetSave": "Save password",
     "resetDone": "Your password has been changed. You can now log in with it."
+  },
+  "signup": {
+    "title": "Create your bar's schedule",
+    "intro": "Set up your bar in a minute. You can invite your staff right after.",
+    "you": "You",
+    "name": "Your name",
+    "yourBar": "Your bar",
+    "barName": "Bar name",
+    "country": "Country",
+    "chooseCountry": "Choose a country",
+    "changeLater": "You can change these later in the bar settings.",
+    "botCheck": "Please wait for the security check to finish.",
+    "submit": "Create account",
+    "creating": "Creating…",
+    "haveAccount": "Already have an account? Log in"
+  },
+  "verify": {
+    "title": "Confirm your email",
+    "done": "Thank you, your email address is confirmed.",
+    "continue": "Continue",
+    "banner": "Please confirm your email address: we sent a link to {{email}}. You can invite staff once it's confirmed.",
+    "resend": "Send the link again",
+    "resent": "A new link was sent to {{email}}."
+  },
+  "onboarding": {
+    "title": "Get your bar started",
+    "allDone": "All set! Your staff can see their shifts.",
+    "invite": "Invite your staff",
+    "plan": "Plan the first week",
+    "lock": "Lock the week, so staff can see it",
+    "done": "done",
+    "go": {
+      "invite": "Go to Employees",
+      "plan": "Open the schedule",
+      "lock": "Open the schedule"
+    },
+    "hide": "Hide this list",
+    "close": "Close"
   }
 }

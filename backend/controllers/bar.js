@@ -24,4 +24,15 @@ barRouter.put('/', requireGroup(MANAGER), async (request, response) => {
   response.json(await Bars.getById(request.barId))
 })
 
+// The new bar's onboarding checklist for managers: which steps are done.
+barRouter.get('/onboarding', requireGroup(MANAGER), async (request, response) => {
+  response.json(await Bars.getOnboarding(request.barId))
+})
+
+// Hides the checklist for good.
+barRouter.post('/onboarding/dismiss', requireGroup(MANAGER), async (request, response) => {
+  await Bars.dismissOnboarding(request.barId)
+  response.json(await Bars.getOnboarding(request.barId))
+})
+
 module.exports = barRouter

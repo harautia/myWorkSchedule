@@ -1,12 +1,11 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LANGUAGES, timeNowIn, timezoneGroups } from '../../utils/forms'
+import TimezoneSelect from '../TimezoneSelect'
+import { LANGUAGES } from '../../utils/forms'
 
 // Controlled inputs for a bar's settings. value = { name, timezone, opensAt,
 // closesAt, locale, clock24h, accentColor }
 const BarFields = ({ value, onChange }) => {
   const { t } = useTranslation()
-  const timezoneId = useId()
   const set = (field) => (event) => onChange({ ...value, [field]: event.target.value })
   return (
     <div className="form-grid">
@@ -14,25 +13,7 @@ const BarFields = ({ value, onChange }) => {
         {t('barSettings.name')}
         <input value={value.name} onChange={set('name')} maxLength={100} required />
       </label>
-      <div className="form-field">
-        <label htmlFor={timezoneId}>{t('barSettings.timezone')}</label>
-        {/* A real list: a text field with suggestions only offers zones matching
-            what is already typed, so another zone couldn't be found. */}
-        <select id={timezoneId} value={value.timezone} onChange={set('timezone')} aria-describedby={`${timezoneId}-now`} required>
-          {timezoneGroups(value.timezone).map(([region, zones]) => (
-            <optgroup key={region} label={region}>
-              {zones.map((zone) => (
-                <option key={zone} value={zone}>{zone.replaceAll('_', ' ')}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        {timeNowIn(value.timezone) && (
-          <span id={`${timezoneId}-now`} className="field-hint">
-            {t('barSettings.timeNow', { time: timeNowIn(value.timezone) })}
-          </span>
-        )}
-      </div>
+      <TimezoneSelect value={value.timezone} onChange={(timezone) => onChange({ ...value, timezone })} />
       <label className="form-field">
         {t('barSettings.opens')}
         <input type="time" value={value.opensAt} onChange={set('opensAt')} required />

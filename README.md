@@ -187,7 +187,12 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | GET | `/api/app-info` | anyone | version, deployment mode and the `APP_*` operator settings for the footer |
 | POST | `/api/login` | anyone | `{ login, password }` (login = email or username; `username` also accepted), returns the user and sets the session cookie |
 | POST | `/api/logout` | anyone | |
-| GET | `/api/me` | logged in | `{ id, username, email, name, groups, role, barId, barName, organizationId, employeeId }` |
+| GET | `/api/me` | logged in | `{ id, username, email, name, groups, role, barId, barName, organizationId, employeeId, emailVerified }` |
+| POST | `/api/signup` | public, when `ALLOW_SIGNUP` | `{ name, email, password, barName, country, timezone, opensAt, closesAt, locale?, captchaToken? }`: creates the organization, bar and owner, and logs in |
+| POST | `/api/verify-email` | public | `{ token }` from the welcome email |
+| POST | `/api/verify-email/resend` | logged in | sends a new verification link |
+| GET | `/api/bar/onboarding` | manager | `{ invite, plan, lock, dismissed }`: the new bar's checklist |
+| POST | `/api/bar/onboarding/dismiss` | manager | hides the checklist |
 | GET | `/api/invites/:token` | anyone | `{ name, email, barName, locale }` of a valid invitation |
 | POST | `/api/invites/:token/accept` | anyone | `{ password }`; creates the account, logs in |
 | POST | `/api/password-reset` | anyone | `{ email }`; emails a reset link if the account exists (always 202) |
