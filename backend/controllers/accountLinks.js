@@ -38,7 +38,7 @@ accountLinksRouter.post('/invites/:token/accept', accountLinkLimiter, async (req
     if (await Users.emailTaken(invite.email, trx)) {
       return { status: 409, error: 'an account with this email already exists; log in with it instead' }
     }
-    if (await trx('users').where({ employee_id: invite.employeeId }).first('id')) {
+    if (await Users.employeeHasAccount(invite.employeeId, trx)) {
       return { status: 409, error: 'this person already has an account; log in with it instead' }
     }
 
@@ -47,7 +47,7 @@ accountLinksRouter.post('/invites/:token/accept', accountLinkLimiter, async (req
       email: invite.email,
       name: invite.name,
       passwordHash: await hashPassword(request.body.password),
-      groups: [invite.group],
+      role: invite.role,
       employeeId: invite.employeeId
     }, trx)
     await Invites.markAccepted(invite.id, trx)
@@ -68,7 +68,8 @@ accountLinksRouter.post('/password-reset', accountLinkLimiter, async (request, r
     const user = await Users.findByEmail(address)
     if (user) {
       const token = await PasswordResets.create(user.id)
-      const bar = user.bar_id ? await Bars.getById(user.bar_id) : null
+      const { barId } = await Users.getById(user.id)
+      const bar = barId ? await Bars.getById(barId) : null
       const url = `${email.appUrl(request)}/?reset=${token}`
       await email.send({
         to: user.email,

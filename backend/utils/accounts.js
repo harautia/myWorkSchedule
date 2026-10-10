@@ -15,17 +15,18 @@ const pickAccount = ({ username, name, password, email } = {}) => ({
   email: typeof email === 'string' ? email.trim().toLowerCase() : email
 })
 
-// Puts the person on the bar's schedule as an employee with the given role and
-// creates their login account in `group`, linked to that employee. Run inside
-// a transaction. Returns the new user id.
-const createStaffAccount = async (conn, barId, { username, name, password, email }, { role, group }) => {
+// Puts the person on the bar's schedule as an employee with the given role
+// ('waiter', 'manager') and creates their login account with `memberRole` in
+// the bar ('owner', 'manager' or 'employee'), linked to that employee. Run
+// inside a transaction. Returns the new user id.
+const createStaffAccount = async (conn, barId, { username, name, password, email }, { role, memberRole }) => {
   const employee = await Employees.create(
     barId,
     { name, role, color: pickColor(await Employees.usedColors(barId, conn)) },
     conn
   )
   return Users.create(
-    { barId, username, email, name, passwordHash: await hashPassword(password), groups: [group], employeeId: employee.id },
+    { barId, username, email, name, passwordHash: await hashPassword(password), role: memberRole, employeeId: employee.id },
     conn
   )
 }

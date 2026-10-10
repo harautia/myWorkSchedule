@@ -6,6 +6,23 @@ breaking changes, which are always described under **Upgrading**.
 
 ## [Unreleased]
 
+### Added
+- **Organizations and memberships**, the groundwork for sign-up and for chains of bars.
+  Every bar belongs to an organization, and a user's bars and roles are kept as
+  memberships. Each bar has an **owner** (shown with an Owner badge); when the owner is
+  removed, the oldest remaining manager becomes the owner.
+
+### Changed
+- `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
+  `employee`); `/api/me` also returns `organizationId`.
+- Deleting a bar keeps the accounts of people who also belong to another bar.
+
+### Upgrading
+- **Back up the database first** (see the upgrade guide). A database migration moves
+  every account's bar and group into memberships, gives each bar an organization of its
+  own, and makes each bar's oldest manager its owner. It runs automatically on start.
+  The `user_groups` table is removed.
+
 ## [0.1.0] – 2026-10-10
 
 First public release.

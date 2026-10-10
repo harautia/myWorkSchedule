@@ -2,7 +2,7 @@ import api from './api'
 
 // adminGroup only.
 // bar = { id, name, timezone, opensAt, closesAt }
-// details = { bar, users: [{ id, username, name, groups, employee, createdAt }] }
+// details = { bar, users: [{ id, username, name, groups, role, employee, createdAt }] }
 
 // Every bar using the service, with employee/user counts.
 const getBars = () => api.get('/admin/bars').then((res) => res.data)

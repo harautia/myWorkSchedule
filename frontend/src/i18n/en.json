@@ -46,7 +46,8 @@
   "groups": {
     "adminGroup": "Admin",
     "managerGroup": "Manager",
-    "employeeGroup": "Employee"
+    "employeeGroup": "Employee",
+    "owner": "Owner"
   },
   "roles": {
     "manager": "manager",

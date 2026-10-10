@@ -142,13 +142,19 @@ Log in with one of the seeded development accounts (password `secret` for all of
 
 `.env` also needs `SESSION_SECRET` (a long random string), see `.env.example`.
 
-### Users and groups
+### Users, memberships and groups
 
-- `users` holds login accounts (password hashed with scrypt). `bar_id` is the user's bar
-  (null for admins). `employee_id` can optionally link the account to a person on the schedule.
-- `user_groups` maps users to groups. A user can be in several groups, and gets the pages of all of them.
-- Login sets an httpOnly cookie with a JWT that only holds the user id. `requireAuth` loads the user and
-  groups from the database on every request, so group changes take effect immediately.
+- `users` holds login accounts (password hashed with scrypt). `is_admin` marks platform admins,
+  who belong to no bar.
+- `memberships` says which bars a user belongs to, with a role (`owner`, `manager` or `employee`)
+  and optionally the `employee_id` of their place on the schedule. Each bar has one owner (the
+  account owner, later also for billing); when the owner is removed, the oldest remaining
+  manager becomes the owner. A user can belong to several bars; until switching between bars
+  is built (spec TEN-04), they work in the bar they joined first.
+- The groups the app checks come from these: `is_admin` → `adminGroup`, owner or manager →
+  `managerGroup`, employee → `employeeGroup`.
+- Login sets an httpOnly cookie with a JWT that only holds the user id. `requireAuth` loads the user,
+  bar and groups from the database on every request, so changes take effect immediately.
 - Every session token carries the user's `session_version`. Setting a new password bumps it, so old
   sessions stop working (an admin resetting a lost password also logs out whoever has the old one).
 - `requireGroup(...)` guards routes. The frontend (`src/utils/access.js`) only decides which pages to show;
@@ -162,12 +168,15 @@ Log in with one of the seeded development accounts (password `secret` for all of
 
 ### Multiple bars
 
-- Tables `employees`, `shifts`, `day_orders` and `users` all have a `bar_id` referencing `bars`.
+- Every bar belongs to an organization (`organizations`, the customer). Bars created by an admin
+  get an organization of their own, with the same name.
+- Tables `employees`, `shifts`, `day_orders` and `memberships` all have a `bar_id` referencing `bars`.
 - `utils/tenant.js` sets `request.barId` from the logged-in user. Every model function takes
   `barId` first and filters by it. A bar id is never taken from the URL or body.
 - Opening hours and timezone are stored per bar (`GET /api/bar`).
 - Deleting a bar (admin) permanently deletes all its data: employees, shifts, day orders, and every
-  manager's and employee's login account with their group memberships (`ON DELETE CASCADE` from `bars`).
+  manager's and employee's login account that doesn't belong to another bar too. The organization is
+  deleted with its last bar.
   This is the current solution; details such as keeping an export or a grace period are still to be decided.
 
 ### API
@@ -178,7 +187,7 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | GET | `/api/app-info` | anyone | version, deployment mode and the `APP_*` operator settings for the footer |
 | POST | `/api/login` | anyone | `{ login, password }` (login = email or username; `username` also accepted), returns the user and sets the session cookie |
 | POST | `/api/logout` | anyone | |
-| GET | `/api/me` | logged in | `{ id, username, email, name, groups, barId, barName, employeeId }` |
+| GET | `/api/me` | logged in | `{ id, username, email, name, groups, role, barId, barName, organizationId, employeeId }` |
 | GET | `/api/invites/:token` | anyone | `{ name, email, barName, locale }` of a valid invitation |
 | POST | `/api/invites/:token/accept` | anyone | `{ password }`; creates the account, logs in |
 | POST | `/api/password-reset` | anyone | `{ email }`; emails a reset link if the account exists (always 202) |

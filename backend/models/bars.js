@@ -1,4 +1,5 @@
 const db = require('../db/db')
+const Users = require('./users')
 
 // 'HH:mm:ss' -> 'HH:mm'
 const toHourMinute = (time) => time.slice(0, 5)
@@ -25,7 +26,7 @@ const getAllWithCounts = async () => {
     .select(
       'bars.*',
       db('employees').count('*').whereRaw('employees.bar_id = bars.id').as('employee_count'),
-      db('users').count('*').whereRaw('users.bar_id = bars.id').as('user_count')
+      db('memberships').count('*').whereRaw('memberships.bar_id = bars.id').as('user_count')
     )
     .orderBy('bars.name')
   return rows.map((row) => ({
@@ -45,8 +46,15 @@ const toRow = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColo
   return row
 }
 
-const create = async (bar, conn = db) => {
-  const [row] = await conn('bars').insert(toRow(bar)).returning('id')
+// Without an organizationId the bar gets a new organization of its own, with
+// the same name. Run inside a transaction.
+const create = async (bar, conn = db, { organizationId } = {}) => {
+  let id = organizationId
+  if (!id) {
+    const [organization] = await conn('organizations').insert({ name: bar.name.trim() }).returning('id')
+    id = organization.id
+  }
+  const [row] = await conn('bars').insert({ ...toRow(bar), organization_id: id }).returning('id')
   return row.id
 }
 
@@ -55,8 +63,21 @@ const update = async (barId, bar) => {
   return count > 0
 }
 
-// Deletes the bar and, through ON DELETE CASCADE, its employees, shifts,
-// day orders and user accounts.
-const remove = async (barId) => (await db('bars').where({ id: barId }).del()) > 0
+// Deletes the bar and, through ON DELETE CASCADE, its employees, shifts and
+// day orders. Accounts left without any bar are deleted too, and so is the
+// organization when this was its last bar.
+const remove = (barId) =>
+  db.transaction(async (trx) => {
+    const memberIds = await trx('memberships').where({ bar_id: barId }).pluck('user_id')
+    const [bar] = await trx('bars').where({ id: barId }).del().returning('organization_id')
+    if (!bar) return false
+
+    await Users.removeWithoutBar(memberIds, trx)
+    await trx('organizations')
+      .where({ id: bar.organization_id })
+      .whereNotExists(trx('bars').whereRaw('bars.organization_id = organizations.id'))
+      .del()
+    return true
+  })
 
 module.exports = { getById, getAllWithCounts, create, update, remove }

@@ -45,9 +45,10 @@ adminRouter.param('userId', async (request, response, next, value) => {
 })
 
 // Creates a manager's login account and puts them on the bar's schedule as an
-// employee with role 'manager', linked to the account. Run inside a transaction.
-const createManager = (conn, barId, manager) =>
-  createStaffAccount(conn, barId, manager, { role: 'manager', group: MANAGER })
+// employee with role 'manager', linked to the account. The first manager of a
+// new bar is its owner. Run inside a transaction.
+const createManager = (conn, barId, manager, memberRole = 'manager') =>
+  createStaffAccount(conn, barId, manager, { role: 'manager', memberRole })
 
 const barDetails = async (barId) => ({
   bar: await Bars.getById(barId),
@@ -73,7 +74,7 @@ adminRouter.post('/bars', async (request, response) => {
   try {
     barId = await db.transaction(async (trx) => {
       const id = await Bars.create(bar, trx)
-      await createManager(trx, id, manager)
+      await createManager(trx, id, manager, 'owner')
       return id
     })
   } catch (err) {
@@ -146,13 +147,16 @@ adminRouter.put('/bars/:barId/managers/:userId', async (request, response) => {
   response.json(await Users.findInBar(request.bar.id, request.manager.id))
 })
 
-// Deletes the manager's login account. The employee on the schedule (if
-// linked) is kept, so their past and planned shifts stay visible. A bar must keep at least one manager.
+// Takes the manager out of the bar and deletes their login account (unless
+// they belong to another bar too). The employee on the schedule (if linked) is
+// kept, so their past and planned shifts stay visible. A bar must keep at
+// least one manager; when the owner is removed, the oldest remaining manager
+// becomes the owner.
 adminRouter.delete('/bars/:barId/managers/:userId', async (request, response) => {
-  if ((await Users.countInGroup(request.bar.id, MANAGER)) <= 1) {
+  if ((await Users.countManagers(request.bar.id)) <= 1) {
     return response.status(409).json({ error: 'a bar must have at least one manager; add another manager first' })
   }
-  await Users.remove(request.manager.id)
+  await db.transaction((trx) => Users.removeFromBar(request.bar.id, request.manager.id, trx))
   response.status(204).end()
 })
 

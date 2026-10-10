@@ -67,9 +67,14 @@ describe('creating a bar', () => {
       { id: undefined, name: 'Corner Pub', timezone: 'Europe/Stockholm', opensAt: '12:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#863bff' }
     )
     assert.deepStrictEqual(
-      response.body.users.map(({ username, groups }) => ({ username, groups })),
-      [{ username: 'kalle', groups: ['managerGroup'] }]
+      response.body.users.map(({ username, groups, role }) => ({ username, groups, role })),
+      [{ username: 'kalle', groups: ['managerGroup'], role: 'owner' }]
     )
+    // The new bar is the only bar of a new organization.
+    const bar = await db('bars').where({ id: response.body.bar.id }).first()
+    const organization = await db('organizations').where({ id: bar.organization_id }).first()
+    assert.strictEqual(organization.name, 'Corner Pub')
+    assert.strictEqual((await db('bars').where({ organization_id: organization.id })).length, 1)
 
     const login = await api.post('/api/login').send({ username: 'kalle', password: NEW_MANAGER.password }).expect(200)
     assert.strictEqual(login.body.barName, 'Corner Pub')
@@ -161,6 +166,24 @@ describe('managers', () => {
     assert.strictEqual(new Set(colors).size, colors.length)
   })
 
+  test('when the owner is removed, the oldest remaining manager becomes the owner', async () => {
+    const first = await admin.post(`/api/admin/bars/${data.own.id}/managers`).send(NEW_MANAGER).expect(201)
+    assert.strictEqual(first.body.role, 'manager')
+    await admin.post(`/api/admin/bars/${data.own.id}/managers`)
+      .send({ ...NEW_MANAGER, username: 'later', name: 'Later Manager' })
+      .expect(201)
+
+    const anna = await managerOf(data.own.id)
+    assert.strictEqual(anna.role, 'owner')
+    await admin.delete(`/api/admin/bars/${data.own.id}/managers/${anna.id}`).expect(204)
+
+    const users = (await admin.get(`/api/admin/bars/${data.own.id}`)).body.users
+    assert.deepStrictEqual(
+      users.filter((user) => user.role !== 'employee').map(({ username, role }) => `${username}:${role}`).sort(),
+      ['kalle:owner', 'later:manager']
+    )
+  })
+
   test('the last manager of a bar cannot be removed', async () => {
     const anna = await managerOf(data.own.id)
     await admin.delete(`/api/admin/bars/${data.own.id}/managers/${anna.id}`).expect(409)
@@ -217,11 +240,13 @@ describe('managers', () => {
 describe('deleting a bar', () => {
   test('removes the bar with all its managers\' and employees\' data', async () => {
     const session = await loginAs('anna')
-    const ownUserIds = (await db('users').where({ bar_id: data.own.id }).select('id')).map((u) => u.id)
+    const ownUserIds = await db('memberships').where({ bar_id: data.own.id }).pluck('user_id')
+    const { organization_id: organizationId } = await db('bars').where({ id: data.own.id }).first()
     await admin.delete(`/api/admin/bars/${data.own.id}`).expect(204)
 
-    const [{ count: groupCount }] = await db('user_groups').whereIn('user_id', ownUserIds).count('* as count')
-    assert.strictEqual(Number(groupCount), 0, 'user_groups')
+    const [{ count: userCount }] = await db('users').whereIn('id', ownUserIds).count('* as count')
+    assert.strictEqual(Number(userCount), 0, 'users')
+    assert.strictEqual(await db('organizations').where({ id: organizationId }).first(), undefined, 'organization')
     const [{ count: employeeCount }] = await db('employees').whereIn('id', [data.anna.id, data.mikko.id]).count('* as count')
     assert.strictEqual(Number(employeeCount), 0, 'employees by id')
 
@@ -229,12 +254,24 @@ describe('deleting a bar', () => {
     const bars = await admin.get('/api/admin/bars')
     assert.deepStrictEqual(bars.body.map((b) => b.name), ['Other Bar'])
 
-    for (const table of ['employees', 'shifts', 'day_orders', 'users']) {
+    for (const table of ['employees', 'shifts', 'day_orders', 'memberships']) {
       const [{ count }] = await db(table).where({ bar_id: data.own.id }).count('* as count')
       assert.strictEqual(Number(count), 0, table)
     }
     await session.get('/api/me').expect(401)
     await api.post('/api/login').send({ username: 'mikko', password: PASSWORD }).expect(401)
+  })
+
+  test('an account that also belongs to another bar is kept', async () => {
+    const [olli] = await db('users').where({ username: 'olli' }).pluck('id')
+    await db('memberships').insert({ user_id: olli, bar_id: data.own.id, role: 'employee' })
+
+    await admin.delete(`/api/admin/bars/${data.other.id}`).expect(204)
+
+    const session = await loginAs('olli')
+    const me = await session.get('/api/me').expect(200)
+    assert.strictEqual(me.body.barId, data.own.id)
+    assert.deepStrictEqual(me.body.groups, ['employeeGroup'])
   })
 
   test('other bars are untouched', async () => {

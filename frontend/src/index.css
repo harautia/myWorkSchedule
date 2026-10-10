@@ -653,6 +653,12 @@ nav {
   color: var(--color-brand-700);
 }
 
+.badge-owner {
+  background: var(--color-brand-700);
+  border-color: var(--color-brand-700);
+  color: #fff;
+}
+
 /* Login */
 .login-page {
   display: flex;

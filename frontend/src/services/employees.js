@@ -1,7 +1,7 @@
 import api from './api'
 
 // managerGroup only. An employee in details:
-// { id, name, role, color, account: { username, email, groups } | null,
+// { id, name, role, color, account: { username, email, groups, role } | null,
 //   invite: { email, expiresAt } | null, shiftCount }
 
 // The bar's employees with their login account (or null) and shift count.

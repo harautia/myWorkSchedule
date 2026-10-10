@@ -5,9 +5,9 @@ const { createToken, hashToken } = require('../utils/tokens')
 const INVITE_DAYS = 7
 
 // Invites a person, already on the schedule as `employeeId`, to create their
-// login account. Only the newest invitation of an employee works. Returns the
+// login account with `role` in the bar ('manager' or 'employee'). Only the newest invitation of an employee works. Returns the
 // token for the link.
-const create = async ({ barId, employeeId, email, group, invitedBy = null }, conn = db) => {
+const create = async ({ barId, employeeId, email, role, invitedBy = null }, conn = db) => {
   await conn('invites').where({ bar_id: barId, employee_id: employeeId }).whereNull('accepted_at').del()
   const { token, hash } = createToken()
   await conn('invites').insert({
@@ -15,7 +15,7 @@ const create = async ({ barId, employeeId, email, group, invitedBy = null }, con
     bar_id: barId,
     employee_id: employeeId,
     email: email.trim().toLowerCase(),
-    group_name: group,
+    role,
     invited_by: invitedBy,
     expires_at: conn.raw(`now() + interval '${INVITE_DAYS} days'`)
   })
@@ -23,7 +23,7 @@ const create = async ({ barId, employeeId, email, group, invitedBy = null }, con
 }
 
 // A usable invitation (not accepted, not expired), with the names to greet
-// the person: { id, barId, employeeId, email, group, name, barName, locale }.
+// the person: { id, barId, employeeId, email, role, name, barName, locale }.
 const findValid = async (token, conn = db) => {
   const row = await conn('invites')
     .join('employees', 'employees.id', 'invites.employee_id')
@@ -38,7 +38,7 @@ const findValid = async (token, conn = db) => {
     barId: row.bar_id,
     employeeId: row.employee_id,
     email: row.email,
-    group: row.group_name,
+    role: row.role,
     name: row.employee_name,
     barName: row.bar_name,
     locale: row.bar_locale

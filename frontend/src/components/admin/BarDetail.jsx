@@ -132,7 +132,7 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
                   <tr>
                     <td>{user.name}</td>
                     <td data-label={t('admin.columns.username')}>{user.username}</td>
-                    <td data-label={t('admin.columns.groups')}><GroupBadges groups={user.groups} /></td>
+                    <td data-label={t('admin.columns.groups')}><GroupBadges groups={user.groups} role={user.role} /></td>
                     <td data-label={t('admin.columns.onSchedule')}>
                       {user.employee
                         ? t('admin.employeeOnSchedule', { name: user.employee.name, role: roleLabel(t, user.employee.role) })

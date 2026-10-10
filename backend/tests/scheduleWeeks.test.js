@@ -1,7 +1,7 @@
 const { test, describe, beforeEach, after } = require('node:test')
 const assert = require('node:assert')
 const db = require('../db/db')
-const { resetDb, loginAs } = require('./helper')
+const { resetDb, loginAs, insertUser } = require('./helper')
 
 // The fixture shift: Anna, Monday 2026-09-21 10:00-18:00 Helsinki time.
 const WEEK = '2026-09-21'
@@ -201,8 +201,7 @@ describe('my shifts', () => {
   })
 
   test('an account without a schedule entry has none, and the range is required', async () => {
-    const [kalle] = await db('users').insert({ username: 'kalle', name: 'Kalle', bar_id: data.own.id, password_hash: (await db('users').where({ username: 'mikko' }).first()).password_hash }).returning('id')
-    await db('user_groups').insert({ user_id: kalle.id, group_name: 'employeeGroup' })
+    await insertUser('kalle', { barId: data.own.id, role: 'employee' })
 
     assert.deepStrictEqual(await mine(await loginAs('kalle')), [])
     await mikko.get('/api/shifts/mine').expect(400)

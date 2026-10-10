@@ -23,6 +23,8 @@ describe('login', () => {
     assert.deepStrictEqual(response.body.groups, ['managerGroup'])
     assert.strictEqual(response.body.barId, data.own.id)
     assert.strictEqual(response.body.barName, 'Own Bar')
+    assert.strictEqual(response.body.role, 'owner')
+    assert.strictEqual(response.body.organizationId, data.own.organization_id)
     assert.strictEqual(response.body.password_hash, undefined)
     assert.match(response.headers['set-cookie'][0], /HttpOnly/)
   })
@@ -85,8 +87,8 @@ describe('managerGroup', () => {
     assert.deepStrictEqual(
       response.body.map(({ name, account }) => ({ name, account })),
       [
-        { name: 'Anna', account: { username: 'anna', email: null, groups: ['managerGroup'] } },
-        { name: 'Mikko', account: { username: 'mikko', email: null, groups: ['employeeGroup'] } }
+        { name: 'Anna', account: { username: 'anna', email: null, groups: ['managerGroup'], role: 'owner' } },
+        { name: 'Mikko', account: { username: 'mikko', email: null, groups: ['employeeGroup'], role: 'employee' } }
       ]
     )
   })

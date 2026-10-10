@@ -12,21 +12,28 @@ const { hashPassword } = require('../utils/passwords')
 const PASSWORD = 'test-password'
 let passwordHash
 
-const insertUser = async (username, { barId = null, employeeId = null, groups }) => {
+// A platform admin (isAdmin) or a member of a bar with `role`.
+const insertUser = async (username, { barId = null, employeeId = null, role = null, isAdmin = false }) => {
   passwordHash ??= await hashPassword(PASSWORD)
   const [user] = await db('users')
-    .insert({ username, name: username, bar_id: barId, employee_id: employeeId, password_hash: passwordHash })
+    .insert({ username, name: username, is_admin: isAdmin, password_hash: passwordHash })
     .returning('*')
-  await db('user_groups').insert(groups.map((group) => ({ user_id: user.id, group_name: group })))
+  if (barId) await db('memberships').insert({ user_id: user.id, bar_id: barId, employee_id: employeeId, role })
   return user
 }
 
 // Two bars. Users of "own" must never see or change anything in "other".
 const resetDb = async () => {
-  await db.raw('TRUNCATE password_resets, invites, published_shifts, schedule_weeks, user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
+  await db.raw('TRUNCATE password_resets, invites, published_shifts, schedule_weeks, memberships, users, day_orders, shifts, employees, bars, organizations RESTART IDENTITY CASCADE')
 
-  const [own, other] = await db('bars')
+  const [ownOrganization, otherOrganization] = await db('organizations')
     .insert([{ name: 'Own Bar' }, { name: 'Other Bar' }])
+    .returning('*')
+  const [own, other] = await db('bars')
+    .insert([
+      { name: 'Own Bar', organization_id: ownOrganization.id },
+      { name: 'Other Bar', organization_id: otherOrganization.id }
+    ])
     .returning('*')
 
   const [anna, mikko] = await db('employees')
@@ -48,10 +55,10 @@ const resetDb = async () => {
 
   await db('day_orders').insert({ bar_id: other.id, day: '2026-09-21', employee_ids: JSON.stringify([olli.id]) })
 
-  await insertUser('admin', { groups: ['adminGroup'] })
-  await insertUser('anna', { barId: own.id, employeeId: anna.id, groups: ['managerGroup'] })
-  await insertUser('mikko', { barId: own.id, employeeId: mikko.id, groups: ['employeeGroup'] })
-  await insertUser('olli', { barId: other.id, employeeId: olli.id, groups: ['managerGroup'] })
+  await insertUser('admin', { isAdmin: true })
+  await insertUser('anna', { barId: own.id, employeeId: anna.id, role: 'owner' })
+  await insertUser('mikko', { barId: own.id, employeeId: mikko.id, role: 'employee' })
+  await insertUser('olli', { barId: other.id, employeeId: olli.id, role: 'owner' })
 
   return { own, other, anna, mikko, olli, ownShift, otherShift }
 }
@@ -63,4 +70,4 @@ const loginAs = async (username) => {
   return agent
 }
 
-module.exports = { resetDb, loginAs, PASSWORD }
+module.exports = { resetDb, loginAs, insertUser, PASSWORD }

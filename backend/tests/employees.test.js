@@ -45,7 +45,7 @@ describe('adding an employee', () => {
     assert.strictEqual(response.body.name, 'Kalle')
     assert.strictEqual(response.body.role, 'waiter')
     assert.match(response.body.color, /^#[0-9a-f]{6}$/)
-    assert.deepStrictEqual(response.body.account, { username: 'kalle', email: null, groups: ['employeeGroup'] })
+    assert.deepStrictEqual(response.body.account, { username: 'kalle', email: null, groups: ['employeeGroup'], role: 'employee' })
     assert.strictEqual(response.body.shiftCount, 0)
 
     const kalle = await login('kalle', NEW_EMPLOYEE.password)
@@ -60,7 +60,8 @@ describe('adding an employee', () => {
     await api.post('/api/employees').send({ ...NEW_EMPLOYEE, barId: data.other.id }).expect(201)
 
     const user = await db('users').where({ username: 'kalle' }).first()
-    assert.strictEqual(user.bar_id, data.own.id)
+    const bars = await db('memberships').where({ user_id: user.id }).pluck('bar_id')
+    assert.deepStrictEqual(bars, [data.own.id])
   })
 
   test('a username in use in another bar is refused without naming that bar', async () => {
@@ -126,6 +127,19 @@ describe('removing an employee', () => {
     assert.strictEqual(await db('users').where({ username: 'mikko' }).first(), undefined)
     assert.strictEqual(await db('employees').where({ id: data.mikko.id }).first(), undefined)
     assert.deepStrictEqual(await db('shifts').where({ employee_id: data.mikko.id }), [])
+  })
+
+  test('keeps the account of someone who also works in another bar', async () => {
+    const mikkoUser = await db('users').where({ username: 'mikko' }).first()
+    // Mikko takes Olli's place on the Other Bar schedule.
+    await db('memberships').where({ employee_id: data.olli.id }).del()
+    await db('memberships').insert({ user_id: mikkoUser.id, bar_id: data.other.id, employee_id: data.olli.id, role: 'employee' })
+
+    await api.delete(`/api/employees/${data.mikko.id}`).expect(204)
+
+    const me = await (await loginAs('mikko')).get('/api/me').expect(200)
+    assert.strictEqual(me.body.barId, data.other.id)
+    assert.strictEqual(me.body.employeeId, data.olli.id)
   })
 })
 

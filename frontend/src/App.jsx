@@ -124,7 +124,7 @@ const App = () => {
         <h1>{title}</h1>
         <div className="user-menu">
           <span className="user-name">{user.name}</span>
-          <GroupBadges groups={user.groups} />
+          <GroupBadges groups={user.groups} role={user.role} />
           <button type="button" className="btn btn-nav" onClick={handleLogout}>
             {t('app.logout')}
           </button>

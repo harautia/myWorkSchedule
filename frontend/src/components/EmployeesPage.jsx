@@ -136,7 +136,7 @@ const EmployeesPage = () => {
                     </td>
                     <td data-label={t('employees.columns.role')}>{roleLabel(t, employee.role)}</td>
                     <td data-label={t('employees.columns.login')}>{loginText(t, employee)}</td>
-                    <td data-label={t('employees.columns.groups')}>{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
+                    <td data-label={t('employees.columns.groups')}>{employee.account && <GroupBadges groups={employee.account.groups} role={employee.account.role} />}</td>
                     <td data-label={t('employees.columns.shifts')}>{employee.shiftCount}</td>
                     <td className="row-actions">
                       {isManager && <span className="muted">{t('employees.managedByAdmin')}</span>}

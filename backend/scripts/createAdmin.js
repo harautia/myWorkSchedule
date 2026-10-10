@@ -10,7 +10,6 @@ const db = require('../db/db')
 const Users = require('../models/users')
 const { hashPassword } = require('../utils/passwords')
 const { newAccountError } = require('../utils/validation')
-const { ADMIN } = require('../utils/groups')
 
 const argument = (name) => {
   const index = process.argv.indexOf(`--${name}`)
@@ -68,7 +67,7 @@ const main = async () => {
     return 1
   }
 
-  await Users.create({ barId: null, username, email, name, passwordHash: await hashPassword(password), groups: [ADMIN] })
+  await Users.create({ isAdmin: true, username, email, name, passwordHash: await hashPassword(password) })
   console.log(`Admin ${username} created. Log in to the app to create bars and their managers.`)
   return 0
 }

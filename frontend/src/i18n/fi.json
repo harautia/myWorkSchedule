@@ -46,7 +46,8 @@
   "groups": {
     "adminGroup": "Ylläpitäjä",
     "managerGroup": "Esihenkilö",
-    "employeeGroup": "Työntekijä"
+    "employeeGroup": "Työntekijä",
+    "owner": "Omistaja"
   },
   "roles": {
     "manager": "esihenkilö",

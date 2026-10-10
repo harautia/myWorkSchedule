@@ -8,7 +8,7 @@ const Invites = require('../models/invites')
 const email = require('../utils/email')
 const { pickColor } = require('../utils/colors')
 const { requireGroup } = require('../utils/middleware')
-const { MANAGER, EMPLOYEE } = require('../utils/groups')
+const { MANAGER } = require('../utils/groups')
 const { UNIQUE_VIOLATION, pickAccount, createStaffAccount } = require('../utils/accounts')
 const { hashPassword } = require('../utils/passwords')
 const { newAccountError, accountChangesError, inviteError, isEmail, parseId } = require('../utils/validation')
@@ -41,7 +41,7 @@ const details = async (barId) => {
 // Creates an invitation for an employee: { token, address }.
 const createInvite = async (request, conn, { employeeId, address }) => {
   const token = await Invites.create(
-    { barId: request.barId, employeeId, email: address, group: EMPLOYEE, invitedBy: request.user.id },
+    { barId: request.barId, employeeId, email: address, role: 'employee', invitedBy: request.user.id },
     conn
   )
   return { token, address }
@@ -106,7 +106,7 @@ employeesRouter.post('/', requireGroup(MANAGER), async (request, response) => {
   let userId
   try {
     userId = await db.transaction((trx) =>
-      createStaffAccount(trx, request.barId, account, { role: 'waiter', group: EMPLOYEE })
+      createStaffAccount(trx, request.barId, account, { role: 'waiter', memberRole: 'employee' })
     )
   } catch (err) {
     if (err.code === UNIQUE_VIOLATION) return usernameTakenResponse(response, account.username)
@@ -184,11 +184,11 @@ employeesRouter.put('/:employeeId', manageEmployee, async (request, response) =>
   response.json(updated)
 })
 
-// Removes the employee from the bar: their login account, the employee and
-// all their shifts. Cannot be undone.
+// Removes the employee from the bar: the employee, all their shifts and their
+// login account (unless it belongs to another bar too). Cannot be undone.
 employeesRouter.delete('/:employeeId', manageEmployee, async (request, response) => {
   await db.transaction(async (trx) => {
-    if (request.account) await Users.remove(request.account.id, trx)
+    if (request.account) await Users.removeFromBar(request.barId, request.account.id, trx)
     await Employees.remove(request.barId, request.employee.id, trx)
   })
   response.status(204).end()
