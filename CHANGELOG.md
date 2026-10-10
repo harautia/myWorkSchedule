@@ -6,35 +6,7 @@ breaking changes, which are always described under **Upgrading**.
 
 ## [Unreleased]
 
-### Added
-- Bar settings page for managers: name, timezone, opening hours, language, 12/24-hour
-  clock and accent colour. Admins set the same when creating or editing a bar.
-- `PUT /api/bar` for managers to change their own bar's settings.
-
-- The app is available in **English and Finnish**. A bar's language is part of its
-  settings; admins and the login page follow the browser's language. Weekday and month
-  names follow the language too.
-
-- **Email login, invitations and password reset.** Log in with an email address or a
-  username. Managers add employees by name and email; the employee gets an invitation
-  and chooses their own password. "Forgot password?" emails a single-use link (valid one
-  hour). Email goes through any SMTP server (`SMTP_URL`, `EMAIL_FROM`, `APP_URL`);
-  without one, managers get the invitation link to pass on themselves.
-
-### Changed
-- The schedule uses the bar's own timezone and opening hours everywhere, instead of
-  10:00–04:00 and the viewer's computer time. Times are the bar's local time for
-  everyone, wherever they are.
-
-### Upgrading
-- Optional: set `SMTP_URL`, `EMAIL_FROM` and `APP_URL` to send invitations and password
-  reset links by email (see the configuration reference).
-- A database migration adds email addresses, invitations and password resets; existing
-  accounts keep logging in with their username.
-- A database migration adds the new settings with defaults (English, 24-hour clock, the
-  default purple); it runs automatically on start.
-
-## [0.1.0] – unreleased
+## [0.1.0] – 2026-10-10
 
 First public release.
 
@@ -45,6 +17,17 @@ First public release.
 - Adding the same shift on several days at once.
 - Several bars in one installation, with admin, manager and employee roles.
 - Managers add, rename and remove employees and reset their passwords.
+- Bar settings page for managers: name, timezone, opening hours, language, 12/24-hour
+  clock and accent colour. Admins set the same when creating or editing a bar. The
+  schedule uses the bar's own timezone and opening hours everywhere: times are the
+  bar's local time for everyone, wherever they are.
+- The app is available in **English and Finnish**. A bar's language is part of its
+  settings; admins and the login page follow the browser's language.
+- **Email login, invitations and password reset.** Log in with an email address or a
+  username. Managers add employees by name and email; the employee gets an invitation
+  and chooses their own password. "Forgot password?" emails a single-use link (valid one
+  hour). Email goes through any SMTP server (`SMTP_URL`, `EMAIL_FROM`, `APP_URL`);
+  without one, managers get the invitation link to pass on themselves.
 - "My shifts" list and one-day view for phones; installable as a PWA, and the last loaded
   schedule is shown offline.
 - Docker image and `docker-compose.yml` for self-hosting; database migrations run on start.
