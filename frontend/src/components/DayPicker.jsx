@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { addMonths, format } from 'date-fns'
+import { addMonths } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import shiftService from '../services/shifts'
-import { addDays, isSameMonth, monthGrid, weekStart } from '../utils/dates'
+import { addDays, formatDate, isSameMonth, monthGrid, weekdayNames, weekStart } from '../utils/dates'
 import { dayKey } from '../utils/lanes'
-
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 // A small month calendar for choosing several bar days. selected is a Set of
 // 'yyyy-MM-dd' keys; clicking a day adds or removes it. Days in locked weeks
 // can't be chosen.
 const DayPicker = ({ selected, onToggle, initialMonth }) => {
+  const { t } = useTranslation()
   const [month, setMonth] = useState(initialMonth)
   const [weeks, setWeeks] = useState({})
   const days = monthGrid(month)
@@ -25,16 +25,16 @@ const DayPicker = ({ selected, onToggle, initialMonth }) => {
   return (
     <div className="day-picker">
       <div className="day-picker-header">
-        <button type="button" className="btn btn-nav" onClick={() => setMonth((m) => addMonths(m, -1))} aria-label="Previous month">
+        <button type="button" className="btn btn-nav" onClick={() => setMonth((m) => addMonths(m, -1))} aria-label={t('dayPicker.previousMonth')}>
           ‹
         </button>
-        <span className="day-picker-month">{format(month, 'MMMM yyyy')}</span>
-        <button type="button" className="btn btn-nav" onClick={() => setMonth((m) => addMonths(m, 1))} aria-label="Next month">
+        <span className="day-picker-month">{formatDate(month, 'LLLL yyyy')}</span>
+        <button type="button" className="btn btn-nav" onClick={() => setMonth((m) => addMonths(m, 1))} aria-label={t('dayPicker.nextMonth')}>
           ›
         </button>
       </div>
-      <div className="day-picker-grid" role="group" aria-label="Bar days">
-        {WEEKDAYS.map((name) => (
+      <div className="day-picker-grid" role="group" aria-label={t('dayPicker.label')}>
+        {weekdayNames().map((name) => (
           <span key={name} className="day-picker-weekday">{name}</span>
         ))}
         {days.map((day) => {
@@ -49,8 +49,8 @@ const DayPicker = ({ selected, onToggle, initialMonth }) => {
               type="button"
               className={classes.join(' ')}
               aria-pressed={selected.has(key)}
-              aria-label={`${format(day, 'EEEE d.M.yyyy')}${locked ? ' (week locked)' : ''}`}
-              title={locked ? 'Week locked' : undefined}
+              aria-label={locked ? t('dayPicker.dayLocked', { day: formatDate(day, 'EEEE d.M.yyyy') }) : formatDate(day, 'EEEE d.M.yyyy')}
+              title={locked ? t('week.locked') : undefined}
               disabled={locked}
               onClick={() => onToggle(key)}
             >

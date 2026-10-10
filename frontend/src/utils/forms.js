@@ -1,5 +1,8 @@
+import i18n from '../i18n'
+
 // The backend's error message for a failed request, or a generic one.
-export const errorMessage = (error, fallback = 'Something went wrong, please try again') =>
+// (Messages from the server are in English for now.)
+export const errorMessage = (error, fallback = i18n.t('common.error')) =>
   error?.response?.data?.error ?? fallback
 
 export const MIN_PASSWORD_LENGTH = 8
@@ -26,9 +29,6 @@ export const LANGUAGES = [
   { code: 'fi', label: 'Suomi' }
 ]
 export const EMPTY_ACCOUNT = { username: '', name: '', password: '' }
-
-export const MANAGER_HINT =
-  'The manager is also added to the schedule with the role manager, so shifts can be planned for them.'
 
 const PASSWORD_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 

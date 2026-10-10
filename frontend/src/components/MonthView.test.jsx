@@ -44,7 +44,7 @@ test('collapses extra shifts into "+N more"', () => {
 test('clicking a day number selects that day', async () => {
   const onSelectDay = vi.fn()
   renderMonth([], onSelectDay)
-  await userEvent.click(screen.getByLabelText(`Show week of ${new Date(2026, 8, 10).toDateString()}`))
+  await userEvent.click(screen.getByLabelText('Show week of Thursday 10.9.2026'))
   expect(onSelectDay).toHaveBeenCalledWith(new Date(2026, 8, 10))
 })
 

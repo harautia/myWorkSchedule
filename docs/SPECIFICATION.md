@@ -100,7 +100,7 @@ The codebase already covers most of the scheduling product. Summary as of 2026-1
 | Security basics | ✅ scrypt password hashes, JWT in an httpOnly cookie (7 days), all sessions ended on password change, login rate limit, helmet. |
 | Login | ⚠️ By **username**, unique across all bars. No email, no self-service password reset. |
 | Per-bar settings in the UI | ✅ The app uses each bar's timezone, opening hours, 12/24-hour clock and accent colour; managers edit them on a Bar settings page (TEN-01–02). Logo and first day of week are still to do. |
-| Translations | ❌ English UI with fixed Finnish-style dates (`d.M.`). |
+| Translations | ✅ The app is in English and Finnish (react-i18next). A bar's users see the bar's language; admins and the login page get the browser's language. Weekday and month names follow it. ⚠️ Error messages from the server are still English only. |
 | Sign-up, billing, project website, email | ❌ Not started. |
 | Deleting a bar | ⚠️ Immediate hard delete, with no export and no grace period. |
 | Operations | ⚠️ CI (lint, tests, licence check, Docker build, DCO) and release workflows exist. No staging environment or monitoring yet. Self-hosters have a backup guide. |

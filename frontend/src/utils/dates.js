@@ -1,4 +1,5 @@
 import { TZDate } from '@date-fns/tz'
+import { fi } from 'date-fns/locale'
 import {
   addDays,
   addMinutes,
@@ -20,11 +21,20 @@ import {
 // setBarSettings() is called when the bar's settings have loaded.
 const localTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
 
-let bar = { timezone: localTimezone(), opensAt: '10:00', closesAt: '04:00', clock24h: true }
+let bar = { timezone: localTimezone(), opensAt: '10:00', closesAt: '04:00', clock24h: true, locale: 'en' }
 
-export const setBarSettings = ({ timezone, opensAt, closesAt, clock24h = true }) => {
-  bar = { timezone, opensAt, closesAt, clock24h }
+export const setBarSettings = ({ timezone, opensAt, closesAt, clock24h = true, locale = 'en' }) => {
+  bar = { timezone, opensAt, closesAt, clock24h, locale }
 }
+
+// Weekday and month names in the bar's language (date-fns defaults to English).
+const DATE_LOCALES = { fi }
+const withLocale = () => ({ locale: DATE_LOCALES[bar.locale] })
+
+// Finnish calendars use two-letter weekdays (ma, ti); date-fns's 'EEE' would
+// give 'maan.'. English keeps 'Mon'.
+const localPattern = (pattern) =>
+  bar.locale === 'fi' ? pattern.replace(/(^|[^E])EEE(?!E)/g, '$1EEEEEE') : pattern
 
 const MINUTES_PER_DAY = 24 * 60
 const toMinutes = (time) => {
@@ -133,26 +143,36 @@ const shortTimePattern = (date) => {
   return date.getMinutes() ? 'h:mma' : 'ha'
 }
 
-export const formatTime = (date) => format(inBarTime(date), timePattern())
+// Any date in the bar's timezone and language, e.g. formatDate(day, 'EEE d.M.').
+export const formatDate = (date, pattern) => format(inBarTime(date), localPattern(pattern), withLocale())
+
+// Short weekday names in the bar's language, Monday first: Mon … Sun / ma … su.
+export const weekdayNames = () => weekDays(barNow()).map((day) => formatDate(day, 'EEE'))
+
+// Value for an <input type="time">, which always takes 24-hour 'HH:mm',
+// whatever the bar's clock setting.
+export const toTimeInput = (date) => format(inBarTime(date), 'HH:mm')
+
+export const formatTime = (date) => format(inBarTime(date), timePattern(), withLocale())
 export const formatShortTime = (date) => {
   const local = inBarTime(date)
-  return format(local, shortTimePattern(local))
+  return format(local, shortTimePattern(local), withLocale())
 }
-export const formatDateTime = (date) => format(inBarTime(date), `d.M. ${timePattern()}`)
-export const formatDayHeader = (date) => format(inBarTime(date), 'EEE d.M.')
+export const formatDateTime = (date) => format(inBarTime(date), `d.M. ${timePattern()}`, withLocale())
+export const formatDayHeader = (date) => formatDate(date, 'EEE d.M.')
 
 // Labels for the hour rows of the week view: one per hour from opening.
 export const openingHourLabels = () => {
   const day = startOfDay(barNow())
   return Array.from({ length: Math.ceil(openMinutes() / 60) }, (_, i) =>
-    format(atMinutes(day, (opensMinutes() + i * 60) % MINUTES_PER_DAY), timePattern())
+    format(atMinutes(day, (opensMinutes() + i * 60) % MINUTES_PER_DAY), timePattern(), withLocale())
   )
 }
 
 export const formatRangeLabel = (view, date) => {
-  if (view === 'month') return format(date, 'MMMM yyyy')
+  if (view === 'month') return format(date, 'MMMM yyyy', withLocale())
   const { from, to } = visibleRange(view, date)
-  return `${format(from, 'd.M.')} – ${format(addDays(to, -1), 'd.M.yyyy')}`
+  return `${format(from, 'd.M.', withLocale())} – ${format(addDays(to, -1), 'd.M.yyyy', withLocale())}`
 }
 
 export const SNAP_MINUTES = 15

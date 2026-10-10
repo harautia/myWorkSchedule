@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AccountFields from '../AccountFields'
 import adminService from '../../services/admin'
-import { EMPTY_ACCOUNT, MANAGER_HINT, errorMessage } from '../../utils/forms'
+import { EMPTY_ACCOUNT, errorMessage } from '../../utils/forms'
 
 const AddManagerForm = ({ barId, onSaved, onCancel }) => {
+  const { t } = useTranslation()
   const [manager, setManager] = useState(EMPTY_ACCOUNT)
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -14,7 +16,7 @@ const AddManagerForm = ({ barId, onSaved, onCancel }) => {
     setError(null)
     try {
       const created = await adminService.addManager(barId, manager)
-      onSaved(`Added manager ${created.username}`)
+      onSaved(t('admin.managerAdded', { username: created.username }))
     } catch (err) {
       setError(errorMessage(err))
       setSaving(false)
@@ -22,16 +24,16 @@ const AddManagerForm = ({ barId, onSaved, onCancel }) => {
   }
 
   return (
-    <form className="card" onSubmit={handleSubmit} aria-label="Add manager">
-      <h3 className="card-title">Add manager</h3>
-      <AccountFields value={manager} onChange={setManager} nameLabel="Manager's name" hint={MANAGER_HINT} />
+    <form className="card" onSubmit={handleSubmit} aria-label={t('admin.addManager')}>
+      <h3 className="card-title">{t('admin.addManager')}</h3>
+      <AccountFields value={manager} onChange={setManager} nameLabel={t('admin.managerName')} hint={t('admin.managerHint')} />
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="form-actions">
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Adding…' : 'Add manager'}
+          {saving ? t('employees.adding') : t('admin.addManager')}
         </button>
         <button type="button" className="btn btn-nav" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </form>

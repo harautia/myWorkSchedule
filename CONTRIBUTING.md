@@ -79,6 +79,22 @@ using your git name and email. Forgot it? `git commit --amend -s` for the last c
 `git rebase --signoff master` for all commits in your branch. CI checks every commit in
 a pull request.
 
+## Translations
+
+The app's texts are in `frontend/src/i18n/`: `en.json` (English, the reference) and
+`fi.json` (Finnish).
+
+- **To improve a translation**, edit the file and open a pull request.
+- **To add a language**, copy `en.json`, translate the texts and add the language to
+  `LANGUAGE_CODES` in `frontend/src/i18n/index.js` and `LANGUAGES` in
+  `frontend/src/utils/forms.js`. The backend also lists the allowed languages
+  (`LOCALES` in `backend/utils/validation.js`, plus a check in the database), so a new
+  language needs a small migration too.
+
+Keep the `{{placeholders}}` as they are. Texts with a count use i18next's plural forms
+(`_one`, `_other`). `npm test` checks that every language has every text, with the same
+placeholders.
+
 ## Pull requests
 
 1. Fork the repository and create a branch from `master`.

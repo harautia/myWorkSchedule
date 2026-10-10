@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import PasswordField from '../PasswordField'
 import adminService from '../../services/admin'
 import { errorMessage } from '../../utils/forms'
@@ -6,6 +7,7 @@ import { errorMessage } from '../../utils/forms'
 // Rename a manager, or set a new password (password recovery). A new
 // password also logs the manager out of any open sessions.
 const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState(manager.name)
   const [changePassword, setChangePassword] = useState(false)
   const [password, setPassword] = useState('')
@@ -23,7 +25,7 @@ const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
     setError(null)
     try {
       await adminService.updateManager(barId, manager.id, changes)
-      onSaved(changes.password ? `New password set for ${manager.username}` : `Saved ${manager.username}`)
+      onSaved(changes.password ? t('admin.passwordSet', { username: manager.username }) : t('admin.saved', { username: manager.username }))
     } catch (err) {
       setError(errorMessage(err))
       setSaving(false)
@@ -31,33 +33,33 @@ const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
   }
 
   return (
-    <form className="inline-form" onSubmit={handleSubmit} aria-label={`Edit ${manager.username}`}>
+    <form className="inline-form" onSubmit={handleSubmit} aria-label={t('admin.editLabel', { username: manager.username })}>
       <div className="form-grid">
         <label className="form-field">
-          Name
+          {t('account.name')}
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required />
         </label>
         {changePassword ? (
-          <PasswordField label="New password" value={password} onChange={setPassword} />
+          <PasswordField label={t('account.newPassword')} value={password} onChange={setPassword} />
         ) : (
           <div className="form-field">
-            Password
+            {t('account.password')}
             <button type="button" className="btn btn-nav" onClick={() => setChangePassword(true)}>
-              Set new password
+              {t('account.setNewPassword')}
             </button>
           </div>
         )}
       </div>
       {changePassword && (
-        <p className="field-hint">Saving a new password logs {manager.name} out on all devices.</p>
+        <p className="field-hint">{t('employees.logoutWarning', { name: manager.name })}</p>
       )}
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="form-actions">
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? t('common.saving') : t('common.save')}
         </button>
         <button type="button" className="btn btn-nav" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </form>

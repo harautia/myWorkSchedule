@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import CalendarToolbar from './CalendarToolbar'
 import DayStrip from './DayStrip'
 import EditShiftForm from './EditShiftForm'
@@ -15,6 +16,7 @@ import {
   barNow,
   inBarTime,
   toApiTime,
+  formatDate,
   formatRangeLabel,
   formatTime,
   isSameDay,
@@ -38,6 +40,7 @@ const toShift = (data) => ({ ...data, start: inBarTime(data.start), end: inBarTi
 // shifts are tapped to edit instead of dragged. Anyone on the schedule
 // (employeeId) also has "My shifts", the default for employees on phones.
 const SchedulePage = ({ canEdit, employeeId }) => {
+  const { t } = useTranslation()
   const isNarrow = useMediaQuery(NARROW_SCREEN)
   const isTouch = useMediaQuery(TOUCH_POINTER)
   const views = employeeId ? ['mine', 'week', 'month'] : ['week', 'month']
@@ -93,7 +96,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   // A change was refused (e.g. another manager locked the week meanwhile):
   // show why and reload what is really saved.
   const handleSaveError = (err) => {
-    setActionError(errorMessage(err, 'Could not save the change'))
+    setActionError(errorMessage(err, t('schedule.saveFailed')))
     loadSchedule()
   }
 
@@ -139,8 +142,8 @@ const SchedulePage = ({ canEdit, employeeId }) => {
 
   const handleDelete = async (shift) => {
     const name = employeesById[shift.employeeId]?.name
-    const when = `${shift.start.toDateString()} ${formatTime(shift.start)}–${formatTime(shift.end)}`
-    if (!window.confirm(`Delete ${name}'s shift ${when}?`)) return
+    const when = `${formatDate(shift.start, 'EEEE d.M.')} ${formatTime(shift.start)}–${formatTime(shift.end)}`
+    if (!window.confirm(t('schedule.deleteConfirm', { name, when }))) return
     try {
       await shiftService.deleteShift(shift.id)
       setShifts((prev) => prev.filter((s) => s.id !== shift.id))
@@ -173,7 +176,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   }
 
   const handleEditDelete = async () => {
-    if (!window.confirm('Delete this shift?')) return
+    if (!window.confirm(t('schedule.deleteThisConfirm'))) return
     await shiftService.deleteShift(editingShift.id)
     setShifts((prev) => prev.filter((s) => s.id !== editingShift.id))
     setEditingShift(null)
@@ -227,7 +230,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
       {view !== 'mine' && (
         <EmployeeLegend employees={employees} hiddenIds={hiddenIds} onToggle={toggleEmployee} />
       )}
-      {!canEdit && view !== 'mine' && <p className="page-note">View only: ask a manager to change shifts.</p>}
+      {!canEdit && view !== 'mine' && <p className="page-note">{t('schedule.viewOnly')}</p>}
       {view === 'week' && (
         <WeekStatusBar
           week={week}

@@ -31,7 +31,9 @@ checks. Your data stays on your server.
 
 ## Which languages are supported?
 
-English for now. Finnish is coming, and translations can be contributed.
+English and Finnish. Each bar chooses its language in its settings; everyone in the bar
+sees the app in that language. New languages can be contributed as translation files,
+without changing code; see [contributing](../contributing/).
 
 ## How big a server do I need?
 

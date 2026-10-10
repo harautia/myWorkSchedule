@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AddManagerForm from './AddManagerForm'
 import BarFields from './BarFields'
 import DeleteBarSection from './DeleteBarSection'
@@ -7,11 +8,13 @@ import GroupBadges from '../GroupBadges'
 import adminService from '../../services/admin'
 import { barSettings, errorMessage } from '../../utils/forms'
 import { MANAGER } from '../../utils/access'
+import { roleLabel } from '../../i18n/labels'
 
 
 // One bar: its settings, and every user account in it. Managers can be
 // added, edited (name, new password) and removed here.
 const BarDetail = ({ barId, onBack, onDeleted }) => {
+  const { t } = useTranslation()
   const [details, setDetails] = useState(null)
   const [barForm, setBarForm] = useState(null)
   const [loadError, setLoadError] = useState(null)
@@ -32,11 +35,11 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
   )
 
   useEffect(() => {
-    load().catch((err) => setLoadError(errorMessage(err, 'Could not load the bar')))
-  }, [load])
+    load().catch((err) => setLoadError(errorMessage(err, t('admin.loadBarFailed'))))
+  }, [load, t])
 
   if (loadError) return <p className="form-error" role="alert">{loadError}</p>
-  if (!details) return <p className="page-note">Loading…</p>
+  if (!details) return <p className="page-note">{t('app.loading')}</p>
 
   const { bar, users } = details
   const managerCount = users.filter((user) => user.groups.includes(MANAGER)).length
@@ -53,7 +56,7 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
     try {
       const saved = await adminService.updateBar(barId, barForm)
       setDetails((prev) => ({ ...prev, bar: saved }))
-      showNotice('Bar settings saved')
+      showNotice(t('admin.barSaved'))
     } catch (err) {
       setBarError(errorMessage(err))
     }
@@ -68,10 +71,10 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
   }
 
   const handleRemove = async (user) => {
-    if (!window.confirm(`Remove manager ${user.name} (${user.username})? Their login account is deleted.`)) return
+    if (!window.confirm(t('admin.removeManagerConfirm', { name: user.name, username: user.username }))) return
     try {
       await adminService.removeManager(barId, user.id)
-      showNotice(`Removed manager ${user.username}`)
+      showNotice(t('admin.managerRemoved', { username: user.username }))
       await load()
     } catch (err) {
       setNotice(null)
@@ -82,28 +85,28 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
   return (
     <section>
       <button type="button" className="link-button back-link" onClick={onBack}>
-        ‹ All bars
+        {t('admin.allBars')}
       </button>
       <h2 className="page-title">{bar.name}</h2>
 
       {notice && <p className="form-notice" role="status">{notice}</p>}
 
-      <form className="card" onSubmit={handleSaveBar} aria-label="Bar settings">
-        <h3 className="card-title">Bar settings</h3>
+      <form className="card" onSubmit={handleSaveBar} aria-label={t('barSettings.title')}>
+        <h3 className="card-title">{t('barSettings.title')}</h3>
         <BarFields value={barForm} onChange={setBarForm} />
         {barError && <p className="form-error" role="alert">{barError}</p>}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary" disabled={savingBar}>
-            {savingBar ? 'Saving…' : 'Save settings'}
+            {savingBar ? t('common.saving') : t('barSettings.save')}
           </button>
         </div>
       </form>
 
       <div className="page-heading">
-        <h3 className="card-title">Users ({users.length})</h3>
+        <h3 className="card-title">{t('admin.usersTitle', { count: users.length })}</h3>
         {!adding && (
           <button type="button" className="btn btn-nav" onClick={() => setAdding(true)}>
-            Add manager
+            {t('admin.addManager')}
           </button>
         )}
       </div>
@@ -114,10 +117,10 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Groups</th>
-              <th>On schedule as</th>
+              <th>{t('admin.columns.name')}</th>
+              <th>{t('admin.columns.username')}</th>
+              <th>{t('admin.columns.groups')}</th>
+              <th>{t('admin.columns.onSchedule')}</th>
               <th />
             </tr>
           </thead>
@@ -128,25 +131,27 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
                 <Fragment key={user.id}>
                   <tr>
                     <td>{user.name}</td>
-                    <td data-label="Username">{user.username}</td>
-                    <td data-label="Groups"><GroupBadges groups={user.groups} /></td>
-                    <td data-label="On schedule as">
-                      {user.employee ? `${user.employee.name} (${user.employee.role})` : <span className="muted">not linked</span>}
+                    <td data-label={t('admin.columns.username')}>{user.username}</td>
+                    <td data-label={t('admin.columns.groups')}><GroupBadges groups={user.groups} /></td>
+                    <td data-label={t('admin.columns.onSchedule')}>
+                      {user.employee
+                        ? t('admin.employeeOnSchedule', { name: user.employee.name, role: roleLabel(t, user.employee.role) })
+                        : <span className="muted">{t('admin.notLinked')}</span>}
                     </td>
                     <td className="row-actions">
                       {isManager && editingId !== user.id && (
                         <>
                           <button type="button" className="btn btn-nav" onClick={() => setEditingId(user.id)}>
-                            Edit
+                            {t('common.edit')}
                           </button>
                           <button
                             type="button"
                             className="btn btn-danger"
                             onClick={() => handleRemove(user)}
                             disabled={managerCount <= 1}
-                            title={managerCount <= 1 ? 'A bar needs at least one manager' : undefined}
+                            title={managerCount <= 1 ? t('admin.lastManager') : undefined}
                           >
-                            Remove
+                            {t('common.remove')}
                           </button>
                         </>
                       )}
@@ -171,7 +176,7 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
         </table>
       </div>
       <p className="page-note">
-        Employees&apos; accounts are shown for reference; only managers are managed here.
+        {t('admin.employeesNote')}
       </p>
 
       <DeleteBarSection bar={bar} onDeleted={onDeleted} />

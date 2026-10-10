@@ -1,0 +1,227 @@
+{
+  "app": {
+    "checkingSession": "Checking session…",
+    "loading": "Loading…",
+    "title": "{{bar}} Work Schedule",
+    "titleNoBar": "Work Schedule Service",
+    "logout": "Log out",
+    "offline": "You are offline. Showing the schedule as it was last loaded; changes can't be saved.",
+    "pagesLabel": "Pages",
+    "noPages": "Your account has no pages yet. Ask an admin to add you to a group.",
+    "pages": {
+      "schedule": "Schedule",
+      "employees": "Employees",
+      "settings": "Bar settings",
+      "bars": "Bars"
+    }
+  },
+  "login": {
+    "title": "Work Schedule",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "failed": "Login failed, please try again"
+  },
+  "calendar": {
+    "previous": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "viewsLabel": "Calendar view",
+    "views": {
+      "mine": "My shifts",
+      "week": "Week",
+      "month": "Month"
+    }
+  },
+  "legend": {
+    "label": "Employees"
+  },
+  "groups": {
+    "adminGroup": "Admin",
+    "managerGroup": "Manager",
+    "employeeGroup": "Employee"
+  },
+  "roles": {
+    "manager": "manager",
+    "waiter": "waiter"
+  },
+  "footer": {
+    "runBy": "Run by {{name}}",
+    "privacy": "Privacy policy",
+    "source": "Source code"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "remove": "Remove",
+    "delete": "Delete",
+    "error": "Something went wrong, please try again"
+  },
+  "myShifts": {
+    "week": "Week {{number}}",
+    "planning": "Planning",
+    "notPublished": "Not published yet.",
+    "noShifts": "No shifts.",
+    "hours": "{{hours}} h",
+    "hoursMinutes": "{{hours}} h {{minutes}} min"
+  },
+  "dayStrip": {
+    "label": "Day"
+  },
+  "dayPicker": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "label": "Bar days",
+    "dayLocked": "{{day}} (week locked)"
+  },
+  "month": {
+    "showWeek": "Show week of {{date}}",
+    "more": "+{{count}} more"
+  },
+  "week": {
+    "locked": "Week locked"
+  },
+  "weekStatus": {
+    "notPublished": "This week's schedule hasn't been published yet.",
+    "unlockConfirm": "Unlock this week for changes? Employees keep seeing the locked version until you lock the week again.",
+    "lockedBadge": "Locked",
+    "lockedText": "Locked {{when}}. Employees see this week.",
+    "whenBy": "{{when}} by {{name}}",
+    "planningBadge": "Planning",
+    "employeesSee": "Employees see the version locked {{when}}.",
+    "notPublishedYet": "Not published to employees yet.",
+    "clickHint": "Click an empty spot in a day to add a shift.",
+    "addShift": "Add shift",
+    "lock": "Lock week",
+    "unlock": "Unlock week"
+  },
+  "shift": {
+    "title": "{{name}} ({{role}}) {{time}}",
+    "edit": "Edit shift of {{name}} {{time}}",
+    "delete": "Delete shift of {{name}} {{time}}",
+    "deleteTitle": "Delete shift"
+  },
+  "schedule": {
+    "viewOnly": "View only: ask a manager to change shifts.",
+    "saveFailed": "Could not save the change",
+    "deleteConfirm": "Delete {{name}}'s shift {{when}}?",
+    "deleteThisConfirm": "Delete this shift?"
+  },
+  "shiftForm": {
+    "newTitle": "New shift",
+    "editLabel": "Edit shift",
+    "editTitle": "Shift on {{day}}",
+    "employee": "Employee",
+    "choose": "Choose…",
+    "start": "Start",
+    "end": "End",
+    "barDays": "Bar days",
+    "chosen": "Chosen: {{days}}",
+    "chooseDaysHint": "Click days in the calendar to choose them.",
+    "afterMidnightHint": "Times after midnight belong to the evening before: a Friday shift 20:00–02:00 ends at 02:00 on Saturday.",
+    "chooseDay": "Choose at least one bar day",
+    "endAfterStart": "The shift must end after it starts (the bar day runs from opening to closing)",
+    "add_one": "Add shift",
+    "add_other": "Add {{count}} shifts",
+    "employeeOption": "{{name}} ({{role}})"
+  },
+  "employees": {
+    "loadFailed": "Could not load employees",
+    "title": "Employees ({{count}})",
+    "add": "Add employee",
+    "adding": "Adding…",
+    "columns": {
+      "name": "Name",
+      "role": "Role",
+      "login": "Login account",
+      "groups": "Groups",
+      "shifts": "Shifts"
+    },
+    "noLogin": "none",
+    "managedByAdmin": "managed by admin",
+    "removeConfirmWithLogin_one": "Remove {{name}}? This deletes their login account and {{count}} shift.",
+    "removeConfirmWithLogin_other": "Remove {{name}}? This deletes their login account and {{count}} shifts.",
+    "removeConfirm_one": "Remove {{name}}? This deletes {{count}} shift.",
+    "removeConfirm_other": "Remove {{name}}? This deletes {{count}} shifts.",
+    "removed": "Removed {{name}}",
+    "added": "Added {{name}} ({{username}})",
+    "nameLabel": "Employee's name",
+    "addHint": "The employee is added to the schedule as a waiter and can log in to see it.",
+    "editLabel": "Edit {{name}}",
+    "passwordSet": "New password set for {{username}}",
+    "saved": "Saved {{name}}",
+    "logoutWarning": "Saving a new password logs {{name}} out on all devices."
+  },
+  "account": {
+    "name": "Name",
+    "username": "Username",
+    "usernameRule": "3-32 characters: letters, numbers, dot, dash or underscore",
+    "password": "Password",
+    "newPassword": "New password",
+    "setNewPassword": "Set new password",
+    "generate": "Generate",
+    "passwordHint": "At least {{count}} characters. Give it to the person securely."
+  },
+  "barSettings": {
+    "title": "Bar settings",
+    "save": "Save settings",
+    "saved": "Settings saved",
+    "name": "Bar name",
+    "timezone": "Timezone",
+    "opens": "Opens",
+    "closes": "Closes",
+    "language": "Language",
+    "clock": "Clock",
+    "clock24": "24-hour (18:30)",
+    "clock12": "12-hour (6:30 PM)",
+    "accent": "Accent colour",
+    "accentPreview": "Button",
+    "hint": "Times are shown in the bar's timezone for everyone. When the bar closes after midnight, shifts after midnight belong to the evening before. Pick a fairly dark accent colour: buttons show white text on it."
+  },
+  "admin": {
+    "loadBarsFailed": "Could not load bars",
+    "loadBarFailed": "Could not load the bar",
+    "barsTitle": "Bars using the service ({{count}})",
+    "newBar": "New bar",
+    "allBars": "‹ All bars",
+    "columns": {
+      "name": "Name",
+      "hours": "Opening hours",
+      "timezone": "Timezone",
+      "employees": "Employees",
+      "users": "Users",
+      "since": "Customer since",
+      "username": "Username",
+      "groups": "Groups",
+      "onSchedule": "On schedule as"
+    },
+    "barSection": "Bar",
+    "firstManager": "First manager",
+    "create": "Create bar",
+    "creating": "Creating…",
+    "barSaved": "Bar settings saved",
+    "usersTitle": "Users ({{count}})",
+    "addManager": "Add manager",
+    "managerName": "Manager's name",
+    "managerHint": "The manager is also added to the schedule with the role manager, so shifts can be planned for them.",
+    "managerAdded": "Added manager {{username}}",
+    "removeManagerConfirm": "Remove manager {{name}} ({{username}})? Their login account is deleted.",
+    "managerRemoved": "Removed manager {{username}}",
+    "lastManager": "A bar needs at least one manager",
+    "notLinked": "not linked",
+    "employeeOnSchedule": "{{name}} ({{role}})",
+    "employeesNote": "Employees' accounts are shown for reference; only managers are managed here.",
+    "editLabel": "Edit {{username}}",
+    "passwordSet": "New password set for {{username}}",
+    "saved": "Saved {{username}}",
+    "deleteTitle": "Delete bar",
+    "deleteWarning": "Permanently deletes {{name}} with all its employees, shifts and user accounts. This cannot be undone.",
+    "deleteConfirmLabel": "Type the bar name to confirm",
+    "deleteButton": "Delete bar permanently",
+    "deleting": "Deleting…",
+    "deleted": "Deleted {{name}}"
+  }
+}

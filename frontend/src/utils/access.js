@@ -2,12 +2,6 @@ export const ADMIN = 'adminGroup'
 export const MANAGER = 'managerGroup'
 export const EMPLOYEE = 'employeeGroup'
 
-export const GROUP_LABELS = {
-  [ADMIN]: 'Admin',
-  [MANAGER]: 'Manager',
-  [EMPLOYEE]: 'Employee'
-}
-
 const inGroup = (user, ...groups) => groups.some((group) => user.groups.includes(group))
 
 // Only managers change the schedule; employees see it read-only.

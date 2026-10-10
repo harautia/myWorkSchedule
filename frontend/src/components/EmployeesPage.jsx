@@ -1,17 +1,18 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import GroupBadges from './GroupBadges'
 import AddEmployeeForm from './employees/AddEmployeeForm'
 import EditEmployeeForm from './employees/EditEmployeeForm'
 import employeeService from '../services/employees'
 import { errorMessage } from '../utils/forms'
 import { MANAGER } from '../utils/access'
-
-const shiftsText = (count) => (count === 1 ? '1 shift' : `${count} shifts`)
+import { roleLabel } from '../i18n/labels'
 
 // managerGroup: everyone employed in the manager's own bar. Employees can be
 // added, renamed, given a new password and removed here; managers are
 // managed by the admin.
 const EmployeesPage = () => {
+  const { t } = useTranslation()
   const [employees, setEmployees] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [notice, setNotice] = useState(null)
@@ -22,11 +23,11 @@ const EmployeesPage = () => {
   const load = useCallback(() => employeeService.getDetails().then(setEmployees), [])
 
   useEffect(() => {
-    load().catch((err) => setLoadError(errorMessage(err, 'Could not load employees')))
-  }, [load])
+    load().catch((err) => setLoadError(errorMessage(err, t('employees.loadFailed'))))
+  }, [load, t])
 
   if (loadError) return <p className="form-error" role="alert">{loadError}</p>
-  if (!employees) return <p className="page-note">Loading…</p>
+  if (!employees) return <p className="page-note">{t('app.loading')}</p>
 
   const showNotice = (message) => {
     setNotice(message)
@@ -41,13 +42,11 @@ const EmployeesPage = () => {
   }
 
   const handleRemove = async (employee) => {
-    const loses = [employee.account && 'their login account', shiftsText(employee.shiftCount)]
-      .filter(Boolean)
-      .join(' and ')
-    if (!window.confirm(`Remove ${employee.name}? This deletes ${loses}.`)) return
+    const confirmKey = employee.account ? 'employees.removeConfirmWithLogin' : 'employees.removeConfirm'
+    if (!window.confirm(t(confirmKey, { name: employee.name, count: employee.shiftCount }))) return
     try {
       await employeeService.remove(employee.id)
-      showNotice(`Removed ${employee.name}`)
+      showNotice(t('employees.removed', { name: employee.name }))
       await load()
     } catch (err) {
       setNotice(null)
@@ -58,10 +57,10 @@ const EmployeesPage = () => {
   return (
     <section>
       <div className="page-heading">
-        <h2 className="page-title">Employees ({employees.length})</h2>
+        <h2 className="page-title">{t('employees.title', { count: employees.length })}</h2>
         {!adding && (
           <button type="button" className="btn btn-nav" onClick={() => setAdding(true)}>
-            Add employee
+            {t('employees.add')}
           </button>
         )}
       </div>
@@ -74,11 +73,11 @@ const EmployeesPage = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Login account</th>
-              <th>Groups</th>
-              <th>Shifts</th>
+              <th>{t('employees.columns.name')}</th>
+              <th>{t('employees.columns.role')}</th>
+              <th>{t('employees.columns.login')}</th>
+              <th>{t('employees.columns.groups')}</th>
+              <th>{t('employees.columns.shifts')}</th>
               <th />
             </tr>
           </thead>
@@ -92,19 +91,19 @@ const EmployeesPage = () => {
                       <span className="legend-swatch" style={{ '--shift-color': employee.color }} />{' '}
                       {employee.name}
                     </td>
-                    <td data-label="Role">{employee.role}</td>
-                    <td data-label="Login">{employee.account ? employee.account.username : <span className="muted">none</span>}</td>
-                    <td data-label="Groups">{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
-                    <td data-label="Shifts">{employee.shiftCount}</td>
+                    <td data-label={t('employees.columns.role')}>{roleLabel(t, employee.role)}</td>
+                    <td data-label={t('employees.columns.login')}>{employee.account ? employee.account.username : <span className="muted">{t('employees.noLogin')}</span>}</td>
+                    <td data-label={t('employees.columns.groups')}>{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
+                    <td data-label={t('employees.columns.shifts')}>{employee.shiftCount}</td>
                     <td className="row-actions">
-                      {isManager && <span className="muted">managed by admin</span>}
+                      {isManager && <span className="muted">{t('employees.managedByAdmin')}</span>}
                       {!isManager && editingId !== employee.id && (
                         <>
                           <button type="button" className="btn btn-nav" onClick={() => setEditingId(employee.id)}>
-                            Edit
+                            {t('common.edit')}
                           </button>
                           <button type="button" className="btn btn-danger" onClick={() => handleRemove(employee)}>
-                            Remove
+                            {t('common.remove')}
                           </button>
                         </>
                       )}

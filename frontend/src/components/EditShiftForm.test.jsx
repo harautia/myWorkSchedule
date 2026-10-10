@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import EditShiftForm from './EditShiftForm'
+import { setBarSettings } from '../utils/dates'
 
 const employees = [
   { id: 1, name: 'Anna', role: 'manager', color: '#863bff' },
@@ -38,4 +39,16 @@ test('shows the backend error, e.g. when the week was locked meanwhile', async (
   renderForm({ onSave })
   await userEvent.click(screen.getByRole('button', { name: 'Save' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('is locked')
+})
+
+test('time inputs stay 24-hour when the bar uses the 12-hour clock', () => {
+  setBarSettings({ timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: false })
+  try {
+    renderForm()
+    // <input type="time"> only accepts HH:mm; the browser shows it the user's way.
+    expect(screen.getByLabelText('Start')).toHaveValue('20:00')
+    expect(screen.getByLabelText('End')).toHaveValue('02:00')
+  } finally {
+    setBarSettings({ timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: true })
+  }
 })

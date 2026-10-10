@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AppFooter from './components/AppFooter'
 import BarSettingsPage from './components/BarSettingsPage'
 import BarsPage from './components/BarsPage'
@@ -14,14 +15,8 @@ import useOnline from './hooks/useOnline'
 import { canEditSchedule, pagesFor } from './utils/access'
 import { applyBarSettings } from './utils/barSettings'
 
-const PAGE_LABELS = {
-  schedule: 'Schedule',
-  employees: 'Employees',
-  settings: 'Bar settings',
-  bars: 'Bars'
-}
-
 const App = () => {
+  const { t } = useTranslation()
   // undefined = still checking the session, null = logged out
   const [user, setUser] = useState(undefined)
   const [page, setPage] = useState(null)
@@ -71,7 +66,7 @@ const App = () => {
     setPage(null)
   }
 
-  if (user === undefined) return <div className="app-loading">Checking session…</div>
+  if (user === undefined) return <div className="app-loading">{t('app.checkingSession')}</div>
   if (user === null) {
     return (
       <>
@@ -81,13 +76,13 @@ const App = () => {
     )
   }
 
-  if (user.barId && loadedBar.forBarId !== user.barId) return <div className="app-loading">Loading…</div>
+  if (user.barId && loadedBar.forBarId !== user.barId) return <div className="app-loading">{t('app.loading')}</div>
 
   const pages = pagesFor(user)
   const activePage = pages.includes(page) ? page : pages[0]
   // The bar's current name, so a renamed bar shows at once.
   const barName = bar?.name ?? user.barName
-  const title = barName ? `${barName} Work Schedule` : 'Work Schedule Service'
+  const title = barName ? t('app.title', { bar: barName }) : t('app.titleNoBar')
 
   return (
     <div>
@@ -98,19 +93,19 @@ const App = () => {
           <span className="user-name">{user.name}</span>
           <GroupBadges groups={user.groups} />
           <button type="button" className="btn btn-nav" onClick={handleLogout}>
-            Log out
+            {t('app.logout')}
           </button>
         </div>
       </header>
 
       {!online && (
         <p className="offline-banner" role="status">
-          You are offline. Showing the schedule as it was last loaded; changes can&apos;t be saved.
+          {t('app.offline')}
         </p>
       )}
 
       {pages.length > 1 && (
-        <nav aria-label="Pages">
+        <nav aria-label={t('app.pagesLabel')}>
           {pages.map((key) => (
             <button
               key={key}
@@ -119,7 +114,7 @@ const App = () => {
               aria-current={activePage === key ? 'page' : undefined}
               onClick={() => setPage(key)}
             >
-              {PAGE_LABELS[key]}
+              {t(`app.pages.${key}`)}
             </button>
           ))}
         </nav>
@@ -129,7 +124,7 @@ const App = () => {
       {activePage === 'employees' && <EmployeesPage />}
       {activePage === 'settings' && bar && <BarSettingsPage bar={bar} onSaved={handleBarSaved} />}
       {activePage === 'bars' && <BarsPage />}
-      {!activePage && <p className="page-note">Your account has no pages yet. Ask an admin to add you to a group.</p>}
+      {!activePage && <p className="page-note">{t('app.noPages')}</p>}
 
       <AppFooter info={appInfo} />
     </div>

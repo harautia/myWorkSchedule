@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import authService from '../services/auth'
 
 const LoginPage = ({ onLogin }) => {
+  const { t } = useTranslation()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -15,7 +17,7 @@ const LoginPage = ({ onLogin }) => {
       const user = await authService.login(username.trim(), password)
       onLogin(user)
     } catch (err) {
-      setError(err.response?.data?.error ?? 'Login failed, please try again')
+      setError(err.response?.data?.error ?? t('login.failed'))
       setSubmitting(false)
     }
   }
@@ -24,9 +26,9 @@ const LoginPage = ({ onLogin }) => {
     <main className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
         <img src="/App-logo.png" alt="" width="48" height="48" />
-        <h1>Work Schedule</h1>
+        <h1>{t('login.title')}</h1>
         <label className="form-field">
-          Username
+          {t('login.username')}
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -36,7 +38,7 @@ const LoginPage = ({ onLogin }) => {
           />
         </label>
         <label className="form-field">
-          Password
+          {t('login.password')}
           <input
             type="password"
             value={password}
@@ -51,7 +53,7 @@ const LoginPage = ({ onLogin }) => {
           </p>
         )}
         <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? 'Logging in…' : 'Log in'}
+          {submitting ? t('login.submitting') : t('login.submit')}
         </button>
       </form>
     </main>

@@ -11,6 +11,10 @@ breaking changes, which are always described under **Upgrading**.
   clock and accent colour. Admins set the same when creating or editing a bar.
 - `PUT /api/bar` for managers to change their own bar's settings.
 
+- The app is available in **English and Finnish**. A bar's language is part of its
+  settings; admins and the login page follow the browser's language. Weekday and month
+  names follow the language too.
+
 ### Changed
 - The schedule uses the bar's own timezone and opening hours everywhere, instead of
   10:00–04:00 and the viewer's computer time. Times are the bar's local time for

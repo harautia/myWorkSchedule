@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import App from './App'
+import i18n from './i18n'
+import { setBarSettings } from './utils/dates'
 import authService from './services/auth'
 import adminService from './services/admin'
 import appInfoService from './services/appInfo'
@@ -24,6 +26,8 @@ const users = {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  i18n.changeLanguage('en')
+  setBarSettings({ timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: true, locale: 'en' })
   barService.getBar.mockResolvedValue({
     id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff'
   })
@@ -148,4 +152,18 @@ test('employees don\'t get the bar settings page', async () => {
   render(<App />)
   expect(await screen.findByText(/View only/)).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Bar settings' })).not.toBeInTheDocument()
+})
+
+test('a Finnish bar gets the app in Finnish, with Finnish weekday names', async () => {
+  barService.getBar.mockResolvedValue({
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'fi', clock24h: true, accentColor: '#863bff'
+  })
+  authService.getCurrentUser.mockResolvedValue(users.anna)
+  const { container } = render(<App />)
+
+  expect(await screen.findByRole('button', { name: 'Työvuorot' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Työntekijät' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Kirjaudu ulos' })).toBeInTheDocument()
+  expect(container.querySelector('.week-day-header')).toHaveTextContent(/^ma /)
+  expect(document.documentElement.lang).toBe('fi')
 })

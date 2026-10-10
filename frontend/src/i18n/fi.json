@@ -1,0 +1,227 @@
+{
+  "app": {
+    "checkingSession": "Tarkistetaan kirjautumista…",
+    "loading": "Ladataan…",
+    "title": "{{bar}} – työvuorot",
+    "titleNoBar": "Työvuoropalvelu",
+    "logout": "Kirjaudu ulos",
+    "offline": "Ei verkkoyhteyttä. Näytetään viimeksi ladatut työvuorot; muutoksia ei voi tallentaa.",
+    "pagesLabel": "Sivut",
+    "noPages": "Tililläsi ei ole vielä sivuja. Pyydä ylläpitäjää lisäämään sinut ryhmään.",
+    "pages": {
+      "schedule": "Työvuorot",
+      "employees": "Työntekijät",
+      "settings": "Baarin asetukset",
+      "bars": "Baarit"
+    }
+  },
+  "login": {
+    "title": "Työvuorot",
+    "username": "Käyttäjätunnus",
+    "password": "Salasana",
+    "submit": "Kirjaudu",
+    "submitting": "Kirjaudutaan…",
+    "failed": "Kirjautuminen epäonnistui, yritä uudelleen"
+  },
+  "calendar": {
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "today": "Tänään",
+    "viewsLabel": "Kalenterinäkymä",
+    "views": {
+      "mine": "Omat vuorot",
+      "week": "Viikko",
+      "month": "Kuukausi"
+    }
+  },
+  "legend": {
+    "label": "Työntekijät"
+  },
+  "groups": {
+    "adminGroup": "Ylläpitäjä",
+    "managerGroup": "Esihenkilö",
+    "employeeGroup": "Työntekijä"
+  },
+  "roles": {
+    "manager": "esihenkilö",
+    "waiter": "tarjoilija"
+  },
+  "footer": {
+    "runBy": "Ylläpitäjä: {{name}}",
+    "privacy": "Tietosuojaseloste",
+    "source": "Lähdekoodi"
+  },
+  "common": {
+    "save": "Tallenna",
+    "saving": "Tallennetaan…",
+    "cancel": "Peruuta",
+    "edit": "Muokkaa",
+    "remove": "Poista",
+    "delete": "Poista",
+    "error": "Jokin meni vikaan, yritä uudelleen"
+  },
+  "myShifts": {
+    "week": "Viikko {{number}}",
+    "planning": "Suunnitteilla",
+    "notPublished": "Ei vielä julkaistu.",
+    "noShifts": "Ei vuoroja.",
+    "hours": "{{hours}} h",
+    "hoursMinutes": "{{hours}} h {{minutes}} min"
+  },
+  "dayStrip": {
+    "label": "Päivä"
+  },
+  "dayPicker": {
+    "previousMonth": "Edellinen kuukausi",
+    "nextMonth": "Seuraava kuukausi",
+    "label": "Baaripäivät",
+    "dayLocked": "{{day}} (viikko lukittu)"
+  },
+  "month": {
+    "showWeek": "Näytä viikko: {{date}}",
+    "more": "+{{count}} lisää"
+  },
+  "week": {
+    "locked": "Viikko lukittu"
+  },
+  "weekStatus": {
+    "notPublished": "Tämän viikon työvuoroja ei ole vielä julkaistu.",
+    "unlockConfirm": "Avataanko viikko muutoksia varten? Työntekijät näkevät lukitun version, kunnes lukitset viikon uudelleen.",
+    "lockedBadge": "Lukittu",
+    "lockedText": "Lukittu {{when}}. Työntekijät näkevät tämän viikon.",
+    "whenBy": "{{when}}, {{name}}",
+    "planningBadge": "Suunnitteilla",
+    "employeesSee": "Työntekijät näkevät version, joka lukittiin {{when}}.",
+    "notPublishedYet": "Ei vielä julkaistu työntekijöille.",
+    "clickHint": "Lisää vuoro napsauttamalla tyhjää kohtaa päivässä.",
+    "addShift": "Lisää vuoro",
+    "lock": "Lukitse viikko",
+    "unlock": "Avaa viikko"
+  },
+  "shift": {
+    "title": "{{name}} ({{role}}) {{time}}",
+    "edit": "Muokkaa vuoroa: {{name}} {{time}}",
+    "delete": "Poista vuoro: {{name}} {{time}}",
+    "deleteTitle": "Poista vuoro"
+  },
+  "schedule": {
+    "viewOnly": "Vain luku: pyydä esihenkilöä muuttamaan vuoroja.",
+    "saveFailed": "Muutosta ei voitu tallentaa",
+    "deleteConfirm": "Poistetaanko työntekijän {{name}} vuoro {{when}}?",
+    "deleteThisConfirm": "Poistetaanko tämä vuoro?"
+  },
+  "shiftForm": {
+    "newTitle": "Uusi vuoro",
+    "editLabel": "Muokkaa vuoroa",
+    "editTitle": "Vuoro {{day}}",
+    "employee": "Työntekijä",
+    "choose": "Valitse…",
+    "start": "Alkaa",
+    "end": "Päättyy",
+    "barDays": "Baaripäivät",
+    "chosen": "Valittu: {{days}}",
+    "chooseDaysHint": "Valitse päivät napsauttamalla niitä kalenterissa.",
+    "afterMidnightHint": "Puolenyön jälkeiset ajat kuuluvat edelliseen iltaan: perjantain vuoro 20:00–02:00 päättyy lauantaina klo 02:00.",
+    "chooseDay": "Valitse vähintään yksi baaripäivä",
+    "endAfterStart": "Vuoron täytyy päättyä alkamisen jälkeen (baaripäivä kestää avaamisesta sulkemiseen)",
+    "add_one": "Lisää vuoro",
+    "add_other": "Lisää {{count}} vuoroa",
+    "employeeOption": "{{name}} ({{role}})"
+  },
+  "employees": {
+    "loadFailed": "Työntekijöitä ei voitu ladata",
+    "title": "Työntekijät ({{count}})",
+    "add": "Lisää työntekijä",
+    "adding": "Lisätään…",
+    "columns": {
+      "name": "Nimi",
+      "role": "Rooli",
+      "login": "Käyttäjätunnus",
+      "groups": "Ryhmät",
+      "shifts": "Vuorot"
+    },
+    "noLogin": "ei ole",
+    "managedByAdmin": "ylläpitäjä hallinnoi",
+    "removeConfirmWithLogin_one": "Poistetaanko {{name}}? Samalla poistetaan käyttäjätili ja {{count}} vuoro.",
+    "removeConfirmWithLogin_other": "Poistetaanko {{name}}? Samalla poistetaan käyttäjätili ja {{count}} vuoroa.",
+    "removeConfirm_one": "Poistetaanko {{name}}? Samalla poistetaan {{count}} vuoro.",
+    "removeConfirm_other": "Poistetaanko {{name}}? Samalla poistetaan {{count}} vuoroa.",
+    "removed": "{{name}} poistettu",
+    "added": "{{name}} lisätty ({{username}})",
+    "nameLabel": "Työntekijän nimi",
+    "addHint": "Työntekijä lisätään työvuoroihin tarjoilijana, ja hän voi kirjautua katsomaan niitä.",
+    "editLabel": "Muokkaa: {{name}}",
+    "passwordSet": "Uusi salasana asetettu käyttäjälle {{username}}",
+    "saved": "{{name}} tallennettu",
+    "logoutWarning": "Uuden salasanan tallentaminen kirjaa käyttäjän {{name}} ulos kaikilta laitteilta."
+  },
+  "account": {
+    "name": "Nimi",
+    "username": "Käyttäjätunnus",
+    "usernameRule": "3–32 merkkiä: kirjaimia, numeroita, piste, viiva tai alaviiva",
+    "password": "Salasana",
+    "newPassword": "Uusi salasana",
+    "setNewPassword": "Aseta uusi salasana",
+    "generate": "Luo",
+    "passwordHint": "Vähintään {{count}} merkkiä. Anna se henkilölle turvallisesti."
+  },
+  "barSettings": {
+    "title": "Baarin asetukset",
+    "save": "Tallenna asetukset",
+    "saved": "Asetukset tallennettu",
+    "name": "Baarin nimi",
+    "timezone": "Aikavyöhyke",
+    "opens": "Avautuu",
+    "closes": "Sulkeutuu",
+    "language": "Kieli",
+    "clock": "Kello",
+    "clock24": "24 tuntia (18:30)",
+    "clock12": "12 tuntia (6:30 PM)",
+    "accent": "Korostusväri",
+    "accentPreview": "Painike",
+    "hint": "Ajat näytetään kaikille baarin aikavyöhykkeellä. Jos baari sulkeutuu puolenyön jälkeen, puolenyön jälkeiset vuorot kuuluvat edelliseen iltaan. Valitse melko tumma korostusväri: painikkeissa sen päällä on valkoinen teksti."
+  },
+  "admin": {
+    "loadBarsFailed": "Baareja ei voitu ladata",
+    "loadBarFailed": "Baaria ei voitu ladata",
+    "barsTitle": "Palvelua käyttävät baarit ({{count}})",
+    "newBar": "Uusi baari",
+    "allBars": "‹ Kaikki baarit",
+    "columns": {
+      "name": "Nimi",
+      "hours": "Aukioloajat",
+      "timezone": "Aikavyöhyke",
+      "employees": "Työntekijät",
+      "users": "Käyttäjät",
+      "since": "Asiakkaana alkaen",
+      "username": "Käyttäjätunnus",
+      "groups": "Ryhmät",
+      "onSchedule": "Työvuoroissa nimellä"
+    },
+    "barSection": "Baari",
+    "firstManager": "Ensimmäinen esihenkilö",
+    "create": "Luo baari",
+    "creating": "Luodaan…",
+    "barSaved": "Baarin asetukset tallennettu",
+    "usersTitle": "Käyttäjät ({{count}})",
+    "addManager": "Lisää esihenkilö",
+    "managerName": "Esihenkilön nimi",
+    "managerHint": "Esihenkilö lisätään myös työvuoroihin roolilla esihenkilö, joten hänellekin voi suunnitella vuoroja.",
+    "managerAdded": "Esihenkilö {{username}} lisätty",
+    "removeManagerConfirm": "Poistetaanko esihenkilö {{name}} ({{username}})? Hänen käyttäjätilinsä poistetaan.",
+    "managerRemoved": "Esihenkilö {{username}} poistettu",
+    "lastManager": "Baarissa täytyy olla vähintään yksi esihenkilö",
+    "notLinked": "ei linkitetty",
+    "employeeOnSchedule": "{{name}} ({{role}})",
+    "employeesNote": "Työntekijöiden tilit näytetään tiedoksi; täällä hallinnoidaan vain esihenkilöitä.",
+    "editLabel": "Muokkaa: {{username}}",
+    "passwordSet": "Uusi salasana asetettu käyttäjälle {{username}}",
+    "saved": "{{username}} tallennettu",
+    "deleteTitle": "Poista baari",
+    "deleteWarning": "Poistaa baarin {{name}} pysyvästi kaikkine työntekijöineen, vuoroineen ja käyttäjätileineen. Tätä ei voi perua.",
+    "deleteConfirmLabel": "Vahvista kirjoittamalla baarin nimi",
+    "deleteButton": "Poista baari pysyvästi",
+    "deleting": "Poistetaan…",
+    "deleted": "{{name}} poistettu"
+  }
+}

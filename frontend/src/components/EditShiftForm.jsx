@@ -1,17 +1,19 @@
 import { useState } from 'react'
-import { format } from 'date-fns'
-import { barDay, formatTime, SNAP_MINUTES, timeOnBarDay } from '../utils/dates'
+import { useTranslation } from 'react-i18next'
+import { roleLabel } from '../i18n/labels'
+import { barDay, formatDate, SNAP_MINUTES, timeOnBarDay, toTimeInput } from '../utils/dates'
 import { errorMessage } from '../utils/forms'
 
 // Touch screens: shifts can't be dragged there, so tapping one opens this
 // form to change its employee and times on the same bar day, or delete it.
 // onSave({ employeeId, start, end }) and onDelete() return promises.
 const EditShiftForm = ({ shift, employees, onSave, onDelete, onCancel }) => {
+  const { t } = useTranslation()
   const day = barDay(shift.start)
   const [form, setForm] = useState({
     employeeId: String(shift.employeeId),
-    start: formatTime(shift.start),
-    end: formatTime(shift.end)
+    start: toTimeInput(shift.start),
+    end: toTimeInput(shift.end)
   })
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -34,44 +36,44 @@ const EditShiftForm = ({ shift, employees, onSave, onDelete, onCancel }) => {
     const start = timeOnBarDay(day, form.start)
     const end = timeOnBarDay(day, form.end)
     if (end <= start) {
-      return setError('The shift must end after it starts (the bar day runs from opening to closing)')
+      return setError(t('shiftForm.endAfterStart'))
     }
     run(() => onSave({ employeeId: Number(form.employeeId), start, end }))
   }
 
   return (
-    <form className="card shift-sheet" onSubmit={handleSubmit} aria-label="Edit shift">
-      <h3 className="card-title">Shift on {format(day, 'EEEE d.M.')}</h3>
+    <form className="card shift-sheet" onSubmit={handleSubmit} aria-label={t('shiftForm.editLabel')}>
+      <h3 className="card-title">{t('shiftForm.editTitle', { day: formatDate(day, 'EEEE d.M.') })}</h3>
       <div className="form-grid">
         <label className="form-field">
-          Employee
+          {t('shiftForm.employee')}
           <select value={form.employeeId} onChange={set('employeeId')} required>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
-                {employee.name} ({employee.role})
+                {t('shiftForm.employeeOption', { name: employee.name, role: roleLabel(t, employee.role) })}
               </option>
             ))}
           </select>
         </label>
         <label className="form-field">
-          Start
+          {t('shiftForm.start')}
           <input type="time" value={form.start} onChange={set('start')} step={SNAP_MINUTES * 60} required />
         </label>
         <label className="form-field">
-          End
+          {t('shiftForm.end')}
           <input type="time" value={form.end} onChange={set('end')} step={SNAP_MINUTES * 60} required />
         </label>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <div className="form-actions">
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? t('common.saving') : t('common.save')}
         </button>
         <button type="button" className="btn btn-nav" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </button>
         <button type="button" className="btn btn-danger form-actions-end" onClick={() => run(onDelete)} disabled={saving}>
-          Delete
+          {t('common.delete')}
         </button>
       </div>
     </form>
