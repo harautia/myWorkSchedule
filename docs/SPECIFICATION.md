@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Draft 0.6, all decisions, targets and pricing set |
 | **Owner** | Hannu Rautiainen |
-| **Last updated** | 2026-10-04 |
+| **Last updated** | 2026-10-10 |
 | **Codebase** | `myWorkSchedule/` (React + Vite frontend, Express + Knex + PostgreSQL backend) |
 | **Licence** | Open source, AGPL-3.0 (decided; see D10) |
 
@@ -487,7 +487,7 @@ An OpenAPI description should be written as part of this work. New endpoint grou
 |---|---|---|
 | **0. Decide** | ✅ This spec reviewed | The owner has approved the spec on 10.10.2026 (Hannu) |
 | **1. Groundwork** | ✅ Per-bar settings used in the UI (TEN-01–02), translations (English, Finnish), email login, invites and password reset (AUTH-01–03), email through SMTP (NOT-01). CI exists. *Moved to phases 2–3:* staging and production environments, backups and Sentry for the hosted service. | A manager can invite staff by email, and the app shows the bar's own hours and timezone |
-| **1a. Open-source ready** | LICENSE, trademark policy and community files (OSS-01–05, OSS-10). Operator details and footer from configuration (SELF-09). Docker image and Compose file, health check, first-admin command (SELF-01–04, SELF-08). `DEPLOYMENT_MODE` switch. Project website with the Docs section and the self-hosting guide (LAND-01, LAND-09–10). Publish the GitHub repository with a v0.1.0 release. | Someone else installs it from the guide and plans a week |
+| **1a. Open-source ready** | LICENSE, trademark policy and community files (OSS-01–05, OSS-10). Operator details and footer from configuration (SELF-09). Docker image and Compose file, health check, first-admin command (SELF-01–04, SELF-08). `DEPLOYMENT_MODE` switch. Project website with the Docs section and the self-hosting guide (LAND-01, LAND-09–10). Publish the GitHub repository with a v0.1.0 release. *Status:* everything is done and v0.1.0 was released on 10.10.2026 (the image is public on GHCR); only the acceptance test is left. | Someone else installs it from the guide and plans a week. Whatever they get stuck on shows what the guide needs to explain better. When it works, mark 1a ✅ |
 | **2. Sign-up** | Organizations and memberships (§10). Self-service sign-up and trial (SIGN-01–04). Onboarding checklist. | A stranger can start a trial and publish a week without our help |
 | **3. Billing (hosted mode)** | Stripe Checkout with trial and card at sign-up, portal, webhooks, lifecycle, price per bar (BILL-01–07). Admin console extensions (ADM-01–02). | A bar can pay, and unpaid bars become read-only on schedule |
 | **4. Hosted service pages and legal** | Pricing, trial and legal pages on the project website (LAND-02–06), data export and scheduled deletion (DATA-01–04), security review | Ready to take real customers |
