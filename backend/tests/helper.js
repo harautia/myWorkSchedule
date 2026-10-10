@@ -1,4 +1,10 @@
+const http = require('http')
 const supertest = require('supertest')
+
+// supertest starts a new server for every request. With keep-alive (Node's
+// default since v19) a pooled connection could reach an old server whose port
+// was reused, mixing up responses between tests now and then.
+http.globalAgent = new http.Agent({ keepAlive: false })
 const app = require('../app')
 const db = require('../db/db')
 const { hashPassword } = require('../utils/passwords')
