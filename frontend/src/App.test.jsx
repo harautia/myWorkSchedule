@@ -6,6 +6,7 @@ import i18n from './i18n'
 import { setBarSettings } from './utils/dates'
 import authService from './services/auth'
 import adminService from './services/admin'
+import accountLinkService from './services/accountLinks'
 import appInfoService from './services/appInfo'
 import barService from './services/bar'
 import employeeService from './services/employees'
@@ -13,6 +14,7 @@ import shiftService from './services/shifts'
 
 vi.mock('./services/auth')
 vi.mock('./services/admin')
+vi.mock('./services/accountLinks')
 vi.mock('./services/appInfo')
 vi.mock('./services/bar')
 vi.mock('./services/employees')
@@ -51,7 +53,7 @@ test('shows the login page without a session and logs in', async () => {
   authService.login.mockResolvedValue(users.mikko)
   render(<App />)
 
-  await userEvent.type(await screen.findByLabelText('Username'), 'mikko')
+  await userEvent.type(await screen.findByLabelText('Email or username'), 'mikko')
   await userEvent.type(screen.getByLabelText('Password'), 'secret')
   await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
@@ -64,7 +66,7 @@ test('shows the error from a failed login', async () => {
   authService.login.mockRejectedValue({ response: { data: { error: 'invalid username or password' } } })
   render(<App />)
 
-  await userEvent.type(await screen.findByLabelText('Username'), 'mikko')
+  await userEvent.type(await screen.findByLabelText('Email or username'), 'mikko')
   await userEvent.type(screen.getByLabelText('Password'), 'wrong')
   await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
 
@@ -109,7 +111,7 @@ test('logging out returns to the login page', async () => {
   render(<App />)
 
   await userEvent.click(await screen.findByRole('button', { name: 'Log out' }))
-  expect(await screen.findByLabelText('Username')).toBeInTheDocument()
+  expect(await screen.findByLabelText('Email or username')).toBeInTheDocument()
 })
 
 test('the login page shows the version and the source code link', async () => {
@@ -166,4 +168,31 @@ test('a Finnish bar gets the app in Finnish, with Finnish weekday names', async 
   expect(screen.getByRole('button', { name: 'Kirjaudu ulos' })).toBeInTheDocument()
   expect(container.querySelector('.week-day-header')).toHaveTextContent(/^ma /)
   expect(document.documentElement.lang).toBe('fi')
+})
+
+test('an invitation link opens the invitation page, then the app', async () => {
+  window.history.replaceState(null, '', '/?invite=tok123')
+  accountLinkService.getInvite.mockResolvedValue({ name: 'Mikko', email: 'mikko@example.com', barName: 'Imaginary Bar', locale: 'en' })
+  accountLinkService.acceptInvite.mockResolvedValue(users.mikko)
+  authService.getCurrentUser.mockResolvedValue(null)
+  render(<App />)
+
+  expect(await screen.findByText(/Hi Mikko, you've been added/)).toBeInTheDocument()
+  await userEvent.type(screen.getByLabelText('New password'), 'mikko-password')
+  await userEvent.type(screen.getByLabelText('Repeat the password'), 'mikko-password')
+  await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+
+  expect(await screen.findByText(/View only/)).toBeInTheDocument()
+  expect(window.location.search).toBe('')
+})
+
+test('a reset link opens the password reset page', async () => {
+  window.history.replaceState(null, '', '/?reset=r55')
+  authService.getCurrentUser.mockResolvedValue(null)
+  render(<App />)
+
+  expect(await screen.findByRole('heading', { name: 'Choose a new password' })).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Back to login' }))
+  expect(await screen.findByLabelText('Email or username')).toBeInTheDocument()
+  expect(window.location.search).toBe('')
 })

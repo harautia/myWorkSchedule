@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import PasswordField from './PasswordField'
 
-// Controlled inputs for a new login account. value = { username, name, password }
+// Controlled inputs for a new login account. value = { username, name, password, email }
 const AccountFields = ({ value, onChange, nameLabel, hint }) => {
   const { t } = useTranslation()
   const set = (field) => (event) => onChange({ ...value, [field]: event.target.value })
@@ -21,6 +21,10 @@ const AccountFields = ({ value, onChange, nameLabel, hint }) => {
           autoComplete="off"
           required
         />
+      </label>
+      <label className="form-field">
+        {t('account.emailOptional')}
+        <input type="email" value={value.email ?? ''} onChange={set('email')} autoComplete="off" />
       </label>
       <PasswordField value={value.password} onChange={(password) => onChange({ ...value, password })} />
       {hint && <p className="field-hint form-grid-full">{hint}</p>}

@@ -176,9 +176,13 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | --- | --- | --- | --- |
 | GET | `/api/health` | anyone | `{ status, version }`; 503 when the database can't be reached |
 | GET | `/api/app-info` | anyone | version, deployment mode and the `APP_*` operator settings for the footer |
-| POST | `/api/login` | anyone | `{ username, password }`, returns the user and sets the session cookie |
+| POST | `/api/login` | anyone | `{ login, password }` (login = email or username; `username` also accepted), returns the user and sets the session cookie |
 | POST | `/api/logout` | anyone | |
-| GET | `/api/me` | logged in | `{ id, username, name, groups, barId, barName, employeeId }` |
+| GET | `/api/me` | logged in | `{ id, username, email, name, groups, barId, barName, employeeId }` |
+| GET | `/api/invites/:token` | anyone | `{ name, email, barName, locale }` of a valid invitation |
+| POST | `/api/invites/:token/accept` | anyone | `{ password }`; creates the account, logs in |
+| POST | `/api/password-reset` | anyone | `{ email }`; emails a reset link if the account exists (always 202) |
+| POST | `/api/password-reset/confirm` | anyone | `{ token, password }`; sets the password, ends old sessions |
 | GET | `/api/admin/bars` | admin | all bars with employee and user counts |
 | POST | `/api/admin/bars` | admin | `{ bar: { name, timezone, opensAt, closesAt }, manager: { username, name, password } }` |
 | GET | `/api/admin/bars/:barId` | admin | `{ bar, users }`: every account in the bar with groups and linked employee |
@@ -190,9 +194,10 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | GET | `/api/bar` | manager, employee | name, timezone, opensAt, closesAt, locale, clock24h, accentColor |
 | PUT | `/api/bar` | manager | the same fields; changes the manager's own bar (locale, clock24h and accentColor optional) |
 | GET | `/api/employees` | manager, employee | legend order |
-| GET | `/api/employees/details` | manager | employees with their login account and shift count |
-| POST | `/api/employees` | manager | `{ username, name, password }`; adds a waiter with an employeeGroup login to the manager's bar |
-| PUT | `/api/employees/:id` | manager | `{ name?, password? }`; renames on the schedule and the account, a new password ends old sessions; not for managers |
+| GET | `/api/employees/details` | manager | employees with their login account, open invitation and shift count |
+| POST | `/api/employees` | manager | `{ name, email }`: adds a waiter and invites them (`inviteSent: { email, sent, url? }`); or `{ name, username, password, email? }` to create the login directly |
+| POST | `/api/employees/:id/invite` | manager | `{ email? }`; (re)invites an employee without a login |
+| PUT | `/api/employees/:id` | manager | `{ name?, email?, password? }`; renames on the schedule and the account, a new password ends old sessions; not for managers |
 | DELETE | `/api/employees/:id` | manager | deletes the login account, the employee and all their shifts; not for managers |
 | GET | `/api/shifts?from=ISO&to=ISO` | manager, employee | shifts starting in [from, to); managers get live shifts, employees the locked version |
 | GET | `/api/shifts/mine?from=ISO&to=ISO` | manager, employee | the same, but only the logged-in user's own shifts |

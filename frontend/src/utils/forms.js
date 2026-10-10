@@ -28,7 +28,7 @@ export const LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'fi', label: 'Suomi' }
 ]
-export const EMPTY_ACCOUNT = { username: '', name: '', password: '' }
+export const EMPTY_ACCOUNT = { username: '', name: '', password: '', email: '' }
 
 const PASSWORD_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 

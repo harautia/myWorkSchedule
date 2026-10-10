@@ -1,51 +1,40 @@
-const jwt = require('jsonwebtoken')
-const config = require('../utils/config')
 const Users = require('../models/users')
 const { verifyPassword } = require('../utils/passwords')
 const { loginLimiter } = require('../utils/rateLimiter')
-const { SESSION_COOKIE, requireAuth } = require('../utils/middleware')
+const { requireAuth } = require('../utils/middleware')
+const { startSession, endSession } = require('../utils/session')
 
 const authRouter = require('express').Router()
 
-const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
-
-const baseCookieOptions = {
-  httpOnly: true,
-  secure: config.COOKIE_SECURE,
-  sameSite: 'lax'
-}
-
-// Checked against when the username doesn't exist, so a login takes about the
-// same time whether or not the username is valid.
+// Checked against when the account doesn't exist, so a login takes about the
+// same time whether or not the email or username is valid.
 const DUMMY_HASH = 'scrypt$00000000000000000000000000000000$' + '0'.repeat(128)
 
+// { login, password }: login is an email address or a username. The older
+// field name `username` still works.
 authRouter.post('/login', loginLimiter, async (request, response) => {
-  const { username, password } = request.body
-  if (typeof username !== 'string' || typeof password !== 'string') {
-    return response.status(400).json({ error: 'username and password are required' })
+  const login = request.body.login ?? request.body.username
+  const { password } = request.body
+  if (typeof login !== 'string' || !login.trim() || typeof password !== 'string') {
+    return response.status(400).json({ error: 'email (or username) and password are required' })
   }
 
-  const row = await Users.findByUsername(username)
+  const row = await Users.findByLogin(login)
   const valid = await verifyPassword(password, row?.password_hash ?? DUMMY_HASH)
   if (!row || !valid) {
-    return response.status(401).json({ error: 'invalid username or password' })
+    return response.status(401).json({ error: 'invalid email, username or password' })
   }
 
-  const token = jwt.sign(
-    { userId: row.id, sessionVersion: row.session_version },
-    config.SESSION_SECRET,
-    { expiresIn: '7d' }
-  )
-  response.cookie(SESSION_COOKIE, token, { ...baseCookieOptions, maxAge: SESSION_MAX_AGE_MS })
+  startSession(response, row)
   response.json(await Users.getById(row.id))
 })
 
 authRouter.post('/logout', (request, response) => {
-  response.clearCookie(SESSION_COOKIE, baseCookieOptions)
+  endSession(response)
   response.json({ ok: true })
 })
 
-// The logged-in user: { id, username, name, groups, barId, barName, employeeId }
+// The logged-in user: { id, username, email, name, groups, barId, barName, employeeId }
 authRouter.get('/me', requireAuth, (request, response) => {
   response.json(request.user)
 })

@@ -17,11 +17,17 @@
   },
   "login": {
     "title": "Työvuorot",
-    "username": "Käyttäjätunnus",
     "password": "Salasana",
     "submit": "Kirjaudu",
     "submitting": "Kirjaudutaan…",
-    "failed": "Kirjautuminen epäonnistui, yritä uudelleen"
+    "failed": "Kirjautuminen epäonnistui, yritä uudelleen",
+    "emailOrUsername": "Sähköposti tai käyttäjätunnus",
+    "email": "Sähköposti",
+    "forgot": "Unohtuiko salasana?",
+    "forgotTitle": "Unohtunut salasana",
+    "forgotHint": "Anna tilisi sähköpostiosoite. Lähetämme linkin, jolla voit valita uuden salasanan.",
+    "sendLink": "Lähetä linkki",
+    "resetSent": "Jos tällä sähköpostilla on tili, siihen lähetettiin linkki uuden salasanan valitsemiseen. Linkki toimii tunnin."
   },
   "calendar": {
     "previous": "Edellinen",
@@ -147,13 +153,25 @@
     "removeConfirm_one": "Poistetaanko {{name}}? Samalla poistetaan {{count}} vuoro.",
     "removeConfirm_other": "Poistetaanko {{name}}? Samalla poistetaan {{count}} vuoroa.",
     "removed": "{{name}} poistettu",
-    "added": "{{name}} lisätty ({{username}})",
     "nameLabel": "Työntekijän nimi",
-    "addHint": "Työntekijä lisätään työvuoroihin tarjoilijana, ja hän voi kirjautua katsomaan niitä.",
+    "addHint": "Työntekijä lisätään työvuoroihin tarjoilijana heti, joten voit suunnitella hänen vuoronsa. Hän saa kutsun valita oman salasanansa.",
     "editLabel": "Muokkaa: {{name}}",
     "passwordSet": "Uusi salasana asetettu käyttäjälle {{username}}",
     "saved": "{{name}} tallennettu",
-    "logoutWarning": "Uuden salasanan tallentaminen kirjaa käyttäjän {{name}} ulos kaikilta laitteilta."
+    "logoutWarning": "Uuden salasanan tallentaminen kirjaa käyttäjän {{name}} ulos kaikilta laitteilta.",
+    "email": "Sähköposti",
+    "addAndInvite": "Lisää ja kutsu",
+    "inviteSent": "{{name}} lisätty. Kutsu lähetettiin osoitteeseen {{email}}.",
+    "inviteLinkText": "Tämä palvelin ei voi lähettää sähköpostia, joten lähetä tämä kutsulinkki itse henkilölle {{name}}, esimerkiksi tekstiviestillä:",
+    "inviteLinkLabel": "Kutsulinkki",
+    "inviteLinkHint": "Linkki toimii 7 päivää ja vain kerran.",
+    "copy": "Kopioi",
+    "copied": "Kopioitu",
+    "done": "Valmis",
+    "invited": "kutsuttu ({{email}})",
+    "invite": "Kutsu",
+    "inviteAgain": "Lähetä kutsu uudelleen",
+    "inviteEmailPrompt": "Henkilön {{name}} sähköposti kutsua varten:"
   },
   "account": {
     "name": "Nimi",
@@ -163,7 +181,9 @@
     "newPassword": "Uusi salasana",
     "setNewPassword": "Aseta uusi salasana",
     "generate": "Luo",
-    "passwordHint": "Vähintään {{count}} merkkiä. Anna se henkilölle turvallisesti."
+    "passwordHint": "Vähintään {{count}} merkkiä. Anna se henkilölle turvallisesti.",
+    "minLength": "Vähintään {{count}} merkkiä.",
+    "emailOptional": "Sähköposti (valinnainen, kirjautumiseen ja salasanan vaihtoon)"
   },
   "barSettings": {
     "title": "Baarin asetukset",
@@ -223,5 +243,18 @@
     "deleteButton": "Poista baari pysyvästi",
     "deleting": "Poistetaan…",
     "deleted": "{{name}} poistettu"
+  },
+  "links": {
+    "newPassword": "Uusi salasana",
+    "repeatPassword": "Toista salasana",
+    "passwordsDiffer": "Salasanat eivät täsmää",
+    "inviteTitle": "Tervetuloa!",
+    "inviteWelcome": "Hei {{name}}, sinut on lisätty baarin {{bar}} työvuoroihin. Valitse salasana, niin näet vuorosi.",
+    "inviteEmail": "Kirjaudut sähköpostilla {{email}}.",
+    "inviteAccept": "Luo tili",
+    "toLogin": "Takaisin kirjautumiseen",
+    "resetTitle": "Valitse uusi salasana",
+    "resetSave": "Tallenna salasana",
+    "resetDone": "Salasanasi on vaihdettu. Voit nyt kirjautua sillä."
   }
 }

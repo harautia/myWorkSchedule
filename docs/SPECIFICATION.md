@@ -98,7 +98,7 @@ The codebase already covers most of the scheduling product. Summary as of 2026-1
 | Publishing | ✅ Planning and locked weeks. Employees see only the last locked snapshot. |
 | Mobile | ✅ PWA, "My shifts" list, one-day view on phones, tap to edit on touch screens, last schedule shown offline. |
 | Security basics | ✅ scrypt password hashes, JWT in an httpOnly cookie (7 days), all sessions ended on password change, login rate limit, helmet. |
-| Login | ⚠️ By **username**, unique across all bars. No email, no self-service password reset. |
+| Login | ✅ By email or username (AUTH-01). Managers invite employees by email; the invited person sets their own password (AUTH-02). "Forgot password" by email (AUTH-03). Email through any SMTP server; without one, managers get invitation links to pass on (NOT-01). |
 | Per-bar settings in the UI | ✅ The app uses each bar's timezone, opening hours, 12/24-hour clock and accent colour; managers edit them on a Bar settings page (TEN-01–02). Logo and first day of week are still to do. |
 | Translations | ✅ The app is in English and Finnish (react-i18next). A bar's users see the bar's language; admins and the login page get the browser's language. Weekday and month names follow it. ⚠️ Error messages from the server are still English only. |
 | Sign-up, billing, project website, email | ❌ Not started. |

@@ -43,6 +43,16 @@ const APP_INFO = {
   sourceUrl: env.APP_SOURCE_URL || 'https://github.com/harautia/myWorkSchedule'
 }
 
+// Email (invitations, password reset). Without SMTP_URL the app still works:
+// managers get invitation links to pass on themselves.
+//   SMTP_URL=smtps://user:password@smtp.example.com:465
+const SMTP_URL = env.SMTP_URL || ''
+const EMAIL_FROM = env.EMAIL_FROM || ''
+
+// Public address of the app, for links in emails, e.g. https://schedule.yourbar.com.
+// When empty, the address the request came to is used.
+const APP_URL = (env.APP_URL || '').replace(/\/+$/, '')
+
 const PLACEHOLDER_SECRET = 'replace-with-a-long-random-string'
 const MIN_SECRET_LENGTH = 32
 
@@ -58,6 +68,8 @@ const problems = () => {
   } else if (IS_PRODUCTION && (SESSION_SECRET === PLACEHOLDER_SECRET || SESSION_SECRET.length < MIN_SECRET_LENGTH)) {
     found.push(`SESSION_SECRET must be a random string of at least ${MIN_SECRET_LENGTH} characters, e.g. from: openssl rand -hex 32`)
   }
+  if (SMTP_URL && !EMAIL_FROM) found.push('EMAIL_FROM must be set when SMTP_URL is, e.g. "myWorkSchedule <schedule@yourbar.com>"')
+  if (APP_URL && !/^https?:\/\//.test(APP_URL)) found.push('APP_URL must start with https:// (or http://)')
   return found
 }
 
@@ -72,5 +84,8 @@ module.exports = {
   MIGRATE_ON_START,
   COOKIE_SECURE,
   APP_INFO,
+  SMTP_URL,
+  EMAIL_FROM,
+  APP_URL,
   problems
 }

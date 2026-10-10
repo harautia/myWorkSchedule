@@ -17,11 +17,17 @@
   },
   "login": {
     "title": "Work Schedule",
-    "username": "Username",
     "password": "Password",
     "submit": "Log in",
     "submitting": "Logging in…",
-    "failed": "Login failed, please try again"
+    "failed": "Login failed, please try again",
+    "emailOrUsername": "Email or username",
+    "email": "Email",
+    "forgot": "Forgot password?",
+    "forgotTitle": "Forgot password",
+    "forgotHint": "Enter the email of your account. We'll send you a link to choose a new password.",
+    "sendLink": "Send link",
+    "resetSent": "If an account has this email, we've sent it a link to choose a new password. The link works for one hour."
   },
   "calendar": {
     "previous": "Previous",
@@ -147,13 +153,25 @@
     "removeConfirm_one": "Remove {{name}}? This deletes {{count}} shift.",
     "removeConfirm_other": "Remove {{name}}? This deletes {{count}} shifts.",
     "removed": "Removed {{name}}",
-    "added": "Added {{name}} ({{username}})",
     "nameLabel": "Employee's name",
-    "addHint": "The employee is added to the schedule as a waiter and can log in to see it.",
+    "addHint": "The employee is added to the schedule as a waiter straight away, so you can plan their shifts. They get an invitation to choose their own password.",
     "editLabel": "Edit {{name}}",
     "passwordSet": "New password set for {{username}}",
     "saved": "Saved {{name}}",
-    "logoutWarning": "Saving a new password logs {{name}} out on all devices."
+    "logoutWarning": "Saving a new password logs {{name}} out on all devices.",
+    "email": "Email",
+    "addAndInvite": "Add and invite",
+    "inviteSent": "Added {{name}}. An invitation was sent to {{email}}.",
+    "inviteLinkText": "This server can't send email, so send this invitation link to {{name}} yourself, e.g. as a text message:",
+    "inviteLinkLabel": "Invitation link",
+    "inviteLinkHint": "The link works for 7 days and only once.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "done": "Done",
+    "invited": "invited ({{email}})",
+    "invite": "Invite",
+    "inviteAgain": "Send invitation again",
+    "inviteEmailPrompt": "Email of {{name}}, for the invitation:"
   },
   "account": {
     "name": "Name",
@@ -163,7 +181,9 @@
     "newPassword": "New password",
     "setNewPassword": "Set new password",
     "generate": "Generate",
-    "passwordHint": "At least {{count}} characters. Give it to the person securely."
+    "passwordHint": "At least {{count}} characters. Give it to the person securely.",
+    "minLength": "At least {{count}} characters.",
+    "emailOptional": "Email (optional, for logging in and password reset)"
   },
   "barSettings": {
     "title": "Bar settings",
@@ -223,5 +243,18 @@
     "deleteButton": "Delete bar permanently",
     "deleting": "Deleting…",
     "deleted": "Deleted {{name}}"
+  },
+  "links": {
+    "newPassword": "New password",
+    "repeatPassword": "Repeat the password",
+    "passwordsDiffer": "The passwords don't match",
+    "inviteTitle": "Welcome!",
+    "inviteWelcome": "Hi {{name}}, you've been added to the work schedule of {{bar}}. Choose a password to see your shifts.",
+    "inviteEmail": "You'll log in with {{email}}.",
+    "inviteAccept": "Create account",
+    "toLogin": "Back to login",
+    "resetTitle": "Choose a new password",
+    "resetSave": "Save password",
+    "resetDone": "Your password has been changed. You can now log in with it."
   }
 }

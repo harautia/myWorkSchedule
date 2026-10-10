@@ -42,7 +42,10 @@ npm install
 npm run dev
 ```
 
-Log in as `admin`, `anna` (manager) or `mikko` (employee), all with the password `secret`.
+Log in as `admin`, `anna` (manager) or `mikko` (employee), all with the password `secret`
+(or with their email, e.g. `anna@example.com`). To try invitation and password reset
+links locally, set `APP_URL=http://localhost:5173` in `backend/.env`; without `SMTP_URL`
+the app shows invitation links instead of sending them.
 The [README](README.md) lists all development accounts and explains the code.
 
 **Website** (http://localhost:4321/myWorkSchedule/): `cd website && npm install && npm run dev`.

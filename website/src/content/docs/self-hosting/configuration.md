@@ -16,6 +16,21 @@ required setting is missing or unsafe.
 | `SESSION_SECRET` | Signs login sessions. At least 32 random characters: `openssl rand -hex 32`. Changing it logs everyone out. |
 | `DATABASE_URL` | PostgreSQL connection, e.g. `postgres://user:password@host:5432/myworkschedule`. Docker Compose sets this for you from `POSTGRES_PASSWORD`; set it yourself only when using your own database. |
 
+## Email
+
+Optional. Used for invitations and "forgot password". Any SMTP server works: your email
+provider's, or a sending service such as Postmark, Mailgun, Brevo or Amazon SES.
+
+| Variable | Default | What it is |
+|---|---|---|
+| `SMTP_URL` | empty | The SMTP server, with login, as a URL: `smtps://user:password@smtp.example.com:465` (SSL) or `smtp://user:password@smtp.example.com:587` (STARTTLS). Special characters in the password must be URL-encoded. |
+| `EMAIL_FROM` | empty | Sender of the emails, e.g. `myWorkSchedule <schedule@yourbar.com>`. Required with `SMTP_URL`. Use an address your SMTP service is allowed to send from. |
+| `APP_URL` | the address of the request | Public address of the app, used in the links in emails, e.g. `https://schedule.yourbar.com`. Set it when the app is behind a reverse proxy. |
+
+**Without email:** when a manager adds an employee, the app shows the invitation link to
+copy and send by other means (e.g. a text message). "Forgot password?" isn't shown; a
+manager (for employees) or the admin (for managers) sets a new password instead.
+
 ## Shown in the app
 
 These appear in the footer of every page, including the login page.

@@ -2,6 +2,7 @@
 const systemRouter = require('express').Router()
 const db = require('../db/db')
 const config = require('../utils/config')
+const email = require('../utils/email')
 
 // For Docker health checks and uptime monitoring: is the app up and can it
 // reach the database?
@@ -20,6 +21,8 @@ systemRouter.get('/app-info', (request, response) => {
   response.json({
     version: config.VERSION,
     deploymentMode: config.DEPLOYMENT_MODE,
+    // Whether "forgot password" can send an email.
+    emailEnabled: email.isEnabled(),
     ...config.APP_INFO
   })
 })

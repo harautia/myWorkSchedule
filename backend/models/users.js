@@ -10,6 +10,7 @@ const groupsByUser = async (userIds, conn = db) => {
 const toUser = (row, groups) => ({
   id: row.id,
   username: row.username,
+  email: row.email,
   name: row.name,
   groups,
   barId: row.bar_id,
@@ -21,8 +22,20 @@ const toUser = (row, groups) => ({
 const findByUsername = (username) =>
   db('users').where({ username: username.toLowerCase() }).first()
 
+// For logging in: an email address (contains @) or a username. Includes the
+// password hash.
+const findByLogin = (login) => {
+  const value = login.trim().toLowerCase()
+  return db('users').where(value.includes('@') ? { email: value } : { username: value }).first()
+}
+
+const findByEmail = (email) => db('users').where({ email: email.trim().toLowerCase() }).first()
+
 const usernameTaken = async (username, conn = db) =>
   Boolean(await conn('users').where({ username: username.toLowerCase() }).first('id'))
+
+const emailTaken = async (email, conn = db) =>
+  Boolean(await conn('users').where({ email: email.trim().toLowerCase() }).first('id'))
 
 // Where a username is in use: { barName } (null for accounts without a bar,
 // e.g. admins), or null when the username is free.
@@ -55,20 +68,23 @@ const getById = async (id) => {
   return rest
 }
 
-// Accounts of one bar: { employeeId -> { username, groups } } for the accounts
-// that are linked to an employee.
+// Accounts of one bar: { employeeId -> { username, email, groups } } for the
+// accounts that are linked to an employee.
 const accountsByEmployee = async (barId) => {
   const rows = await db('users').where({ bar_id: barId }).whereNotNull('employee_id')
   const groups = await groupsByUser(rows.map((row) => row.id))
-  return new Map(rows.map((row) => [row.employee_id, { username: row.username, groups: groups.get(row.id) }]))
+  return new Map(rows.map((row) => [
+    row.employee_id,
+    { username: row.username, email: row.email, groups: groups.get(row.id) }
+  ]))
 }
 
-// The account linked to one employee: { id, username, groups }, or null.
+// The account linked to one employee: { id, username, email, groups }, or null.
 const findByEmployee = async (barId, employeeId) => {
   const row = await db('users').where({ bar_id: barId, employee_id: employeeId }).first()
   if (!row) return null
   const groups = (await groupsByUser([row.id])).get(row.id)
-  return { id: row.id, username: row.username, groups }
+  return { id: row.id, username: row.username, email: row.email, groups }
 }
 
 // Admin view of every account in a bar, with the employee it is linked to.
@@ -82,6 +98,7 @@ const listByBar = async (barId) => {
   return rows.map((row) => ({
     id: row.id,
     username: row.username,
+    email: row.email,
     name: row.name,
     groups: groups.get(row.id),
     employee: row.employee_id ? { id: row.employee_id, name: row.employee_name, role: row.employee_role } : null,
@@ -91,12 +108,14 @@ const listByBar = async (barId) => {
 
 const findInBar = async (barId, id) => (await listByBar(barId)).find((user) => user.id === id) ?? null
 
-const create = async ({ barId, username, name, passwordHash, groups, employeeId = null }, conn = db) => {
+// An account needs a username, an email, or both.
+const create = async ({ barId, username, email, name, passwordHash, groups, employeeId = null }, conn = db) => {
   const [row] = await conn('users')
     .insert({
       bar_id: barId,
       employee_id: employeeId,
-      username: username.toLowerCase(),
+      username: username ? username.toLowerCase() : null,
+      email: email ? email.trim().toLowerCase() : null,
       name,
       password_hash: passwordHash
     })
@@ -105,10 +124,12 @@ const create = async ({ barId, username, name, passwordHash, groups, employeeId 
   return row.id
 }
 
-// Changes the name and/or password. A new password also ends old sessions.
-const update = async (id, { name, passwordHash }, conn = db) => {
+// Changes the name, email and/or password. A new password also ends old
+// sessions. An empty email removes it (if the account has a username).
+const update = async (id, { name, email, passwordHash }, conn = db) => {
   const changes = {}
   if (name !== undefined) changes.name = name
+  if (email !== undefined) changes.email = email ? email.trim().toLowerCase() : null
   if (passwordHash !== undefined) {
     changes.password_hash = passwordHash
     changes.session_version = conn.raw('session_version + 1')
@@ -128,6 +149,9 @@ const countInGroup = async (barId, group) => {
 
 module.exports = {
   findByUsername,
+  findByLogin,
+  findByEmail,
+  emailTaken,
   usernameTaken,
   findUsernameOwner,
   getSessionUser,

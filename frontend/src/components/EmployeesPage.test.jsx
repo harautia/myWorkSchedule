@@ -9,7 +9,7 @@ vi.mock('../services/employees')
 const ANNA = { id: 1, name: 'Anna', role: 'manager', color: '#863bff', account: { username: 'anna', groups: ['managerGroup'] }, shiftCount: 4 }
 const MIKKO = { id: 2, name: 'Mikko', role: 'waiter', color: '#1c7ed6', account: { username: 'mikko', groups: ['employeeGroup'] }, shiftCount: 3 }
 const LIISA = { id: 3, name: 'Liisa', role: 'waiter', color: '#0ca678', account: null, shiftCount: 1 }
-const KALLE = { id: 4, name: 'Kalle', role: 'waiter', color: '#e8590c', account: { username: 'kalle', groups: ['employeeGroup'] }, shiftCount: 0 }
+const INVITED = { id: 4, name: 'Kalle', role: 'waiter', color: '#e8590c', account: null, invite: { email: 'kalle@example.com', expiresAt: '2026-10-17T00:00:00Z' }, shiftCount: 0 }
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -27,36 +27,64 @@ test('managers are listed but managed by the admin', async () => {
   expect(within(await rowOf('mikko')).getByRole('button', { name: 'Edit' })).toBeInTheDocument()
 })
 
-test('adds an employee with a login account', async () => {
-  employeeService.create.mockResolvedValue(KALLE)
+test('adds an employee and emails the invitation', async () => {
+  employeeService.create.mockResolvedValue({ ...INVITED, inviteSent: { email: 'kalle@example.com', sent: true } })
   render(<EmployeesPage />)
   await screen.findByText('Employees (3)')
-  employeeService.getDetails.mockResolvedValue([ANNA, MIKKO, LIISA, KALLE])
+  employeeService.getDetails.mockResolvedValue([ANNA, MIKKO, LIISA, INVITED])
 
   await userEvent.click(screen.getByRole('button', { name: 'Add employee' }))
   const form = screen.getByRole('form', { name: 'Add employee' })
   await userEvent.type(within(form).getByLabelText("Employee's name"), 'Kalle')
-  await userEvent.type(within(form).getByLabelText('Username'), 'kalle')
-  await userEvent.type(within(form).getByLabelText('Password'), 'long-enough-password')
-  await userEvent.click(within(form).getByRole('button', { name: 'Add employee' }))
+  await userEvent.type(within(form).getByLabelText('Email'), 'kalle@example.com')
+  await userEvent.click(within(form).getByRole('button', { name: 'Add and invite' }))
 
-  expect(employeeService.create).toHaveBeenCalledWith({ name: 'Kalle', username: 'kalle', password: 'long-enough-password' })
-  expect(await screen.findByRole('status')).toHaveTextContent('Added Kalle (kalle)')
-  expect(await screen.findByText('Employees (4)')).toBeInTheDocument()
+  expect(employeeService.create).toHaveBeenCalledWith({ name: 'Kalle', email: 'kalle@example.com' })
+  expect(await screen.findByRole('status')).toHaveTextContent('Added Kalle. An invitation was sent to kalle@example.com.')
+  expect(await screen.findByText('invited (kalle@example.com)')).toBeInTheDocument()
 })
 
-test('shows the backend error when adding fails', async () => {
-  employeeService.create.mockRejectedValue({ response: { data: { error: 'username kalle is already in use' } } })
+test('without email on the server, the manager gets the invitation link to pass on', async () => {
+  const url = 'http://localhost/?invite=abc123'
+  employeeService.create.mockResolvedValue({ ...INVITED, inviteSent: { email: 'kalle@example.com', sent: false, url } })
   render(<EmployeesPage />)
 
   await userEvent.click(await screen.findByRole('button', { name: 'Add employee' }))
   const form = screen.getByRole('form', { name: 'Add employee' })
   await userEvent.type(within(form).getByLabelText("Employee's name"), 'Kalle')
-  await userEvent.type(within(form).getByLabelText('Username'), 'kalle')
-  await userEvent.click(within(form).getByRole('button', { name: 'Generate' }))
-  await userEvent.click(within(form).getByRole('button', { name: 'Add employee' }))
+  await userEvent.type(within(form).getByLabelText('Email'), 'kalle@example.com')
+  await userEvent.click(within(form).getByRole('button', { name: 'Add and invite' }))
 
-  expect(await screen.findByRole('alert')).toHaveTextContent('username kalle is already in use')
+  expect(await screen.findByLabelText('Invitation link')).toHaveValue(url)
+  expect(screen.getByText(/send this invitation link to Kalle yourself/)).toBeInTheDocument()
+})
+
+test('an employee without a login can be invited, or invited again', async () => {
+  employeeService.getDetails.mockResolvedValue([ANNA, LIISA, INVITED])
+  employeeService.invite.mockResolvedValue({ email: 'x@example.com', sent: true })
+  const prompt = vi.spyOn(window, 'prompt').mockReturnValue('liisa@example.com')
+  render(<EmployeesPage />)
+
+  await userEvent.click(within((await screen.findByText('Liisa')).closest('tr')).getByRole('button', { name: 'Invite' }))
+  expect(employeeService.invite).toHaveBeenCalledWith(3, 'liisa@example.com')
+
+  await userEvent.click(within(screen.getByText('Kalle').closest('tr')).getByRole('button', { name: 'Send invitation again' }))
+  expect(employeeService.invite).toHaveBeenLastCalledWith(4, undefined)
+  expect(prompt).toHaveBeenCalledTimes(1)
+  prompt.mockRestore()
+})
+
+test('shows the backend error when adding fails', async () => {
+  employeeService.create.mockRejectedValue({ response: { data: { error: 'email kalle@example.com is already in use' } } })
+  render(<EmployeesPage />)
+
+  await userEvent.click(await screen.findByRole('button', { name: 'Add employee' }))
+  const form = screen.getByRole('form', { name: 'Add employee' })
+  await userEvent.type(within(form).getByLabelText("Employee's name"), 'Kalle')
+  await userEvent.type(within(form).getByLabelText('Email'), 'kalle@example.com')
+  await userEvent.click(within(form).getByRole('button', { name: 'Add and invite' }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('email kalle@example.com is already in use')
 })
 
 test('renames an employee and sets a new password', async () => {

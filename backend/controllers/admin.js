@@ -21,6 +21,9 @@ const usernameTakenResponse = async (response, username) => {
   })
 }
 
+const emailTakenResponse = (response, address) =>
+  response.status(409).json({ error: `email ${address} is already in use` })
+
 // Loads the bar from :barId into request.bar, or answers 404.
 adminRouter.param('barId', async (request, response, next, value) => {
   const id = parseId(value)
@@ -64,6 +67,7 @@ adminRouter.post('/bars', async (request, response) => {
   const error = barError(bar) ?? newAccountError(manager)
   if (error) return response.status(400).json({ error })
   if (await Users.usernameTaken(manager.username)) return usernameTakenResponse(response, manager.username)
+  if (manager.email && await Users.emailTaken(manager.email)) return emailTakenResponse(response, manager.email)
 
   let barId
   try {
@@ -106,6 +110,7 @@ adminRouter.post('/bars/:barId/managers', async (request, response) => {
   const error = newAccountError(manager)
   if (error) return response.status(400).json({ error })
   if (await Users.usernameTaken(manager.username)) return usernameTakenResponse(response, manager.username)
+  if (manager.email && await Users.emailTaken(manager.email)) return emailTakenResponse(response, manager.email)
 
   let id
   try {
@@ -118,16 +123,21 @@ adminRouter.post('/bars/:barId/managers', async (request, response) => {
   response.status(201).json(await Users.findInBar(request.bar.id, id))
 })
 
-// Changes a manager's name and/or password. Setting a password is how a
+// Changes a manager's name, email and/or password. Setting a password is how a
 // forgotten password is recovered; it also ends the manager's old sessions.
 adminRouter.put('/bars/:barId/managers/:userId', async (request, response) => {
   const { name, password } = request.body
-  const error = accountChangesError({ name, password })
+  const address = typeof request.body.email === 'string' ? request.body.email.trim().toLowerCase() : request.body.email
+  const error = accountChangesError({ name, email: address, password })
   if (error) return response.status(400).json({ error })
+
+  if (address && address !== request.manager.email && await Users.emailTaken(address)) {
+    return emailTakenResponse(response, address)
+  }
 
   const passwordHash = password === undefined ? undefined : await hashPassword(password)
   await db.transaction(async (trx) => {
-    await Users.update(request.manager.id, { name: name?.trim(), passwordHash }, trx)
+    await Users.update(request.manager.id, { name: name?.trim(), email: address, passwordHash }, trx)
     // Keep the manager's name on the schedule in step with the account.
     if (name !== undefined && request.manager.employee) {
       await Employees.rename(request.bar.id, request.manager.employee.id, name.trim(), trx)

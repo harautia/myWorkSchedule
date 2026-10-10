@@ -3,7 +3,7 @@ const logger = require('./logger')
 const config = require('./config')
 const Users = require('../models/users')
 
-const SESSION_COOKIE = 'session'
+const { SESSION_COOKIE } = require('./session')
 
 // Verifies the session cookie and loads the user (with groups) into
 // request.user. Loading from the database on every request means group

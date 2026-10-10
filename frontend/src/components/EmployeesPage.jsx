@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import GroupBadges from './GroupBadges'
 import AddEmployeeForm from './employees/AddEmployeeForm'
 import EditEmployeeForm from './employees/EditEmployeeForm'
+import InviteLinkNotice from './employees/InviteLinkNotice'
 import employeeService from '../services/employees'
 import { errorMessage } from '../utils/forms'
 import { MANAGER } from '../utils/access'
@@ -11,6 +12,13 @@ import { roleLabel } from '../i18n/labels'
 // managerGroup: everyone employed in the manager's own bar. Employees can be
 // added, renamed, given a new password and removed here; managers are
 // managed by the admin.
+// The login column: the account's email or username, an open invitation, or none.
+const loginText = (t, employee) => {
+  if (employee.account) return employee.account.email ?? employee.account.username
+  if (employee.invite) return <span className="muted">{t('employees.invited', { email: employee.invite.email })}</span>
+  return <span className="muted">{t('employees.noLogin')}</span>
+}
+
 const EmployeesPage = () => {
   const { t } = useTranslation()
   const [employees, setEmployees] = useState(null)
@@ -19,6 +27,8 @@ const EmployeesPage = () => {
   const [actionError, setActionError] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [adding, setAdding] = useState(false)
+  // An invitation link to pass on, when the server can't send email: { name, url }
+  const [inviteLink, setInviteLink] = useState(null)
 
   const load = useCallback(() => employeeService.getDetails().then(setEmployees), [])
 
@@ -39,6 +49,38 @@ const EmployeesPage = () => {
     setAdding(false)
     showNotice(message)
     await load()
+  }
+
+  // The result of inviting someone: emailed, or a link for the manager to pass on.
+  const showInvite = (name, { email, sent, url }) => {
+    if (sent) {
+      setInviteLink(null)
+      showNotice(t('employees.inviteSent', { name, email }))
+    } else {
+      setNotice(null)
+      setInviteLink({ name, url })
+    }
+  }
+
+  const handleAdded = async (employee) => {
+    setAdding(false)
+    showInvite(employee.name, employee.inviteSent)
+    await load()
+  }
+
+  const handleInvite = async (employee) => {
+    let address
+    if (!employee.invite) {
+      address = window.prompt(t('employees.inviteEmailPrompt', { name: employee.name }))
+      if (!address) return
+    }
+    try {
+      showInvite(employee.name, await employeeService.invite(employee.id, address))
+      await load()
+    } catch (err) {
+      setNotice(null)
+      setActionError(errorMessage(err))
+    }
   }
 
   const handleRemove = async (employee) => {
@@ -66,7 +108,8 @@ const EmployeesPage = () => {
       </div>
 
       {notice && <p className="form-notice" role="status">{notice}</p>}
-      {adding && <AddEmployeeForm onSaved={handleSaved} onCancel={() => setAdding(false)} />}
+      {inviteLink && <InviteLinkNotice link={inviteLink} onClose={() => setInviteLink(null)} />}
+      {adding && <AddEmployeeForm onSaved={handleAdded} onCancel={() => setAdding(false)} />}
       {actionError && <p className="form-error" role="alert">{actionError}</p>}
 
       <div className="table-scroll">
@@ -92,7 +135,7 @@ const EmployeesPage = () => {
                       {employee.name}
                     </td>
                     <td data-label={t('employees.columns.role')}>{roleLabel(t, employee.role)}</td>
-                    <td data-label={t('employees.columns.login')}>{employee.account ? employee.account.username : <span className="muted">{t('employees.noLogin')}</span>}</td>
+                    <td data-label={t('employees.columns.login')}>{loginText(t, employee)}</td>
                     <td data-label={t('employees.columns.groups')}>{employee.account && <GroupBadges groups={employee.account.groups} />}</td>
                     <td data-label={t('employees.columns.shifts')}>{employee.shiftCount}</td>
                     <td className="row-actions">
@@ -102,6 +145,11 @@ const EmployeesPage = () => {
                           <button type="button" className="btn btn-nav" onClick={() => setEditingId(employee.id)}>
                             {t('common.edit')}
                           </button>
+                          {!employee.account && (
+                            <button type="button" className="btn btn-nav" onClick={() => handleInvite(employee)}>
+                              {employee.invite ? t('employees.inviteAgain') : t('employees.invite')}
+                            </button>
+                          )}
                           <button type="button" className="btn btn-danger" onClick={() => handleRemove(employee)}>
                             {t('common.remove')}
                           </button>

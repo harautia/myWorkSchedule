@@ -6,6 +6,7 @@ const { resolveBar } = require('./utils/tenant')
 const { ADMIN, MANAGER, EMPLOYEE } = require('./utils/groups')
 const systemRouter = require('./controllers/system')
 const authRouter = require('./controllers/auth')
+const accountLinksRouter = require('./controllers/accountLinks')
 const adminRouter = require('./controllers/admin')
 const barRouter = require('./controllers/bar')
 const employeesRouter = require('./controllers/employees')
@@ -32,6 +33,9 @@ app.use('/api', systemRouter)
 
 // /api/login, /api/logout and /api/me
 app.use('/api', authRouter)
+
+// /api/invites/:token and /api/password-reset, public (links sent by email)
+app.use('/api', accountLinksRouter)
 
 // Across all bars: admins only.
 app.use('/api/admin', middleware.requireAuth, middleware.requireGroup(ADMIN), adminRouter)

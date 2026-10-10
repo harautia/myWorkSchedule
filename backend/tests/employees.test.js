@@ -45,7 +45,7 @@ describe('adding an employee', () => {
     assert.strictEqual(response.body.name, 'Kalle')
     assert.strictEqual(response.body.role, 'waiter')
     assert.match(response.body.color, /^#[0-9a-f]{6}$/)
-    assert.deepStrictEqual(response.body.account, { username: 'kalle', groups: ['employeeGroup'] })
+    assert.deepStrictEqual(response.body.account, { username: 'kalle', email: null, groups: ['employeeGroup'] })
     assert.strictEqual(response.body.shiftCount, 0)
 
     const kalle = await login('kalle', NEW_EMPLOYEE.password)

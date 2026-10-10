@@ -61,7 +61,7 @@ test('creates a new bar with its first manager and opens it', async () => {
 
   expect(adminService.createBar).toHaveBeenCalledWith(
     { name: 'Corner Pub', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff' },
-    { name: 'Kalle', username: 'kalle', password: 'long-enough-password' }
+    { name: 'Kalle', username: 'kalle', password: 'long-enough-password', email: '' }
   )
   expect(await screen.findByRole('heading', { name: 'Imaginary Bar' })).toBeInTheDocument()
 })
@@ -106,7 +106,7 @@ test('adds a manager', async () => {
   await userEvent.type(within(form).getByLabelText('Password'), 'long-enough-password')
   await userEvent.click(within(form).getByRole('button', { name: 'Add manager' }))
 
-  expect(adminService.addManager).toHaveBeenCalledWith(1, { name: 'Kalle', username: 'kalle', password: 'long-enough-password' })
+  expect(adminService.addManager).toHaveBeenCalledWith(1, { name: 'Kalle', username: 'kalle', password: 'long-enough-password', email: '' })
   expect(await screen.findByRole('cell', { name: 'kalle' })).toBeInTheDocument()
 })
 

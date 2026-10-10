@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import AcceptInvitePage from './components/AcceptInvitePage'
 import AppFooter from './components/AppFooter'
 import BarSettingsPage from './components/BarSettingsPage'
 import BarsPage from './components/BarsPage'
 import EmployeesPage from './components/EmployeesPage'
 import GroupBadges from './components/GroupBadges'
 import LoginPage from './components/LoginPage'
+import ResetPasswordPage from './components/ResetPasswordPage'
 import SchedulePage from './components/SchedulePage'
 import appInfoService from './services/appInfo'
 import authService from './services/auth'
@@ -14,6 +16,7 @@ import { setUnauthorizedHandler } from './services/api'
 import useOnline from './hooks/useOnline'
 import { canEditSchedule, pagesFor } from './utils/access'
 import { applyBarSettings } from './utils/barSettings'
+import { clearLinkFromUrl, linkFromUrl } from './utils/links'
 
 const App = () => {
   const { t } = useTranslation()
@@ -21,6 +24,8 @@ const App = () => {
   const [user, setUser] = useState(undefined)
   const [page, setPage] = useState(null)
   const [appInfo, setAppInfo] = useState(null)
+  // An invitation or password reset link the app was opened with.
+  const [link, setLink] = useState(linkFromUrl)
   // The user's bar with its settings, and which bar it was loaded for: the
   // pages wait until it matches the logged-in user's bar.
   const [loadedBar, setLoadedBar] = useState({ forBarId: null, bar: null })
@@ -60,17 +65,45 @@ const App = () => {
     setLoadedBar({ forBarId: saved.id, bar: saved })
   }
 
+  const closeLink = () => {
+    clearLinkFromUrl()
+    setLink(null)
+  }
+
+  const handleInviteAccepted = (newUser) => {
+    closeLink()
+    setUser(newUser)
+  }
+
   const handleLogout = async () => {
     await authService.logout()
     setUser(null)
     setPage(null)
   }
 
+  // A link from an email comes first, even if someone is logged in.
+  if (link?.type === 'invite') {
+    return (
+      <>
+        <AcceptInvitePage token={link.token} onLogin={handleInviteAccepted} onCancel={closeLink} />
+        <AppFooter info={appInfo} />
+      </>
+    )
+  }
+  if (link?.type === 'reset') {
+    return (
+      <>
+        <ResetPasswordPage token={link.token} onDone={closeLink} />
+        <AppFooter info={appInfo} />
+      </>
+    )
+  }
+
   if (user === undefined) return <div className="app-loading">{t('app.checkingSession')}</div>
   if (user === null) {
     return (
       <>
-        <LoginPage onLogin={setUser} />
+        <LoginPage onLogin={setUser} emailEnabled={Boolean(appInfo?.emailEnabled)} />
         <AppFooter info={appInfo} />
       </>
     )

@@ -1,7 +1,7 @@
 // Creates a platform admin: the first account of a new installation, which
 // then creates bars and their managers in the app.
 //
-//   npm run create-admin -- --username admin --name "Your Name"
+//   npm run create-admin -- --username admin --name "Your Name" [--email you@example.com]
 //
 // The password is asked for (not shown while typing), or read from the
 // ADMIN_PASSWORD environment variable for scripted setups.
@@ -34,8 +34,9 @@ const askHidden = (question) =>
 const main = async () => {
   const username = argument('username')?.trim().toLowerCase()
   const name = argument('name')?.trim()
+  const email = argument('email')?.trim().toLowerCase()
   if (!username || !name) {
-    console.error('Usage: npm run create-admin -- --username <username> --name "<full name>"')
+    console.error('Usage: npm run create-admin -- --username <username> --name "<full name>" [--email <email>]')
     return 1
   }
 
@@ -52,7 +53,7 @@ const main = async () => {
     }
   }
 
-  const error = newAccountError({ username, name, password })
+  const error = newAccountError({ username, name, password, email })
   if (error) {
     console.error(`Can't create the admin: ${error}`)
     return 1
@@ -62,7 +63,12 @@ const main = async () => {
     return 1
   }
 
-  await Users.create({ barId: null, username, name, passwordHash: await hashPassword(password), groups: [ADMIN] })
+  if (email && await Users.emailTaken(email)) {
+    console.error(`The email ${email} is already in use.`)
+    return 1
+  }
+
+  await Users.create({ barId: null, username, email, name, passwordHash: await hashPassword(password), groups: [ADMIN] })
   console.log(`Admin ${username} created. Log in to the app to create bars and their managers.`)
   return 0
 }

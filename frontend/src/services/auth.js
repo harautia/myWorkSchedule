@@ -1,10 +1,11 @@
 import api from './api'
 import { clearOfflineData } from './offline'
 
-// user = { id, username, name, groups: [...], barId, barName, employeeId }
+// user = { id, username, email, name, groups: [...], barId, barName, employeeId }
 
-const login = async (username, password) => {
-  const res = await api.post('/login', { username, password })
+// login is an email address or a username.
+const login = async (login, password) => {
+  const res = await api.post('/login', { login, password })
   await clearOfflineData()
   return res.data
 }

@@ -15,12 +15,22 @@ breaking changes, which are always described under **Upgrading**.
   settings; admins and the login page follow the browser's language. Weekday and month
   names follow the language too.
 
+- **Email login, invitations and password reset.** Log in with an email address or a
+  username. Managers add employees by name and email; the employee gets an invitation
+  and chooses their own password. "Forgot password?" emails a single-use link (valid one
+  hour). Email goes through any SMTP server (`SMTP_URL`, `EMAIL_FROM`, `APP_URL`);
+  without one, managers get the invitation link to pass on themselves.
+
 ### Changed
 - The schedule uses the bar's own timezone and opening hours everywhere, instead of
   10:00–04:00 and the viewer's computer time. Times are the bar's local time for
   everyone, wherever they are.
 
 ### Upgrading
+- Optional: set `SMTP_URL`, `EMAIL_FROM` and `APP_URL` to send invitations and password
+  reset links by email (see the configuration reference).
+- A database migration adds email addresses, invitations and password resets; existing
+  accounts keep logging in with their username.
 - A database migration adds the new settings with defaults (English, 24-hour clock, the
   default purple); it runs automatically on start.
 

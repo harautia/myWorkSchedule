@@ -14,8 +14,9 @@ basic experience with the command line and a server you can reach over the inter
   (`docker compose version` works).
 - A **domain name** pointing to the server, for HTTPS, e.g. `schedule.yourbar.com`.
 
-You don't need an email service: in this version, managers set their employees'
-passwords.
+An email service is optional. With one (any SMTP server), managers invite employees by
+email and "forgot password" works. Without it, managers get invitation links to pass on
+themselves; see [email settings](../configuration/#email).
 
 ## 1. Get the files
 

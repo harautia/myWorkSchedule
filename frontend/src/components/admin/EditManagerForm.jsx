@@ -9,6 +9,7 @@ import { errorMessage } from '../../utils/forms'
 const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
   const { t } = useTranslation()
   const [name, setName] = useState(manager.name)
+  const [email, setEmail] = useState(manager.email ?? '')
   const [changePassword, setChangePassword] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -18,6 +19,7 @@ const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
     event.preventDefault()
     const changes = {}
     if (name.trim() !== manager.name) changes.name = name.trim()
+    if (email.trim() !== (manager.email ?? '')) changes.email = email.trim()
     if (changePassword) changes.password = password
     if (!Object.keys(changes).length) return onCancel()
 
@@ -38,6 +40,10 @@ const EditManagerForm = ({ barId, manager, onSaved, onCancel }) => {
         <label className="form-field">
           {t('account.name')}
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} required />
+        </label>
+        <label className="form-field">
+          {t('employees.email')}
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" />
         </label>
         {changePassword ? (
           <PasswordField label={t('account.newPassword')} value={password} onChange={setPassword} />

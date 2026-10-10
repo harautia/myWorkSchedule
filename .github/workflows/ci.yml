@@ -81,7 +81,7 @@ jobs:
     name: Dependency licences (AGPL compatible)
     runs-on: ubuntu-latest
     env:
-      ALLOWED: MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;BlueOak-1.0.0;CC0-1.0;Python-2.0;Unlicense
+      ALLOWED: MIT;MIT-0;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;0BSD;BlueOak-1.0.0;CC0-1.0;Python-2.0;Unlicense
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

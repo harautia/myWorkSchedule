@@ -85,8 +85,8 @@ describe('managerGroup', () => {
     assert.deepStrictEqual(
       response.body.map(({ name, account }) => ({ name, account })),
       [
-        { name: 'Anna', account: { username: 'anna', groups: ['managerGroup'] } },
-        { name: 'Mikko', account: { username: 'mikko', groups: ['employeeGroup'] } }
+        { name: 'Anna', account: { username: 'anna', email: null, groups: ['managerGroup'] } },
+        { name: 'Mikko', account: { username: 'mikko', email: null, groups: ['employeeGroup'] } }
       ]
     )
   })

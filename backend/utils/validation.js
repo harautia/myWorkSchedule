@@ -63,18 +63,38 @@ const passwordError = (password) =>
     : `password must be at least ${MIN_PASSWORD_LENGTH} characters`
 
 // Checks a new account { username, name, password }; returns an error message or null.
-const newAccountError = ({ username, name, password }) => {
+// A plain sanity check; the real test is whether the invitation arrives.
+const isEmail = (value) =>
+  typeof value === 'string' && value.trim().length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+
+const EMAIL_ERROR = 'email must be an email address, e.g. name@example.com'
+
+// Checks a new account { username, name, password, email? }; returns an error message or null.
+const newAccountError = ({ username, name, password, email }) => {
   if (typeof username !== 'string' || !USERNAME_PATTERN.test(username.trim().toLowerCase())) {
     return 'username must be 3-32 characters: letters, numbers, dot, dash or underscore'
   }
   if (!isNonEmptyText(name)) return 'name is required (max 100 characters)'
+  if (email !== undefined && email !== '' && !isEmail(email)) return EMAIL_ERROR
   return passwordError(password)
 }
 
+// Checks an invitation { name, email }; returns an error message or null.
+const inviteError = ({ name, email }) => {
+  if (!isNonEmptyText(name)) return 'name is required (max 100 characters)'
+  if (!isEmail(email)) return EMAIL_ERROR
+  return null
+}
+
 // Checks changes to an existing account { name?, password? }; returns an error message or null.
-const accountChangesError = ({ name, password }) => {
-  if (name === undefined && password === undefined) return 'nothing to change: give name and/or password'
+// Checks changes to an account { name?, email?, password? }. An empty email
+// removes it.
+const accountChangesError = ({ name, email, password }) => {
+  if (name === undefined && email === undefined && password === undefined) {
+    return 'nothing to change: give name, email and/or password'
+  }
   if (name !== undefined && !isNonEmptyText(name)) return 'name is required (max 100 characters)'
+  if (email !== undefined && email !== '' && !isEmail(email)) return EMAIL_ERROR
   if (password !== undefined) return passwordError(password)
   return null
 }
@@ -91,5 +111,7 @@ module.exports = {
   barError,
   passwordError,
   newAccountError,
+  inviteError,
+  isEmail,
   accountChangesError
 }

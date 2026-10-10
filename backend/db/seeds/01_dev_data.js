@@ -91,9 +91,10 @@ const buildShifts = (barId, employeeIds, template) => {
   return shifts
 }
 
+// Development accounts can log in with their username or username@example.com.
 const insertUser = async (knex, { username, name, barId, employeeId, groups, passwordHash }) => {
   const [user] = await knex('users')
-    .insert({ username, name, bar_id: barId, employee_id: employeeId, password_hash: passwordHash })
+    .insert({ username, email: `${username}@example.com`, name, bar_id: barId, employee_id: employeeId, password_hash: passwordHash })
     .returning('id')
   await knex('user_groups').insert(groups.map((group) => ({ user_id: user.id, group_name: group })))
   return user.id
@@ -134,7 +135,7 @@ exports.seed = async (knex) => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('The development seed deletes all data and uses known passwords; it never runs in production')
   }
-  await knex.raw('TRUNCATE published_shifts, schedule_weeks, user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
+  await knex.raw('TRUNCATE password_resets, invites, published_shifts, schedule_weeks, user_groups, users, day_orders, shifts, employees, bars RESTART IDENTITY CASCADE')
 
   const passwordHash = await hashPassword(DEV_PASSWORD)
 
