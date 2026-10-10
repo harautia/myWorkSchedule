@@ -37,3 +37,17 @@ test('shows the backend error', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Save settings' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('must differ')
 })
+
+test('the timezone is chosen from a list of all timezones', async () => {
+  barService.updateBar.mockImplementation((settings) => Promise.resolve({ id: 1, ...settings }))
+  render(<BarSettingsPage bar={BAR} onSaved={vi.fn()} />)
+
+  // Not only the current zone is offered, as a text field with suggestions would.
+  const timezone = screen.getByLabelText('Timezone')
+  expect(timezone.querySelectorAll('option').length).toBeGreaterThan(300)
+  await userEvent.selectOptions(timezone, 'America/New_York')
+  expect(screen.getByText(/^Time there now: \d\d:\d\d$/)).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'Save settings' }))
+
+  expect(barService.updateBar).toHaveBeenCalledWith(expect.objectContaining({ timezone: 'America/New_York' }))
+})

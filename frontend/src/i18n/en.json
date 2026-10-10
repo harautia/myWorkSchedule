@@ -199,7 +199,8 @@
     "clock12": "12-hour (6:30 PM)",
     "accent": "Accent colour",
     "accentPreview": "Button",
-    "hint": "Times are shown in the bar's timezone for everyone. When the bar closes after midnight, shifts after midnight belong to the evening before. Pick a fairly dark accent colour: buttons show white text on it."
+    "hint": "Times are shown in the bar's timezone for everyone. When the bar closes after midnight, shifts after midnight belong to the evening before. Pick a fairly dark accent colour: buttons show white text on it.",
+    "timeNow": "Time there now: {{time}}"
   },
   "admin": {
     "loadBarsFailed": "Could not load bars",

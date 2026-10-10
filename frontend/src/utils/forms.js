@@ -39,6 +39,28 @@ export const generatePassword = (length = 14) => {
   return Array.from(values, (value) => PASSWORD_CHARS[value % PASSWORD_CHARS.length]).join('')
 }
 
-// Timezones offered in the bar form; any IANA name is accepted.
+// Timezones offered in the bar form (IANA names, e.g. Europe/Helsinki).
 export const TIMEZONES =
   typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['Europe/Helsinki']
+
+// The timezones grouped by region for a <select>: [['Europe', ['Europe/Helsinki', …]], …].
+// `current` is always included, even if this browser doesn't list it (e.g. 'UTC').
+export const timezoneGroups = (current) => {
+  const zones = TIMEZONES.includes(current) || !current ? TIMEZONES : [...TIMEZONES, current]
+  const groups = new Map()
+  for (const zone of [...zones].sort()) {
+    const region = zone.includes('/') ? zone.split('/')[0] : 'Other'
+    if (!groups.has(region)) groups.set(region, [])
+    groups.get(region).push(zone)
+  }
+  return [...groups]
+}
+
+// The current time in a timezone, e.g. '22:50', to confirm the choice.
+export const timeNowIn = (timezone) => {
+  try {
+    return new Intl.DateTimeFormat('en-GB', { timeZone: timezone, hour: '2-digit', minute: '2-digit' }).format(new Date())
+  } catch {
+    return null
+  }
+}

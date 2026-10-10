@@ -199,7 +199,8 @@
     "clock12": "12 tuntia (6:30 PM)",
     "accent": "Korostusväri",
     "accentPreview": "Painike",
-    "hint": "Ajat näytetään kaikille baarin aikavyöhykkeellä. Jos baari sulkeutuu puolenyön jälkeen, puolenyön jälkeiset vuorot kuuluvat edelliseen iltaan. Valitse melko tumma korostusväri: painikkeissa sen päällä on valkoinen teksti."
+    "hint": "Ajat näytetään kaikille baarin aikavyöhykkeellä. Jos baari sulkeutuu puolenyön jälkeen, puolenyön jälkeiset vuorot kuuluvat edelliseen iltaan. Valitse melko tumma korostusväri: painikkeissa sen päällä on valkoinen teksti.",
+    "timeNow": "Kello siellä nyt: {{time}}"
   },
   "admin": {
     "loadBarsFailed": "Baareja ei voitu ladata",
