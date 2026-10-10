@@ -173,13 +173,14 @@ describe('managers', () => {
       .send({ ...NEW_MANAGER, username: 'later', name: 'Later Manager' })
       .expect(201)
 
-    const anna = await managerOf(data.own.id)
+    const users = (await admin.get(`/api/admin/bars/${data.own.id}`)).body.users
+    const anna = users.find((user) => user.username === 'anna')
     assert.strictEqual(anna.role, 'owner')
     await admin.delete(`/api/admin/bars/${data.own.id}/managers/${anna.id}`).expect(204)
 
-    const users = (await admin.get(`/api/admin/bars/${data.own.id}`)).body.users
+    const after = (await admin.get(`/api/admin/bars/${data.own.id}`)).body.users
     assert.deepStrictEqual(
-      users.filter((user) => user.role !== 'employee').map(({ username, role }) => `${username}:${role}`).sort(),
+      after.filter((user) => user.role !== 'employee').map(({ username, role }) => `${username}:${role}`).sort(),
       ['kalle:owner', 'later:manager']
     )
   })
