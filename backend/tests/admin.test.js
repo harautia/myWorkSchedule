@@ -63,7 +63,8 @@ describe('creating a bar', () => {
 
     assert.deepStrictEqual(
       { ...response.body.bar, id: undefined },
-      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Stockholm', opensAt: '12:00', closesAt: '02:00' }
+      // A new bar gets the default display settings.
+      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Stockholm', opensAt: '12:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#863bff' }
     )
     assert.deepStrictEqual(
       response.body.users.map(({ username, groups }) => ({ username, groups })),

@@ -8,7 +8,10 @@ const toDto = (row) => ({
   name: row.name,
   timezone: row.timezone,
   opensAt: toHourMinute(row.opens_at),
-  closesAt: toHourMinute(row.closes_at)
+  closesAt: toHourMinute(row.closes_at),
+  locale: row.locale,
+  clock24h: row.clock_24h,
+  accentColor: row.accent_color
 })
 
 const getById = async (barId) => {
@@ -33,12 +36,14 @@ const getAllWithCounts = async () => {
   }))
 }
 
-const toRow = ({ name, timezone, opensAt, closesAt }) => ({
-  name: name.trim(),
-  timezone,
-  opens_at: opensAt,
-  closes_at: closesAt
-})
+// Display settings left out keep their current value (or the default for a new bar).
+const toRow = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor }) => {
+  const row = { name: name.trim(), timezone, opens_at: opensAt, closes_at: closesAt }
+  if (locale !== undefined) row.locale = locale
+  if (clock24h !== undefined) row.clock_24h = clock24h
+  if (accentColor !== undefined) row.accent_color = accentColor.toLowerCase()
+  return row
+}
 
 const create = async (bar, conn = db) => {
   const [row] = await conn('bars').insert(toRow(bar)).returning('id')

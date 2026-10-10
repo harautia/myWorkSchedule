@@ -1,7 +1,15 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
+import { dayKey } from './lanes'
 import {
   adjustShift,
   barDay,
+  barDayStart,
+  formatShortTime,
+  formatTime,
+  fromDayKey,
+  openingHourLabels,
+  openMinutes,
+  setBarSettings,
   hoursFromOpening,
   monthGrid,
   snapMinutes,
@@ -88,5 +96,53 @@ describe('timeOnBarDay', () => {
   test('times after midnight are on the next calendar day', () => {
     expect(timeOnBarDay(new Date(2026, 8, 25), '02:00')).toEqual(new Date(2026, 8, 26, 2))
     expect(timeOnBarDay(new Date(2026, 8, 30), '00:15')).toEqual(new Date(2026, 9, 1, 0, 15))
+  })
+})
+
+describe('bar settings', () => {
+  const HELSINKI = { timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: true }
+  afterEach(() => setBarSettings(HELSINKI))
+
+  test('times are shown in the bar\'s timezone, not the computer\'s', () => {
+    // The tests run in Helsinki time; this bar is in New York.
+    setBarSettings({ ...HELSINKI, timezone: 'America/New_York' })
+    const start = '2026-09-25T22:00:00Z' // 18:00 in New York, 01:00 in Helsinki
+
+    expect(formatTime(start)).toBe('18:00')
+    expect(dayKey(barDay(start))).toBe('2026-09-25')
+    // The same moment (toISOString of a bar time has the bar's offset: 18:00-04:00).
+    expect(timeOnBarDay(fromDayKey('2026-09-25'), '18:00').getTime()).toBe(Date.parse(start))
+  })
+
+  test('the bar day follows the opening hours', () => {
+    setBarSettings({ ...HELSINKI, opensAt: '16:00', closesAt: '02:30' })
+    const friday = fromDayKey('2026-09-25')
+
+    expect(openMinutes()).toBe(630)
+    expect(barDayStart(friday)).toEqual(new Date(2026, 8, 25, 16))
+    // 02:00 on Saturday is still Friday's bar day; 03:00 is Saturday's.
+    expect(dayKey(barDay(new Date(2026, 8, 26, 2)))).toBe('2026-09-25')
+    expect(dayKey(barDay(new Date(2026, 8, 26, 3)))).toBe('2026-09-26')
+    expect(openingHourLabels()).toEqual(['16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00'])
+  })
+
+  test('a bar that closes before midnight has no after-midnight times', () => {
+    setBarSettings({ ...HELSINKI, opensAt: '08:00', closesAt: '22:00' })
+    const friday = fromDayKey('2026-09-25')
+
+    expect(timeOnBarDay(friday, '07:00')).toEqual(new Date(2026, 8, 25, 7))
+    expect(dayKey(barDay(new Date(2026, 8, 25, 1)))).toBe('2026-09-25')
+  })
+
+  test('the 12-hour clock', () => {
+    setBarSettings({ ...HELSINKI, clock24h: false })
+    expect(formatTime(new Date(2026, 8, 25, 18, 30))).toBe('6:30 PM')
+    expect(formatShortTime(new Date(2026, 8, 25, 18))).toBe('6PM')
+    expect(openingHourLabels()[0]).toBe('10:00 AM')
+  })
+
+  test('the opening time is right on the day the clocks change', () => {
+    // Summer time ends in Finland on Sunday 25 October 2026 at 04:00.
+    expect(barDayStart(fromDayKey('2026-10-25'))).toEqual(new Date(2026, 9, 25, 10))
   })
 })

@@ -1,10 +1,12 @@
 :root {
-  /* Brand (from public/favicon.svg) */
-  --color-brand-100: #ede6ff;
-  --color-brand-200: #dcd0ff;
-  --color-brand-500: #863bff;
-  --color-brand-600: #7e14ff;
-  --color-brand-700: #6a10d6;
+  /* Brand: shades of the bar's accent colour (set by the app from the bar's
+     settings; the default is the logo's purple) */
+  --accent: #863bff;
+  --color-brand-100: color-mix(in srgb, var(--accent) 14%, white);
+  --color-brand-200: color-mix(in srgb, var(--accent) 28%, white);
+  --color-brand-500: var(--accent);
+  --color-brand-600: color-mix(in srgb, var(--accent) 88%, black);
+  --color-brand-700: color-mix(in srgb, var(--accent) 75%, black);
   --color-accent-blue: #47bfff;
 
   /* Neutrals */
@@ -1125,4 +1127,25 @@ nav {
     flex-wrap: wrap;
     gap: var(--space-2);
   }
+}
+
+/* Bar settings: accent colour picker with a preview */
+.color-input {
+  width: 3rem;
+  height: 2.5rem;
+  padding: 2px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  cursor: pointer;
+}
+
+.accent-preview {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-inverse);
+  background: var(--accent);
+  border-radius: var(--radius-sm);
 }

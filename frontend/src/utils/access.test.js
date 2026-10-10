@@ -6,9 +6,9 @@ test('admin sees only the bars page', () => {
   expect(pagesFor(user(['adminGroup'], null))).toEqual(['bars'])
 })
 
-test('manager sees the schedule and employees, and can edit', () => {
+test('manager sees the schedule, employees and bar settings, and can edit', () => {
   const manager = user(['managerGroup'])
-  expect(pagesFor(manager)).toEqual(['schedule', 'employees'])
+  expect(pagesFor(manager)).toEqual(['schedule', 'employees', 'settings'])
   expect(canEditSchedule(manager)).toBe(true)
 })
 
@@ -19,7 +19,7 @@ test('employee sees only the schedule, read-only', () => {
 })
 
 test('pages from several groups are combined', () => {
-  expect(pagesFor(user(['adminGroup', 'managerGroup']))).toEqual(['schedule', 'employees', 'bars'])
+  expect(pagesFor(user(['adminGroup', 'managerGroup']))).toEqual(['schedule', 'employees', 'settings', 'bars'])
 })
 
 test('without a bar there is no schedule', () => {

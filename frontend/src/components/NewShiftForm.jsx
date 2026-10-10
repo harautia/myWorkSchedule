@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { addMinutes, format, parseISO } from 'date-fns'
+import { addMinutes, format } from 'date-fns'
 import DayPicker from './DayPicker'
 import {
   barDayStart,
   formatTime,
-  OPEN_MINUTES,
+  fromDayKey,
+  openMinutes,
   SNAP_MINUTES,
   timeOnBarDay
 } from '../utils/dates'
@@ -22,7 +23,7 @@ const NewShiftForm = ({ employees, day, startMinutes, onSave, onCancel }) => {
   const [form, setForm] = useState({
     employeeId: '',
     start: formatTime(addMinutes(opening, startMinutes)),
-    end: formatTime(addMinutes(opening, Math.min(startMinutes + DEFAULT_SHIFT_MINUTES, OPEN_MINUTES)))
+    end: formatTime(addMinutes(opening, Math.min(startMinutes + DEFAULT_SHIFT_MINUTES, openMinutes())))
   })
   const [days, setDays] = useState(() => new Set([dayKey(day)]))
   const [error, setError] = useState(null)
@@ -39,7 +40,7 @@ const NewShiftForm = ({ employees, day, startMinutes, onSave, onCancel }) => {
     })
   }
 
-  const chosenDays = [...days].sort().map((key) => parseISO(key))
+  const chosenDays = [...days].sort().map(fromDayKey)
 
   const handleSubmit = async (event) => {
     event.preventDefault()

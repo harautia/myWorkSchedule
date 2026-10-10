@@ -5,10 +5,9 @@ import DeleteBarSection from './DeleteBarSection'
 import EditManagerForm from './EditManagerForm'
 import GroupBadges from '../GroupBadges'
 import adminService from '../../services/admin'
-import { errorMessage } from '../../utils/forms'
+import { barSettings, errorMessage } from '../../utils/forms'
 import { MANAGER } from '../../utils/access'
 
-const toForm = ({ name, timezone, opensAt, closesAt }) => ({ name, timezone, opensAt, closesAt })
 
 // One bar: its settings, and every user account in it. Managers can be
 // added, edited (name, new password) and removed here.
@@ -27,7 +26,7 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
     () =>
       adminService.getBar(barId).then((data) => {
         setDetails(data)
-        setBarForm(toForm(data.bar))
+        setBarForm(barSettings(data.bar))
       }),
     [barId]
   )

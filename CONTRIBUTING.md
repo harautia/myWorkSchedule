@@ -51,6 +51,8 @@ The [README](README.md) lists all development accounts and explains the code.
 
 - **Tests:** add or update tests with every change: `npm test` in `backend/` and
   `frontend/`. Backend tests use the test database and reset it for every test.
+  Frontend tests run in Helsinki time (`npm test` sets `TZ`), so results don't depend on
+  your computer's timezone.
 - **Lint:** `npm run lint` in `backend/` and `frontend/`.
 - **Keep bars apart:** every new endpoint must take the bar from the logged-in user
   (`request.barId`), never from the URL or body, and get a test showing that a user of one

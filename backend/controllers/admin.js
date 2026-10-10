@@ -8,9 +8,8 @@ const Employees = require('../models/employees')
 const { UNIQUE_VIOLATION, pickAccount, createStaffAccount } = require('../utils/accounts')
 const { hashPassword } = require('../utils/passwords')
 const { MANAGER } = require('../utils/groups')
-const { barError, newAccountError, accountChangesError, parseId } = require('../utils/validation')
+const { barError, pickBarSettings, newAccountError, accountChangesError, parseId } = require('../utils/validation')
 
-const pickBar = ({ name, timezone, opensAt, closesAt } = {}) => ({ name, timezone, opensAt, closesAt })
 
 // Usernames are unique across the whole service (login is by username only),
 // so say where it is in use; this is admin-only, so naming the bar is fine.
@@ -59,7 +58,7 @@ adminRouter.get('/bars', async (request, response) => {
 
 // Creates a bar together with its first manager: { bar: {...}, manager: { username, name, password } }
 adminRouter.post('/bars', async (request, response) => {
-  const bar = pickBar(request.body.bar)
+  const bar = pickBarSettings(request.body.bar)
   const manager = pickAccount(request.body.manager)
 
   const error = barError(bar) ?? newAccountError(manager)
@@ -94,7 +93,7 @@ adminRouter.delete('/bars/:barId', async (request, response) => {
 })
 
 adminRouter.put('/bars/:barId', async (request, response) => {
-  const bar = pickBar(request.body)
+  const bar = pickBarSettings(request.body)
   const error = barError(bar)
   if (error) return response.status(400).json({ error })
 

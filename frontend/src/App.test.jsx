@@ -5,12 +5,14 @@ import App from './App'
 import authService from './services/auth'
 import adminService from './services/admin'
 import appInfoService from './services/appInfo'
+import barService from './services/bar'
 import employeeService from './services/employees'
 import shiftService from './services/shifts'
 
 vi.mock('./services/auth')
 vi.mock('./services/admin')
 vi.mock('./services/appInfo')
+vi.mock('./services/bar')
 vi.mock('./services/employees')
 vi.mock('./services/shifts')
 
@@ -22,6 +24,9 @@ const users = {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  barService.getBar.mockResolvedValue({
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff'
+  })
   appInfoService.getAppInfo.mockResolvedValue({ version: '0.1.0', sourceUrl: 'https://example.org/src' })
   shiftService.getEmployees.mockResolvedValue([])
   shiftService.getShifts.mockResolvedValue([])
@@ -109,4 +114,38 @@ test('the login page shows the version and the source code link', async () => {
 
   expect(await screen.findByText(/myWorkSchedule 0\.1\.0/)).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Source code' })).toHaveAttribute('href', 'https://example.org/src')
+})
+
+test('the bar\'s settings are applied, and a manager can change them', async () => {
+  barService.getBar.mockResolvedValue({
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '16:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#0ca678'
+  })
+  barService.updateBar.mockImplementation((settings) => Promise.resolve({ id: 1, ...settings }))
+  authService.getCurrentUser.mockResolvedValue(users.anna)
+  const { container } = render(<App />)
+
+  // The week view starts at the bar's opening time, in its accent colour.
+  expect(await screen.findByRole('button', { name: 'Schedule' })).toBeInTheDocument()
+  expect(container.querySelector('.week-hour-label')).toHaveTextContent('16:00')
+  expect(document.documentElement.style.getPropertyValue('--accent')).toBe('#0ca678')
+
+  await userEvent.click(screen.getByRole('button', { name: 'Bar settings' }))
+  const name = screen.getByLabelText('Bar name')
+  await userEvent.clear(name)
+  await userEvent.type(name, 'Imaginary Bar & Grill')
+  await userEvent.selectOptions(screen.getByLabelText('Clock'), '12-hour (6:30 PM)')
+  await userEvent.click(screen.getByRole('button', { name: 'Save settings' }))
+
+  expect(barService.updateBar).toHaveBeenCalledWith(expect.objectContaining({ name: 'Imaginary Bar & Grill', clock24h: false }))
+  expect(await screen.findByRole('heading', { name: 'Imaginary Bar & Grill Work Schedule' })).toBeInTheDocument()
+
+  await userEvent.click(screen.getByRole('button', { name: 'Schedule' }))
+  expect(container.querySelector('.week-hour-label')).toHaveTextContent('4:00 PM')
+})
+
+test('employees don\'t get the bar settings page', async () => {
+  authService.getCurrentUser.mockResolvedValue(users.mikko)
+  render(<App />)
+  expect(await screen.findByText(/View only/)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Bar settings' })).not.toBeInTheDocument()
 })

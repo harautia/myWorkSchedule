@@ -1,6 +1,6 @@
+import { TZDate } from '@date-fns/tz'
 import {
   addDays,
-  addHours,
   addMinutes,
   addMonths,
   addWeeks,
@@ -8,22 +8,70 @@ import {
   format,
   isSameDay,
   isSameMonth,
+  set,
   startOfDay,
   startOfMonth,
   startOfWeek,
-  subHours
+  subMinutes
 } from 'date-fns'
 
-// The bar opens at 10:00 and closes at 04:00 the next morning. A "bar day"
-// therefore runs from DAY_START_HOUR to DAY_END_HOUR (past midnight = > 24).
-export const DAY_START_HOUR = 10
-export const DAY_END_HOUR = 28
+// The bar whose schedule is shown. Every function here works in the bar's
+// timezone and with its opening hours, wherever the user happens to be.
+// setBarSettings() is called when the bar's settings have loaded.
+const localTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
+
+let bar = { timezone: localTimezone(), opensAt: '10:00', closesAt: '04:00', clock24h: true }
+
+export const setBarSettings = ({ timezone, opensAt, closesAt, clock24h = true }) => {
+  bar = { timezone, opensAt, closesAt, clock24h }
+}
+
+const MINUTES_PER_DAY = 24 * 60
+const toMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
+}
+
+// A bar day runs from opening to closing, which may be after midnight:
+// 10:00-04:00 is minutes 600-1680 of the day the bar opened.
+const opensMinutes = () => toMinutes(bar.opensAt)
+const closesMinutes = () => {
+  const closes = toMinutes(bar.closesAt)
+  return closes <= opensMinutes() ? closes + MINUTES_PER_DAY : closes
+}
+const isOvernight = () => closesMinutes() > MINUTES_PER_DAY
+
+// Minutes from opening to closing.
+export const openMinutes = () => closesMinutes() - opensMinutes()
+
+// The same moment in the bar's timezone. Accepts a Date, an ISO string or a timestamp.
+export const inBarTime = (date) => new TZDate(new Date(date).getTime(), bar.timezone)
+
+export const barNow = () => inBarTime(Date.now())
+
+// A moment as a UTC ISO string for the API ('…Z'). A bar time's own
+// toISOString() would carry the bar's offset instead (e.g. '…-04:00').
+export const toApiTime = (date) => new Date(new Date(date).getTime()).toISOString()
+
+// Midnight starting the calendar day 'yyyy-MM-dd', in the bar's timezone.
+export const fromDayKey = (key) => {
+  const [year, month, day] = key.split('-').map(Number)
+  return new TZDate(year, month - 1, day, bar.timezone)
+}
+
+// The wall-clock time `minutes` after midnight of `day` (may be the next day).
+// Set directly, so a day when the clocks change still opens at the right time.
+const atMinutes = (day, minutes) => {
+  const date = minutes >= MINUTES_PER_DAY ? addDays(day, 1) : day
+  const inDay = minutes % MINUTES_PER_DAY
+  return set(date, { hours: Math.floor(inDay / 60), minutes: inDay % 60, seconds: 0, milliseconds: 0 })
+}
 
 const WEEK_OPTIONS = { weekStartsOn: 1 } // Monday
 
 export { addDays, isSameDay, isSameMonth }
 
-export const weekStart = (date) => startOfWeek(date, WEEK_OPTIONS)
+export const weekStart = (date) => startOfWeek(inBarTime(date), WEEK_OPTIONS)
 
 export const weekDays = (date) => {
   const start = weekStart(date)
@@ -32,7 +80,7 @@ export const weekDays = (date) => {
 
 // 6 full weeks covering the month, starting on the Monday on/before the 1st.
 export const monthGrid = (date) => {
-  const start = weekStart(startOfMonth(date))
+  const start = weekStart(startOfMonth(inBarTime(date)))
   return Array.from({ length: 42 }, (_, i) => addDays(start, i))
 }
 
@@ -55,29 +103,51 @@ export const shiftDate = (view, date, amount) => {
   return view === 'week' ? addWeeks(date, amount) : addMonths(date, amount)
 }
 
-// A shift starting at 01:00 still belongs to the previous evening's bar day.
-export const barDay = (date) => startOfDay(subHours(date, DAY_END_HOUR - 24))
+// The bar day a moment belongs to. When the bar closes after midnight, a
+// shift starting at 01:00 still belongs to the previous evening's bar day.
+export const barDay = (date) =>
+  startOfDay(subMinutes(inBarTime(date), Math.max(closesMinutes() - MINUTES_PER_DAY, 0)))
 
-export const barDayStart = (day) => addHours(startOfDay(day), DAY_START_HOUR)
+// Opening time of a bar day.
+export const barDayStart = (day) => atMinutes(startOfDay(inBarTime(day)), opensMinutes())
 
-// Hours from the bar day's opening time, clamped to the visible hours.
+// Hours from the bar day's opening time, clamped to the opening hours.
 export const hoursFromOpening = (day, date) => {
   const hours = differenceInMinutes(date, barDayStart(day)) / 60
-  return Math.min(Math.max(hours, 0), DAY_END_HOUR - DAY_START_HOUR)
+  return Math.min(Math.max(hours, 0), openMinutes() / 60)
 }
 
-// The moment 'HH:mm' happens on a bar day. Times before opening are after
-// midnight, i.e. on the next calendar day (02:00 on Monday = Tuesday 02:00).
+// The moment 'HH:mm' happens on a bar day. In a bar open past midnight, times
+// before opening are after midnight, i.e. on the next calendar day
+// (02:00 on Monday = Tuesday 02:00).
 export const timeOnBarDay = (day, time) => {
-  const [hours, minutes] = time.split(':').map(Number)
-  const base = addMinutes(startOfDay(day), hours * 60 + minutes)
-  return hours < DAY_START_HOUR ? addDays(base, 1) : base
+  const minutes = toMinutes(time)
+  const nextDay = isOvernight() && minutes < opensMinutes()
+  return atMinutes(startOfDay(inBarTime(day)), nextDay ? minutes + MINUTES_PER_DAY : minutes)
 }
 
-export const formatTime = (date) => format(date, 'HH:mm')
-export const formatShortTime = (date) => format(date, date.getMinutes() ? 'HH:mm' : 'HH')
-export const formatDateTime = (date) => format(date, 'd.M. HH:mm')
-export const formatDayHeader = (date) => format(date, 'EEE d.M.')
+// Times follow the bar's clock setting: 18:30 or 6:30 PM.
+const timePattern = () => (bar.clock24h ? 'HH:mm' : 'h:mm a')
+const shortTimePattern = (date) => {
+  if (bar.clock24h) return date.getMinutes() ? 'HH:mm' : 'HH'
+  return date.getMinutes() ? 'h:mma' : 'ha'
+}
+
+export const formatTime = (date) => format(inBarTime(date), timePattern())
+export const formatShortTime = (date) => {
+  const local = inBarTime(date)
+  return format(local, shortTimePattern(local))
+}
+export const formatDateTime = (date) => format(inBarTime(date), `d.M. ${timePattern()}`)
+export const formatDayHeader = (date) => format(inBarTime(date), 'EEE d.M.')
+
+// Labels for the hour rows of the week view: one per hour from opening.
+export const openingHourLabels = () => {
+  const day = startOfDay(barNow())
+  return Array.from({ length: Math.ceil(openMinutes() / 60) }, (_, i) =>
+    format(atMinutes(day, (opensMinutes() + i * 60) % MINUTES_PER_DAY), timePattern())
+  )
+}
 
 export const formatRangeLabel = (view, date) => {
   if (view === 'month') return format(date, 'MMMM yyyy')
@@ -87,7 +157,6 @@ export const formatRangeLabel = (view, date) => {
 
 export const SNAP_MINUTES = 15
 const MIN_SHIFT_MINUTES = 30
-export const OPEN_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
@@ -102,14 +171,14 @@ export const adjustShift = (shift, { mode, dayDelta = 0, minutesDelta, days }) =
   const endMin = hoursFromOpening(day, shift.end) * 60
 
   if (mode === 'resize') {
-    const newEnd = clamp(endMin + minutesDelta, startMin + MIN_SHIFT_MINUTES, OPEN_MINUTES)
+    const newEnd = clamp(endMin + minutesDelta, startMin + MIN_SHIFT_MINUTES, openMinutes())
     return { start: shift.start, end: addMinutes(barDayStart(day), newEnd) }
   }
 
   const index = days.findIndex((d) => isSameDay(d, day))
   const targetDay = days[clamp(index + dayDelta, 0, days.length - 1)]
   const duration = endMin - startMin
-  const newStart = clamp(startMin + minutesDelta, 0, OPEN_MINUTES - duration)
+  const newStart = clamp(startMin + minutesDelta, 0, openMinutes() - duration)
   const base = barDayStart(targetDay)
   return { start: addMinutes(base, newStart), end: addMinutes(base, newStart + duration) }
 }

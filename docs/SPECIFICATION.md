@@ -99,7 +99,7 @@ The codebase already covers most of the scheduling product. Summary as of 2026-1
 | Mobile | ✅ PWA, "My shifts" list, one-day view on phones, tap to edit on touch screens, last schedule shown offline. |
 | Security basics | ✅ scrypt password hashes, JWT in an httpOnly cookie (7 days), all sessions ended on password change, login rate limit, helmet. |
 | Login | ⚠️ By **username**, unique across all bars. No email, no self-service password reset. |
-| Per-bar settings in the UI | ⚠️ Timezone and opening hours are stored per bar, but the frontend still uses fixed 10:00–04:00 and the browser's timezone. |
+| Per-bar settings in the UI | ✅ The app uses each bar's timezone, opening hours, 12/24-hour clock and accent colour; managers edit them on a Bar settings page (TEN-01–02). Logo and first day of week are still to do. |
 | Translations | ❌ English UI with fixed Finnish-style dates (`d.M.`). |
 | Sign-up, billing, project website, email | ❌ Not started. |
 | Deleting a bar | ⚠️ Immediate hard delete, with no export and no grace period. |

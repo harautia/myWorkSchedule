@@ -1,7 +1,7 @@
 import { formatDateTime } from '../utils/dates'
 
 const lockedText = ({ lockedAt, lockedBy }) =>
-  `${formatDateTime(new Date(lockedAt))}${lockedBy ? ` by ${lockedBy}` : ''}`
+  `${formatDateTime(lockedAt)}${lockedBy ? ` by ${lockedBy}` : ''}`
 
 // The shown week's state above the week view. Managers lock the week when its
 // plan is ready (employees then see it) and unlock it to make changes;

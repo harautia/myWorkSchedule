@@ -4,6 +4,22 @@ All notable changes are listed here. The project follows
 [semantic versioning](https://semver.org/): until 1.0, minor versions (0.x) may contain
 breaking changes, which are always described under **Upgrading**.
 
+## [Unreleased]
+
+### Added
+- Bar settings page for managers: name, timezone, opening hours, language, 12/24-hour
+  clock and accent colour. Admins set the same when creating or editing a bar.
+- `PUT /api/bar` for managers to change their own bar's settings.
+
+### Changed
+- The schedule uses the bar's own timezone and opening hours everywhere, instead of
+  10:00–04:00 and the viewer's computer time. Times are the bar's local time for
+  everyone, wherever they are.
+
+### Upgrading
+- A database migration adds the new settings with defaults (English, 24-hour clock, the
+  default purple); it runs automatically on start.
+
 ## [0.1.0] – unreleased
 
 First public release.

@@ -26,8 +26,56 @@ describe('bar', () => {
       name: 'Own Bar',
       timezone: 'Europe/Helsinki',
       opensAt: '10:00',
-      closesAt: '04:00'
+      closesAt: '04:00',
+      locale: 'en',
+      clock24h: true,
+      accentColor: '#863bff'
     })
+  })
+
+  const SETTINGS = {
+    name: 'Own Bar & Grill',
+    timezone: 'America/New_York',
+    opensAt: '16:00',
+    closesAt: '02:30',
+    locale: 'fi',
+    clock24h: false,
+    accentColor: '#0CA678'
+  }
+
+  test('a manager changes their own bar\'s settings', async () => {
+    const response = await api.put('/api/bar').send(SETTINGS).expect(200)
+
+    assert.deepStrictEqual(response.body, { id: data.own.id, ...SETTINGS, accentColor: '#0ca678' })
+    const other = await db('bars').where({ id: data.other.id }).first()
+    assert.strictEqual(other.name, 'Other Bar')
+  })
+
+  test('the bar in the body is ignored', async () => {
+    await api.put('/api/bar').send({ ...SETTINGS, id: data.other.id }).expect(200)
+    assert.strictEqual((await db('bars').where({ id: data.other.id }).first()).timezone, 'Europe/Helsinki')
+  })
+
+  test('display settings left out keep their value', async () => {
+    await api.put('/api/bar').send(SETTINGS).expect(200)
+    const { locale, clock24h, accentColor, ...core } = SETTINGS
+    const response = await api.put('/api/bar').send({ ...core, name: 'Renamed' }).expect(200)
+    assert.strictEqual(response.body.locale, 'fi')
+    assert.strictEqual(response.body.clock24h, false)
+  })
+
+  test('invalid settings are refused', async () => {
+    await api.put('/api/bar').send({ ...SETTINGS, locale: 'sv' }).expect(400)
+    await api.put('/api/bar').send({ ...SETTINGS, clock24h: 'yes' }).expect(400)
+    await api.put('/api/bar').send({ ...SETTINGS, accentColor: 'purple' }).expect(400)
+    await api.put('/api/bar').send({ ...SETTINGS, timezone: 'Mars/Base' }).expect(400)
+    await api.put('/api/bar').send({ ...SETTINGS, closesAt: '16:00' }).expect(400)
+  })
+
+  test('employees can see but not change the settings', async () => {
+    const mikko = await loginAs('mikko')
+    await mikko.get('/api/bar').expect(200)
+    await mikko.put('/api/bar').send(SETTINGS).expect(403)
   })
 })
 

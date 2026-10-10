@@ -1,21 +1,16 @@
 import ShiftBlock from './ShiftBlock'
 import useShiftDrag from '../hooks/useShiftDrag'
 import {
-  DAY_END_HOUR,
-  DAY_START_HOUR,
   formatDayHeader,
   hoursFromOpening,
   isSameDay,
-  OPEN_MINUTES,
+  openingHourLabels,
+  openMinutes,
   SNAP_MINUTES
 } from '../utils/dates'
 import { dayKey, employeeOrder, layoutLanes, shiftsOnDay } from '../utils/lanes'
 
 const HOUR_HEIGHT = 40
-const HOURS = Array.from(
-  { length: DAY_END_HOUR - DAY_START_HOUR },
-  (_, i) => (DAY_START_HOUR + i) % 24
-)
 
 const WeekView = ({
   days,
@@ -47,7 +42,7 @@ const WeekView = ({
     if (event.target.closest('.shift-block')) return
     const rect = event.currentTarget.getBoundingClientRect()
     const minutes = Math.floor(((event.clientY - rect.top) / HOUR_HEIGHT) * 60 / SNAP_MINUTES) * SNAP_MINUTES
-    onCreateAt(day, Math.min(Math.max(minutes, 0), OPEN_MINUTES - SNAP_MINUTES))
+    onCreateAt(day, Math.min(Math.max(minutes, 0), openMinutes() - SNAP_MINUTES))
   }
 
   return (
@@ -64,9 +59,10 @@ const WeekView = ({
         ))}
 
         <div className="week-gutter">
-          {HOURS.map((hour) => (
-            <div key={hour} className="week-hour-label">
-              {String(hour).padStart(2, '0')}:00
+          {/* One row per hour from the bar's opening time */}
+          {openingHourLabels().map((label, i) => (
+            <div key={i} className="week-hour-label">
+              {label}
             </div>
           ))}
         </div>

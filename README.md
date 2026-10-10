@@ -187,7 +187,8 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | POST | `/api/admin/bars/:barId/managers` | admin | `{ username, name, password }`; also adds them to the schedule as a manager |
 | PUT | `/api/admin/bars/:barId/managers/:userId` | admin | `{ name?, password? }`; a new name also renames them on the schedule, a new password ends old sessions |
 | DELETE | `/api/admin/bars/:barId/managers/:userId` | admin | deletes the account (their schedule entry and shifts stay); refused for the bar's last manager |
-| GET | `/api/bar` | manager, employee | name, timezone, opensAt, closesAt |
+| GET | `/api/bar` | manager, employee | name, timezone, opensAt, closesAt, locale, clock24h, accentColor |
+| PUT | `/api/bar` | manager | the same fields; changes the manager's own bar (locale, clock24h and accentColor optional) |
 | GET | `/api/employees` | manager, employee | legend order |
 | GET | `/api/employees/details` | manager | employees with their login account and shift count |
 | POST | `/api/employees` | manager | `{ username, name, password }`; adds a waiter with an employeeGroup login to the manager's bar |

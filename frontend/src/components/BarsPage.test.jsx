@@ -60,7 +60,7 @@ test('creates a new bar with its first manager and opens it', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Create bar' }))
 
   expect(adminService.createBar).toHaveBeenCalledWith(
-    { name: 'Corner Pub', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00' },
+    { name: 'Corner Pub', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff' },
     { name: 'Kalle', username: 'kalle', password: 'long-enough-password' }
   )
   expect(await screen.findByRole('heading', { name: 'Imaginary Bar' })).toBeInTheDocument()

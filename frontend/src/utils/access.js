@@ -18,7 +18,7 @@ export const canEditSchedule = (user) => Boolean(user.barId) && inGroup(user, MA
 export const pagesFor = (user) => {
   const pages = []
   if (user.barId && inGroup(user, MANAGER, EMPLOYEE)) pages.push('schedule')
-  if (user.barId && inGroup(user, MANAGER)) pages.push('employees')
+  if (user.barId && inGroup(user, MANAGER)) pages.push('employees', 'settings')
   if (inGroup(user, ADMIN)) pages.push('bars')
   return pages
 }

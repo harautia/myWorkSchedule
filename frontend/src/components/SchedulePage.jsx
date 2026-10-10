@@ -12,6 +12,9 @@ import shiftService from '../services/shifts'
 import useMediaQuery, { NARROW_SCREEN, TOUCH_POINTER } from '../hooks/useMediaQuery'
 import {
   agendaWeeks,
+  barNow,
+  inBarTime,
+  toApiTime,
   formatRangeLabel,
   formatTime,
   isSameDay,
@@ -24,7 +27,8 @@ import {
 import { dayKey } from '../utils/lanes'
 import { errorMessage } from '../utils/forms'
 
-const toShift = (data) => ({ ...data, start: new Date(data.start), end: new Date(data.end) })
+// Shifts are handled in the bar's timezone, wherever the user is.
+const toShift = (data) => ({ ...data, start: inBarTime(data.start), end: inBarTime(data.end) })
 
 // The bar's schedule, one week at a time in planning or locked state.
 // Managers (canEdit) add, drag and delete shifts in weeks being planned, and
@@ -38,7 +42,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   const isTouch = useMediaQuery(TOUCH_POINTER)
   const views = employeeId ? ['mine', 'week', 'month'] : ['week', 'month']
   const [view, setView] = useState(() => (employeeId && !canEdit && isNarrow ? 'mine' : 'week'))
-  const [currentDate, setCurrentDate] = useState(() => new Date())
+  const [currentDate, setCurrentDate] = useState(barNow)
   const [employees, setEmployees] = useState([])
   const [shifts, setShifts] = useState([])
   const [dayOrders, setDayOrders] = useState({})
@@ -51,7 +55,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   // Touch screens: the shift tapped for editing, or null.
   const [editingShift, setEditingShift] = useState(null)
   const [actionError, setActionError] = useState(null)
-  const today = new Date()
+  const today = barNow()
 
   useEffect(() => {
     shiftService.getEmployees().then(setEmployees)
@@ -63,8 +67,8 @@ const SchedulePage = ({ canEdit, employeeId }) => {
 
   // Everything that a lock (by anyone) can change.
   const loadSchedule = useCallback(() => {
-    const rangeFrom = new Date(fromTime)
-    const rangeTo = new Date(toTime)
+    const rangeFrom = inBarTime(fromTime)
+    const rangeTo = inBarTime(toTime)
     const getShifts = view === 'mine' ? shiftService.getMyShifts : shiftService.getShifts
     return Promise.all([
       getShifts(rangeFrom, rangeTo).then((data) => setShifts(data.map(toShift))),
@@ -114,7 +118,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   const handleShiftChange = (id, { start, end }) => {
     setShifts((prev) => prev.map((s) => (s.id === id ? { ...s, start, end } : s)))
     shiftService
-      .updateShift(id, { start: start.toISOString(), end: end.toISOString() })
+      .updateShift(id, { start: toApiTime(start), end: toApiTime(end) })
       .catch(handleSaveError)
   }
 
@@ -123,8 +127,8 @@ const SchedulePage = ({ canEdit, employeeId }) => {
     const created = await shiftService.createShifts(
       newShifts.map(({ employeeId, start, end }) => ({
         employeeId,
-        start: start.toISOString(),
-        end: end.toISOString()
+        start: toApiTime(start),
+        end: toApiTime(end)
       }))
     )
     // Only the ones inside the shown range belong in state.
@@ -161,8 +165,8 @@ const SchedulePage = ({ canEdit, employeeId }) => {
   const handleEditSave = async (changes) => {
     const saved = toShift(await shiftService.updateShift(editingShift.id, {
       employeeId: changes.employeeId,
-      start: changes.start.toISOString(),
-      end: changes.end.toISOString()
+      start: toApiTime(changes.start),
+      end: toApiTime(changes.end)
     }))
     setShifts((prev) => prev.map((s) => (s.id === saved.id ? saved : s)))
     setEditingShift(null)
@@ -218,7 +222,7 @@ const SchedulePage = ({ canEdit, employeeId }) => {
         onViewChange={setView}
         onPrev={() => setCurrentDate((d) => shiftDate(view, d, -1))}
         onNext={() => setCurrentDate((d) => shiftDate(view, d, 1))}
-        onToday={() => setCurrentDate(new Date())}
+        onToday={() => setCurrentDate(barNow())}
       />
       {view !== 'mine' && (
         <EmployeeLegend employees={employees} hiddenIds={hiddenIds} onToggle={toggleEmployee} />

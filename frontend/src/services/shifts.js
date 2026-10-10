@@ -1,17 +1,18 @@
 import api from './api'
+import { toApiTime } from '../utils/dates'
 
 const getEmployees = () => api.get('/employees').then((res) => res.data)
 
 // The logged-in user's own shifts starting in [from, to) (published ones for employees).
 const getMyShifts = (from, to) =>
   api
-    .get('/shifts/mine', { params: { from: from.toISOString(), to: to.toISOString() } })
+    .get('/shifts/mine', { params: { from: toApiTime(from), to: toApiTime(to) } })
     .then((res) => res.data)
 
 // Shifts starting in [from, to)
 const getShifts = (from, to) =>
   api
-    .get('/shifts', { params: { from: from.toISOString(), to: to.toISOString() } })
+    .get('/shifts', { params: { from: toApiTime(from), to: toApiTime(to) } })
     .then((res) => res.data)
 
 // One or more shifts in one go, all or nothing: [{ employeeId, start, end }, ...]
