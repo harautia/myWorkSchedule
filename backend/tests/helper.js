@@ -24,7 +24,7 @@ const insertUser = async (username, { barId = null, employeeId = null, role = nu
 
 // Two bars. Users of "own" must never see or change anything in "other".
 const resetDb = async () => {
-  await db.raw('TRUNCATE password_resets, invites, published_shifts, schedule_weeks, memberships, users, day_orders, shifts, employees, bars, organizations RESTART IDENTITY CASCADE')
+  await db.raw('TRUNCATE audit_log, stripe_events, billing_notices, email_verifications, password_resets, invites, published_shifts, schedule_weeks, memberships, users, day_orders, shifts, employees, bars, organizations RESTART IDENTITY CASCADE')
 
   const [ownOrganization, otherOrganization] = await db('organizations')
     .insert([{ name: 'Own Bar' }, { name: 'Other Bar' }])

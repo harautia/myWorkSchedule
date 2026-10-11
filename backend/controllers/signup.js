@@ -82,10 +82,12 @@ signupRouter.post('/signup', signupLimiter, async (request, response) => {
   let created
   try {
     created = await db.transaction(async (trx) => {
+      // On the hosted service the owner gives their card in Stripe Checkout
+      // next; the trial starts there.
       const organizationId = await Organizations.create({
         name: signup.bar.name,
         country: signup.country,
-        trialDays: config.DEPLOYMENT_MODE === 'hosted' ? config.TRIAL_DAYS : null
+        status: config.DEPLOYMENT_MODE === 'hosted' ? 'incomplete' : null
       }, trx)
       const barId = await Bars.create(signup.bar, trx, { organizationId })
       const userId = await createStaffAccount(

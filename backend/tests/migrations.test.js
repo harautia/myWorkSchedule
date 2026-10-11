@@ -6,7 +6,11 @@ const db = require('../db/db')
 
 const MIGRATION = '20261010000011_create_organizations_and_memberships.js'
 // Newest first.
-const LATER_MIGRATIONS = ['20261010000012_add_signup_verification_and_onboarding.js']
+const LATER_MIGRATIONS = [
+  '20261011000013_add_billing_and_audit_log.js',
+  '20261010000012_add_signup_verification_and_onboarding.js'
+]
+const MIGRATION_12 = LATER_MIGRATIONS[1]
 
 // The test database as a 0.1.0 installation would have it.
 const insertVersion010Data = async () => {
@@ -156,7 +160,7 @@ describe('migration 11: organizations and memberships', () => {
   })
 
   test('migration 12: existing emails count as verified, and existing bars have no checklist', async () => {
-    await db.migrate.up({ name: LATER_MIGRATIONS[0] })
+    await db.migrate.up({ name: MIGRATION_12 })
     const cat = await db('users').where({ username: 'cat' }).first()
     assert.ok(cat.email_verified_at)
     const ann = await db('users').where({ username: 'ann' }).first()

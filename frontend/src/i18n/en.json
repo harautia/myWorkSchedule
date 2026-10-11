@@ -12,7 +12,8 @@
       "schedule": "Schedule",
       "employees": "Employees",
       "settings": "Bar settings",
-      "bars": "Bars"
+      "bars": "Bars",
+      "billing": "Billing"
     }
   },
   "login": {
@@ -220,7 +221,13 @@
       "since": "Customer since",
       "username": "Username",
       "groups": "Groups",
-      "onSchedule": "On schedule as"
+      "onSchedule": "On schedule as",
+      "organization": "Organization",
+      "bars": "Bars",
+      "status": "Subscription",
+      "trialEnds": "Trial ends",
+      "activeUsers": "Active users (30 d)",
+      "lastActive": "Last activity"
     },
     "barSection": "Bar",
     "firstManager": "First manager",
@@ -246,7 +253,10 @@
     "deleteConfirmLabel": "Type the bar name to confirm",
     "deleteButton": "Delete bar permanently",
     "deleting": "Deleting…",
-    "deleted": "Deleted {{name}}"
+    "deleted": "Deleted {{name}}",
+    "search": "Search",
+    "allStatuses": "All",
+    "noMatches": "No organizations match."
   },
   "links": {
     "newPassword": "New password",
@@ -298,5 +308,76 @@
     },
     "hide": "Hide this list",
     "close": "Close"
+  },
+  "billing": {
+    "title": "Billing",
+    "status": {
+      "incomplete": "Not started",
+      "trialing": "Free trial",
+      "active": "Active",
+      "past_due": "Payment failed",
+      "read_only": "Read-only",
+      "locked": "Locked",
+      "canceled": "Cancelled",
+      "none": "No subscription"
+    },
+    "incomplete": "Choose a plan and give your card to start the 30-day free trial. Nothing is charged until the trial ends.",
+    "trialEnds": "Your free trial ends on {{date}}. After that your card is charged automatically.",
+    "trialEndsCancelled": "Your free trial ends on {{date}}, and the subscription is cancelled then.",
+    "renews": "Your subscription renews on {{date}}.",
+    "endsOn": "Your subscription is cancelled and ends on {{date}}.",
+    "pastDue": "The last payment failed. Stripe will try again; please update your card in Manage billing.",
+    "readOnly": "The subscription has ended, so the schedule is read-only. It will be locked on {{lockDate}} and its data deleted on {{deletionDate}}. Subscribe again to keep using it.",
+    "locked": "The subscription has ended and the schedule is locked. Its data will be deleted on {{deletionDate}}. Subscribe again to get it back.",
+    "plan_one": "{{count}} bar: €{{price}} {{interval}}, without VAT",
+    "plan_other": "{{count}} bars: €{{price}} {{interval}}, without VAT",
+    "per": {
+      "month": "a month",
+      "year": "a year"
+    },
+    "choosePlan": "Plan",
+    "interval": {
+      "month": "Monthly: €{{price}} per bar a month",
+      "year": "Yearly: €{{price}} per bar a year (two months free)"
+    },
+    "trialHint_one": "30 days free, then charged for {{count}} bar. Cancel any time.",
+    "trialHint_other": "30 days free, then charged for {{count}} bars. Cancel any time.",
+    "noTrialHint_one": "Charged now for {{count}} bar.",
+    "noTrialHint_other": "Charged now for {{count}} bars.",
+    "startTrial": "Start free trial",
+    "subscribe": "Subscribe",
+    "manage": "Manage billing",
+    "vatNote": "Payments are handled by Stripe. VAT is added according to your country; businesses in other EU countries can give their VAT number.",
+    "returnSuccess": "Thank you! Your subscription is set up.",
+    "returnWaiting": "Thank you! Your subscription is being set up…",
+    "returnCancelled": "Checkout was cancelled; nothing was charged."
+  },
+  "banner": {
+    "past_due": {
+      "owner": "The last payment failed. Please update your card so the schedule stays editable.",
+      "staff": "There's a problem with this bar's payment. The owner has been told."
+    },
+    "read_only": {
+      "owner": "The subscription has ended, so the schedule is read-only.",
+      "staff": "The schedule is read-only for now. The owner has been told."
+    },
+    "toBilling": "Go to Billing",
+    "inactive": "This bar's subscription isn't active, so the schedule can't be shown. Please ask the bar's owner."
+  },
+  "support": {
+    "title": "Support mode",
+    "hint": "See {{name}} as its managers do, read-only, for up to an hour. The reason is saved in the audit log.",
+    "reason": "Reason (e.g. ticket number)",
+    "open": "Open in support mode",
+    "banner": "Support mode: viewing {{name}} read-only.",
+    "leave": "Leave support mode",
+    "logTitle": "Audit log",
+    "logEmpty": "Nothing logged yet.",
+    "actions": {
+      "support.open": "Opened in support mode: {{reason}}",
+      "support.close": "Left support mode",
+      "bar.delete": "Bar deleted",
+      "subscription.status": "Subscription: {{from}} → {{to}}"
+    }
   }
 }

@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AcceptInvitePage from './components/AcceptInvitePage'
 import AppFooter from './components/AppFooter'
 import BarSettingsPage from './components/BarSettingsPage'
 import BarsPage from './components/BarsPage'
+import BillingPage from './components/BillingPage'
+import { SubscriptionBanner, SubscriptionInactive, SupportBanner } from './components/StatusBanners'
 import EmployeesPage from './components/EmployeesPage'
 import GroupBadges from './components/GroupBadges'
 import LoginPage from './components/LoginPage'
@@ -13,14 +15,20 @@ import SchedulePage from './components/SchedulePage'
 import SignupPage from './components/SignupPage'
 import VerifyEmailBanner from './components/VerifyEmailBanner'
 import VerifyEmailPage from './components/VerifyEmailPage'
+import adminService from './services/admin'
 import appInfoService from './services/appInfo'
 import authService from './services/auth'
 import barService from './services/bar'
 import { setUnauthorizedHandler } from './services/api'
 import useOnline from './hooks/useOnline'
-import { canEditSchedule, pagesFor } from './utils/access'
+import { canEditSchedule, pagesFor, subscriptionAccess } from './utils/access'
 import { applyBarSettings } from './utils/barSettings'
 import { clearLinkFromUrl, linkFromUrl } from './utils/links'
+
+// How often, and how many times, the app checks whether Stripe has confirmed
+// a new subscription.
+const BILLING_CHECK_MS = 2000
+const BILLING_CHECKS = 15
 
 const App = () => {
   const { t } = useTranslation()
@@ -91,6 +99,36 @@ const App = () => {
     setUser(null)
     setPage(null)
   }
+
+  const refreshUser = () => authService.getCurrentUser().then(setUser).catch(() => {})
+
+  // Support mode: the admin now sees the bar; leaving returns to the bars.
+  const handleSupport = async () => {
+    await refreshUser()
+    setPage('schedule')
+  }
+  const handleLeaveSupport = async () => {
+    await adminService.leaveSupport().catch(() => {})
+    await refreshUser()
+    setPage('bars')
+  }
+
+  // Back from Stripe Checkout (/?billing=success): the subscription is set up
+  // by Stripe's webhook, which may take a moment, so check again a few times.
+  const billingResult = link?.type === 'billing' ? link.result : null
+  const billingChecks = useRef(0)
+  const waitingForStripe = billingResult === 'success' && user?.subscriptionStatus === 'incomplete'
+  useEffect(() => {
+    if (billingResult) clearLinkFromUrl()
+  }, [billingResult])
+  useEffect(() => {
+    if (!waitingForStripe || billingChecks.current >= BILLING_CHECKS) return
+    const timer = setTimeout(() => {
+      billingChecks.current += 1
+      authService.getCurrentUser().then(setUser).catch(() => {})
+    }, BILLING_CHECK_MS)
+    return () => clearTimeout(timer)
+  }, [waitingForStripe, user])
 
   // A link from an email comes first, even if someone is logged in.
   if (link?.type === 'invite') {
@@ -165,7 +203,19 @@ const App = () => {
           {t('app.offline')}
         </p>
       )}
+      {user.supportMode && <SupportBanner barName={barName} onLeave={handleLeaveSupport} />}
       {user.emailVerified === false && <VerifyEmailBanner email={user.email} />}
+      <SubscriptionBanner user={user} onBilling={() => setPage('billing')} />
+      {billingResult && (
+        <div className="notice-banner" role="status">
+          <span>
+            {billingResult === 'cancelled'
+              ? t('billing.returnCancelled')
+              : waitingForStripe ? t('billing.returnWaiting') : t('billing.returnSuccess')}
+          </span>
+          <button type="button" className="link-button" onClick={closeLink}>{t('onboarding.close')}</button>
+        </div>
+      )}
 
       {pages.length > 1 && (
         <nav aria-label={t('app.pagesLabel')}>
@@ -188,8 +238,11 @@ const App = () => {
       {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} employeeId={user.employeeId} />}
       {activePage === 'employees' && <EmployeesPage />}
       {activePage === 'settings' && bar && <BarSettingsPage bar={bar} onSaved={handleBarSaved} />}
-      {activePage === 'bars' && <BarsPage />}
-      {!activePage && <p className="page-note">{t('app.noPages')}</p>}
+      {activePage === 'billing' && <BillingPage key={user.subscriptionStatus} />}
+      {activePage === 'bars' && <BarsPage hosted={appInfo?.deploymentMode === 'hosted'} onSupport={handleSupport} />}
+      {!activePage && (user.barId && subscriptionAccess(user) === 'billing_only'
+        ? <SubscriptionInactive />
+        : <p className="page-note">{t('app.noPages')}</p>)}
 
       <AppFooter info={appInfo} />
     </div>

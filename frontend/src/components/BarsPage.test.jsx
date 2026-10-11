@@ -6,8 +6,17 @@ import adminService from '../services/admin'
 
 vi.mock('../services/admin')
 
-const BARS = [
-  { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', employeeCount: 7, userCount: 3, createdAt: '2026-09-26T00:00:00Z' }
+const ORGANIZATIONS = [
+  {
+    id: 1,
+    name: 'Imaginary Bar',
+    country: 'FI',
+    subscriptionStatus: 'trialing',
+    trialEndsAt: '2026-11-10T10:00:00Z',
+    bars: [{ id: 1, name: 'Imaginary Bar' }],
+    activeUsers: 3,
+    lastActiveAt: '2026-10-11T08:00:00Z'
+  }
 ]
 
 const details = (users) => ({
@@ -21,7 +30,8 @@ const KALLE = { id: 4, username: 'kalle', name: 'Kalle', groups: ['managerGroup'
 
 beforeEach(() => {
   vi.resetAllMocks()
-  adminService.getBars.mockResolvedValue(BARS)
+  adminService.getOrganizations.mockResolvedValue(ORGANIZATIONS)
+  adminService.getAuditLog.mockResolvedValue([])
   adminService.getBar.mockResolvedValue(details([ANNA, MIKKO]))
 })
 
@@ -143,7 +153,7 @@ test('removes a manager after confirmation', async () => {
 test('the bar can only be deleted after typing its name', async () => {
   adminService.deleteBar.mockResolvedValue()
   await openBar()
-  adminService.getBars.mockResolvedValue([])
+  adminService.getOrganizations.mockResolvedValue([])
 
   const form = screen.getByRole('form', { name: 'Delete bar' })
   const button = within(form).getByRole('button', { name: 'Delete bar permanently' })

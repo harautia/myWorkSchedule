@@ -27,7 +27,8 @@
     "jsonwebtoken": "^9.0.3",
     "knex": "^3.3.0",
     "nodemailer": "^7.0.13",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "stripe": "^23.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

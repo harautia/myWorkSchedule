@@ -77,19 +77,18 @@ describe('sign-up', () => {
     assert.strictEqual(response.body.employeeId, employees.body[0].id)
   })
 
-  test('self-hosted bars get no trial; hosted ones a 30-day trial', async () => {
+  test('self-hosted bars have no subscription; hosted ones wait for Stripe Checkout', async () => {
     const selfHosted = await signUp().request.expect(201)
     const own = await db('organizations').where({ id: selfHosted.body.organizationId }).first()
     assert.strictEqual(own.subscription_status, null)
-    assert.strictEqual(own.trial_ends_at, null)
+    assert.strictEqual(selfHosted.body.subscriptionStatus, null)
 
     config.DEPLOYMENT_MODE = 'hosted'
     const hosted = await signUp({ ...SIGNUP, email: 'other@example.com' }).request.expect(201)
+    assert.strictEqual(hosted.body.subscriptionStatus, 'incomplete')
+    // The 30-day trial starts in Checkout, as a Stripe trial.
     const organization = await db('organizations').where({ id: hosted.body.organizationId }).first()
-    assert.strictEqual(organization.subscription_status, 'trialing')
-    // 30 calendar days: an hour more or less across a daylight saving change.
-    const days = (organization.trial_ends_at - Date.now()) / (24 * 60 * 60 * 1000)
-    assert.ok(days > 29.9 && days < 30.1, `trial of ${days} days`)
+    assert.strictEqual(organization.trial_ends_at, null)
   })
 
   test('is not available when ALLOW_SIGNUP is off', async () => {

@@ -20,8 +20,19 @@ breaking changes, which are always described under **Upgrading**.
   waits until the email is confirmed; the link can be sent again.
 - **Onboarding checklist** for new bars: invite staff, plan the first week, lock it.
   Steps are ticked from the bar's data, and the list can be hidden.
-- On the hosted service, a new organization gets a 30-day trial (billing follows in a
-  later version).
+- **Billing for the hosted service** (`DEPLOYMENT_MODE=hosted` only; self-hosted copies
+  never bill). New bars give a card in Stripe Checkout and get a 30-day trial, then
+  €10 a month or €100 a year per bar, with VAT through Stripe Tax. The owner's Billing
+  page opens Stripe's customer portal. Stripe webhooks keep the subscription up to date.
+  When a subscription ends, the bar is read-only for 14 days, then locked; its deletion
+  is scheduled 90 days after the end. Emails for the trial ending, failed payments, the
+  bar becoming read-only or locked, and upcoming deletion. See
+  `docs/hosted-service.md`.
+- **Admin: organizations list** with subscription status, trial end, active users and
+  last activity, with search and a status filter.
+- **Admin: support mode** opens a bar read-only, as its managers see it, after giving a
+  reason. Each bar has an audit log of support access, subscription changes and
+  deletion.
 
 ### Changed
 - `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
@@ -36,6 +47,8 @@ breaking changes, which are always described under **Upgrading**.
 - A second migration adds email verification and the onboarding checklist. Existing
   accounts count as verified, and existing bars don't get the checklist.
 - To open sign-up on your installation, see "Sign-up" in the configuration reference.
+- A third migration adds the billing columns, the audit log and users' last activity.
+  Nothing changes for self-hosted installations.
 
 ## [0.1.0] – 2026-10-10
 

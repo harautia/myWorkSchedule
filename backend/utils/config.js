@@ -39,6 +39,19 @@ const TRIAL_DAYS = 30
 const TURNSTILE_SITE_KEY = env.TURNSTILE_SITE_KEY || ''
 const TURNSTILE_SECRET_KEY = env.TURNSTILE_SECRET_KEY || ''
 
+// Billing of the hosted service through Stripe (DEPLOYMENT_MODE=hosted only).
+// The prices are the bar's monthly and yearly price (D3), set up in the
+// Stripe dashboard: €10 a month and €100 a year, without VAT.
+const STRIPE_SECRET_KEY = env.STRIPE_SECRET_KEY || ''
+const STRIPE_WEBHOOK_SECRET = env.STRIPE_WEBHOOK_SECRET || ''
+const STRIPE_PRICE_MONTHLY = env.STRIPE_PRICE_MONTHLY || ''
+const STRIPE_PRICE_YEARLY = env.STRIPE_PRICE_YEARLY || ''
+
+// The subscription lifecycle after it ends (D8): read-only, then locked, and
+// the data is deleted this many days after the end.
+const READ_ONLY_DAYS = 14
+const DELETE_AFTER_DAYS = 90
+
 // Run database migrations when the server starts.
 const MIGRATE_ON_START = flag(env.MIGRATE_ON_START, true)
 
@@ -84,6 +97,13 @@ const problems = () => {
   if (Boolean(TURNSTILE_SITE_KEY) !== Boolean(TURNSTILE_SECRET_KEY)) {
     found.push('TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY must be set together')
   }
+  if (DEPLOYMENT_MODE === 'hosted') {
+    const missing = Object.entries({ STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY })
+      .filter(([, value]) => !value)
+      .map(([name]) => name)
+    if (missing.length) found.push(`the hosted service needs Stripe settings: ${missing.join(', ')}`)
+    if (!APP_URL) found.push('APP_URL must be set for the hosted service (Stripe returns customers to it)')
+  }
   return found
 }
 
@@ -98,6 +118,12 @@ module.exports = {
   TRIAL_DAYS,
   TURNSTILE_SITE_KEY,
   TURNSTILE_SECRET_KEY,
+  STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_MONTHLY,
+  STRIPE_PRICE_YEARLY,
+  READ_ONLY_DAYS,
+  DELETE_AFTER_DAYS,
   MIGRATE_ON_START,
   COOKIE_SECURE,
   APP_INFO,

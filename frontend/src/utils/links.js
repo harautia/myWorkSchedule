@@ -10,6 +10,8 @@ export const linkFromUrl = (search = window.location.search) => {
   const type = TOKEN_LINKS.find((name) => params.get(name))
   if (type) return { type, token: params.get(type) }
   if (params.has('signup')) return { type: 'signup' }
+  // Back from Stripe Checkout: /?billing=success or /?billing=cancelled.
+  if (['success', 'cancelled'].includes(params.get('billing'))) return { type: 'billing', result: params.get('billing') }
   return null
 }
 

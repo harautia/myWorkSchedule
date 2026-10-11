@@ -26,6 +26,7 @@ authRouter.post('/login', loginLimiter, async (request, response) => {
   }
 
   startSession(response, row)
+  await Users.markSeen(row.id, row.last_seen_at)
   response.json(await Users.getById(row.id))
 })
 

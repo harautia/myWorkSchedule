@@ -12,7 +12,8 @@
       "schedule": "Työvuorot",
       "employees": "Työntekijät",
       "settings": "Baarin asetukset",
-      "bars": "Baarit"
+      "bars": "Baarit",
+      "billing": "Laskutus"
     }
   },
   "login": {
@@ -220,7 +221,13 @@
       "since": "Asiakkaana alkaen",
       "username": "Käyttäjätunnus",
       "groups": "Ryhmät",
-      "onSchedule": "Työvuoroissa nimellä"
+      "onSchedule": "Työvuoroissa nimellä",
+      "organization": "Organisaatio",
+      "bars": "Baarit",
+      "status": "Tilaus",
+      "trialEnds": "Kokeilu päättyy",
+      "activeUsers": "Aktiiviset käyttäjät (30 pv)",
+      "lastActive": "Viimeksi aktiivinen"
     },
     "barSection": "Baari",
     "firstManager": "Ensimmäinen esihenkilö",
@@ -246,7 +253,10 @@
     "deleteConfirmLabel": "Vahvista kirjoittamalla baarin nimi",
     "deleteButton": "Poista baari pysyvästi",
     "deleting": "Poistetaan…",
-    "deleted": "{{name}} poistettu"
+    "deleted": "{{name}} poistettu",
+    "search": "Haku",
+    "allStatuses": "Kaikki",
+    "noMatches": "Hakua vastaavia organisaatioita ei ole."
   },
   "links": {
     "newPassword": "Uusi salasana",
@@ -298,5 +308,76 @@
     },
     "hide": "Piilota lista",
     "close": "Sulje"
+  },
+  "billing": {
+    "title": "Laskutus",
+    "status": {
+      "incomplete": "Ei aloitettu",
+      "trialing": "Ilmainen kokeilu",
+      "active": "Voimassa",
+      "past_due": "Maksu epäonnistui",
+      "read_only": "Vain luku",
+      "locked": "Lukittu",
+      "canceled": "Peruttu",
+      "none": "Ei tilausta"
+    },
+    "incomplete": "Valitse tilaus ja anna korttisi aloittaaksesi 30 päivän ilmaisen kokeilun. Mitään ei veloiteta ennen kokeilun päättymistä.",
+    "trialEnds": "Ilmainen kokeilusi päättyy {{date}}. Sen jälkeen korttiasi veloitetaan automaattisesti.",
+    "trialEndsCancelled": "Ilmainen kokeilusi päättyy {{date}}, ja tilaus päättyy silloin.",
+    "renews": "Tilauksesi uusiutuu {{date}}.",
+    "endsOn": "Tilauksesi on peruttu ja päättyy {{date}}.",
+    "pastDue": "Viimeisin maksu epäonnistui. Stripe yrittää uudelleen; päivitä korttisi kohdasta Hallitse laskutusta.",
+    "readOnly": "Tilaus on päättynyt, joten työvuorot ovat vain luettavissa. Ne lukitaan {{lockDate}} ja tiedot poistetaan {{deletionDate}}. Tilaa uudelleen jatkaaksesi.",
+    "locked": "Tilaus on päättynyt ja työvuorot on lukittu. Tiedot poistetaan {{deletionDate}}. Tilaa uudelleen saadaksesi ne takaisin.",
+    "plan_one": "{{count}} baari: {{price}} € {{interval}}, ilman arvonlisäveroa",
+    "plan_other": "{{count}} baaria: {{price}} € {{interval}}, ilman arvonlisäveroa",
+    "per": {
+      "month": "kuukaudessa",
+      "year": "vuodessa"
+    },
+    "choosePlan": "Tilaus",
+    "interval": {
+      "month": "Kuukausittain: {{price}} € / baari / kk",
+      "year": "Vuosittain: {{price}} € / baari / vuosi (kaksi kuukautta ilmaiseksi)"
+    },
+    "trialHint_one": "30 päivää ilmaiseksi, sitten veloitus {{count}} baarista. Voit perua milloin tahansa.",
+    "trialHint_other": "30 päivää ilmaiseksi, sitten veloitus {{count}} baarista. Voit perua milloin tahansa.",
+    "noTrialHint_one": "Veloitetaan nyt {{count}} baarista.",
+    "noTrialHint_other": "Veloitetaan nyt {{count}} baarista.",
+    "startTrial": "Aloita ilmainen kokeilu",
+    "subscribe": "Tilaa",
+    "manage": "Hallitse laskutusta",
+    "vatNote": "Maksut hoitaa Stripe. Arvonlisävero lisätään maasi mukaan; muiden EU-maiden yritykset voivat antaa ALV-tunnuksensa.",
+    "returnSuccess": "Kiitos! Tilauksesi on valmis.",
+    "returnWaiting": "Kiitos! Tilaustasi viimeistellään…",
+    "returnCancelled": "Maksu peruttiin, mitään ei veloitettu."
+  },
+  "banner": {
+    "past_due": {
+      "owner": "Viimeisin maksu epäonnistui. Päivitä korttisi, jotta työvuoroja voi yhä muokata.",
+      "staff": "Baarin maksussa on ongelma. Omistajalle on ilmoitettu."
+    },
+    "read_only": {
+      "owner": "Tilaus on päättynyt, joten työvuorot ovat vain luettavissa.",
+      "staff": "Työvuorot ovat toistaiseksi vain luettavissa. Omistajalle on ilmoitettu."
+    },
+    "toBilling": "Laskutus-sivulle",
+    "inactive": "Baarin tilaus ei ole voimassa, joten työvuoroja ei voi näyttää. Kysy baarin omistajalta."
+  },
+  "support": {
+    "title": "Tukitila",
+    "hint": "Näe {{name}} niin kuin sen esihenkilöt, vain luku -tilassa, enintään tunnin ajan. Syy tallennetaan tapahtumalokiin.",
+    "reason": "Syy (esim. tukipyynnön numero)",
+    "open": "Avaa tukitilassa",
+    "banner": "Tukitila: {{name}} vain luku -tilassa.",
+    "leave": "Poistu tukitilasta",
+    "logTitle": "Tapahtumaloki",
+    "logEmpty": "Ei vielä tapahtumia.",
+    "actions": {
+      "support.open": "Avattu tukitilassa: {{reason}}",
+      "support.close": "Poistuttu tukitilasta",
+      "bar.delete": "Baari poistettu",
+      "subscription.status": "Tilaus: {{from}} → {{to}}"
+    }
   }
 }

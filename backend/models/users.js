@@ -26,7 +26,10 @@ const toUser = (row) => ({
   organizationId: row.organization_id ?? null,
   employeeId: row.employee_id ?? null,
   // An account without email has nothing to verify.
-  emailVerified: !row.email || Boolean(row.email_verified_at)
+  emailVerified: !row.email || Boolean(row.email_verified_at),
+  // The organization's subscription on the hosted service; null when
+  // self-hosting (and for bars the platform admin created).
+  subscriptionStatus: row.subscription_status ?? null
 })
 
 // A user's memberships joined with their bars, the oldest first.
@@ -70,25 +73,39 @@ const findUsernameOwner = async (username) => {
 }
 
 // The user as the rest of the app sees it, plus sessionVersion for checking
-// that a session is still valid. The current bar is the one the user joined
-// first; switching between several bars comes later (spec TEN-04).
+// that a session is still valid and lastSeenAt. The current bar is the one
+// the user joined first; switching between several bars comes later (spec
+// TEN-04).
 const getSessionUser = async (id, conn = db) => {
   const row = await conn('users').where({ id }).first()
   if (!row) return null
 
   const membership = await membershipsQuery(conn)
+    .join('organizations', 'organizations.id', 'bars.organization_id')
     .where('memberships.user_id', id)
-    .first('memberships.*', 'bars.name as bar_name', 'bars.organization_id')
-  return { ...toUser({ ...row, ...membership, id: row.id }), sessionVersion: row.session_version }
+    .first('memberships.*', 'bars.name as bar_name', 'bars.organization_id', 'organizations.subscription_status')
+  return {
+    ...toUser({ ...row, ...membership, id: row.id }),
+    sessionVersion: row.session_version,
+    lastSeenAt: row.last_seen_at
+  }
 }
 
 // The logged-in user: { id, username, email, name, groups, role, barId,
-// barName, organizationId, employeeId, emailVerified }
+// barName, organizationId, employeeId, emailVerified, subscriptionStatus }
 const getById = async (id) => {
   const user = await getSessionUser(id)
   if (!user) return null
-  const { sessionVersion, ...rest } = user
+  const { sessionVersion, lastSeenAt, ...rest } = user
   return rest
+}
+
+// How often last_seen_at is written: once an hour is enough for "active".
+const SEEN_INTERVAL_MS = 60 * 60 * 1000
+
+const markSeen = async (id, lastSeenAt) => {
+  if (lastSeenAt && Date.now() - lastSeenAt.getTime() < SEEN_INTERVAL_MS) return
+  await db('users').where({ id }).update({ last_seen_at: db.fn.now() })
 }
 
 const toAccount = (row) => ({
@@ -230,6 +247,7 @@ module.exports = {
   findUsernameOwner,
   getSessionUser,
   getById,
+  markSeen,
   accountsByEmployee,
   findByEmployee,
   employeeHasAccount,

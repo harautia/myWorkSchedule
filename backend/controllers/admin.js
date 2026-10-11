@@ -5,6 +5,10 @@ const db = require('../db/db')
 const Bars = require('../models/bars')
 const Users = require('../models/users')
 const Employees = require('../models/employees')
+const AuditLog = require('../models/auditLog')
+const Organizations = require('../models/organizations')
+const billing = require('../utils/billing')
+const { startSupport, endSupport, supportedBarId } = require('../utils/support')
 const { UNIQUE_VIOLATION, pickAccount, createStaffAccount } = require('../utils/accounts')
 const { hashPassword } = require('../utils/passwords')
 const { MANAGER } = require('../utils/groups')
@@ -93,8 +97,63 @@ adminRouter.get('/bars/:barId', async (request, response) => {
 // Deletes the bar with everything in it: employees, shifts, day orders and
 // user accounts. Cannot be undone.
 adminRouter.delete('/bars/:barId', async (request, response) => {
+  const organization = await Organizations.getByBarId(request.bar.id)
   await Bars.remove(request.bar.id)
+  await AuditLog.add({
+    action: 'bar.delete',
+    actorUserId: request.user.id,
+    organizationId: organization.id,
+    barId: request.bar.id,
+    details: { name: request.bar.name }
+  })
+  // The organization's other bars (if any) are what it pays for now.
+  await billing.syncBarCount(organization.id)
   response.status(204).end()
+})
+
+// Every organization with its bars, subscription, active employees and last
+// activity (ADM-01). ?search= matches organization and bar names; ?status=
+// filters by subscription status ('none' for organizations without one).
+adminRouter.get('/organizations', async (request, response) => {
+  const search = typeof request.query.search === 'string' ? request.query.search.trim().slice(0, 100) : ''
+  const status = typeof request.query.status === 'string' ? request.query.status : ''
+  response.json(await Organizations.listForAdmin({ search, status }))
+})
+
+// Opens the bar in support mode (ADM-02): the admin sees it as its managers
+// do, read-only, for an hour or until they leave. { reason } is required and
+// goes to the audit log.
+adminRouter.post('/bars/:barId/support', async (request, response) => {
+  const reason = typeof request.body.reason === 'string' ? request.body.reason.trim() : ''
+  if (reason.length < 3 || reason.length > 500) {
+    return response.status(400).json({ error: 'reason is required (3-500 characters)' })
+  }
+  const organization = await Organizations.getByBarId(request.bar.id)
+  await AuditLog.add({
+    action: 'support.open',
+    actorUserId: request.user.id,
+    organizationId: organization.id,
+    barId: request.bar.id,
+    details: { reason }
+  })
+  startSupport(response, { userId: request.user.id, barId: request.bar.id })
+  response.status(204).end()
+})
+
+// Leaves support mode.
+adminRouter.delete('/support', async (request, response) => {
+  const barId = supportedBarId(request, request.user.id)
+  if (barId) {
+    const organization = await Organizations.getByBarId(barId)
+    await AuditLog.add({ action: 'support.close', actorUserId: request.user.id, organizationId: organization?.id, barId })
+  }
+  endSupport(response)
+  response.status(204).end()
+})
+
+// The bar's audit log, newest first.
+adminRouter.get('/bars/:barId/audit', async (request, response) => {
+  response.json(await AuditLog.listByBar(request.bar.id))
 })
 
 adminRouter.put('/bars/:barId', async (request, response) => {

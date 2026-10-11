@@ -9,6 +9,7 @@ import adminService from './services/admin'
 import accountLinkService from './services/accountLinks'
 import appInfoService from './services/appInfo'
 import barService from './services/bar'
+import billingService from './services/billing'
 import employeeService from './services/employees'
 import shiftService from './services/shifts'
 
@@ -17,6 +18,7 @@ vi.mock('./services/admin')
 vi.mock('./services/accountLinks')
 vi.mock('./services/appInfo')
 vi.mock('./services/bar')
+vi.mock('./services/billing')
 vi.mock('./services/employees')
 vi.mock('./services/shifts')
 
@@ -39,10 +41,11 @@ beforeEach(() => {
   shiftService.getShifts.mockResolvedValue([])
   shiftService.getDayOrders.mockResolvedValue({})
   shiftService.getWeeks.mockResolvedValue({})
-  adminService.getBars.mockResolvedValue([
-    { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', employeeCount: 7, userCount: 3, createdAt: '2026-09-26T00:00:00Z' },
-    { id: 2, name: 'Harbour Pub', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', employeeCount: 3, userCount: 2, createdAt: '2026-09-26T00:00:00Z' }
+  adminService.getOrganizations.mockResolvedValue([
+    { id: 1, name: 'Imaginary Oy', country: 'FI', subscriptionStatus: null, trialEndsAt: null, bars: [{ id: 1, name: 'Imaginary Bar' }], activeUsers: 3, lastActiveAt: null },
+    { id: 2, name: 'Harbour Ltd', country: 'FI', subscriptionStatus: null, trialEndsAt: null, bars: [{ id: 2, name: 'Harbour Pub' }], activeUsers: 2, lastActiveAt: null }
   ])
+  adminService.getAuditLog.mockResolvedValue([])
   employeeService.getDetails.mockResolvedValue([
     { id: 1, name: 'Anna', role: 'manager', color: '#863bff', account: { username: 'anna', groups: ['managerGroup'] } },
     { id: 4, name: 'Jukka', role: 'waiter', color: '#e8590c', account: null }
@@ -234,4 +237,59 @@ test('a new owner sees the verification reminder and the onboarding checklist', 
   expect(await screen.findByRole('heading', { name: 'Get your bar started' })).toBeInTheDocument()
   await userEvent.click(screen.getByRole('button', { name: 'Go to Employees' }))
   expect(screen.getByRole('button', { name: 'Employees' })).toHaveAttribute('aria-current', 'page')
+})
+
+test('an admin opens a bar in support mode, sees it read-only, and leaves', async () => {
+  const supportUser = { ...users.admin, groups: ['adminGroup', 'managerGroup'], barId: 1, barName: 'Imaginary Bar', supportMode: true }
+  authService.getCurrentUser.mockResolvedValueOnce(users.admin).mockResolvedValueOnce(supportUser).mockResolvedValue(users.admin)
+  adminService.getBar.mockResolvedValue({ bar: { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff' }, users: [] })
+  adminService.openSupport.mockResolvedValue()
+  adminService.leaveSupport.mockResolvedValue()
+  render(<App />)
+
+  await userEvent.click(await screen.findByRole('button', { name: 'Imaginary Bar' }))
+  await userEvent.type(await screen.findByLabelText('Reason (e.g. ticket number)'), 'Ticket 9')
+  await userEvent.click(screen.getByRole('button', { name: 'Open in support mode' }))
+
+  expect(await screen.findByText('Support mode: viewing Imaginary Bar read-only.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Schedule' })).toHaveAttribute('aria-current', 'page')
+  expect(screen.queryByRole('button', { name: 'Bar settings' })).not.toBeInTheDocument()
+
+  await userEvent.click(screen.getByRole('button', { name: 'Leave support mode' }))
+  expect(adminService.leaveSupport).toHaveBeenCalled()
+  expect(await screen.findByText('Harbour Pub')).toBeInTheDocument()
+  expect(screen.queryByText(/Support mode:/)).not.toBeInTheDocument()
+})
+
+test('a locked bar: the owner only sees Billing; staff see why', async () => {
+  billingService.getBilling.mockResolvedValue({ status: 'locked', scheduledDeletionAt: '2026-12-01T10:00:00Z', barCount: 1, hasCustomer: true, canSubscribe: true })
+  authService.getCurrentUser.mockResolvedValue({ ...users.anna, role: 'owner', subscriptionStatus: 'locked' })
+  const { unmount } = render(<App />)
+
+  expect(await screen.findByRole('heading', { name: 'Billing' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Schedule' })).not.toBeInTheDocument()
+  expect(shiftService.getShifts).not.toHaveBeenCalled()
+  unmount()
+
+  authService.getCurrentUser.mockResolvedValue({ ...users.mikko, role: 'employee', subscriptionStatus: 'locked' })
+  render(<App />)
+  expect(await screen.findByText(/subscription isn't active/)).toBeInTheDocument()
+})
+
+test('back from Checkout, the app waits for Stripe to confirm the subscription', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true })
+  window.history.replaceState(null, '', '/?billing=success')
+  const owner = { ...users.anna, role: 'owner' }
+  billingService.getBilling.mockResolvedValue({ status: 'incomplete', barCount: 1, hasCustomer: false, canSubscribe: true })
+  authService.getCurrentUser
+    .mockResolvedValueOnce({ ...owner, subscriptionStatus: 'incomplete' })
+    .mockResolvedValue({ ...owner, subscriptionStatus: 'trialing' })
+  render(<App />)
+
+  expect(await screen.findByText('Thank you! Your subscription is being set up…')).toBeInTheDocument()
+  expect(window.location.search).toBe('')
+  await vi.advanceTimersByTimeAsync(2500)
+  expect(await screen.findByText('Thank you! Your subscription is set up.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Schedule' })).toBeInTheDocument()
+  vi.useRealTimers()
 })

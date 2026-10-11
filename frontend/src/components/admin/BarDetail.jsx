@@ -4,6 +4,7 @@ import AddManagerForm from './AddManagerForm'
 import BarFields from './BarFields'
 import DeleteBarSection from './DeleteBarSection'
 import EditManagerForm from './EditManagerForm'
+import SupportSection from './SupportSection'
 import GroupBadges from '../GroupBadges'
 import adminService from '../../services/admin'
 import { barSettings, errorMessage } from '../../utils/forms'
@@ -12,8 +13,9 @@ import { roleLabel } from '../../i18n/labels'
 
 
 // One bar: its settings, and every user account in it. Managers can be
-// added, edited (name, new password) and removed here.
-const BarDetail = ({ barId, onBack, onDeleted }) => {
+// added, edited (name, new password) and removed here. onSupport: the bar was
+// opened in support mode.
+const BarDetail = ({ barId, onBack, onDeleted, onSupport }) => {
   const { t } = useTranslation()
   const [details, setDetails] = useState(null)
   const [barForm, setBarForm] = useState(null)
@@ -179,6 +181,7 @@ const BarDetail = ({ barId, onBack, onDeleted }) => {
         {t('admin.employeesNote')}
       </p>
 
+      <SupportSection bar={bar} onSupport={onSupport} />
       <DeleteBarSection bar={bar} onDeleted={onDeleted} />
     </section>
   )

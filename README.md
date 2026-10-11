@@ -193,6 +193,18 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | POST | `/api/verify-email/resend` | logged in | sends a new verification link |
 | GET | `/api/bar/onboarding` | manager | `{ invite, plan, lock, dismissed }`: the new bar's checklist |
 | POST | `/api/bar/onboarding/dismiss` | manager | hides the checklist |
+| GET | `/api/billing` | owner, hosted only | the subscription: status, trial end, period, dates of read-only, lock and deletion |
+| POST | `/api/billing/checkout` | owner, hosted only | `{ interval: 'month' \| 'year' }` → `{ url }` of Stripe Checkout |
+| POST | `/api/billing/portal` | owner, hosted only | `{ url }` of Stripe's customer portal |
+| POST | `/api/stripe/webhook` | Stripe (signed) | subscription and invoice events |
+| GET | `/api/admin/organizations` | admin | `?search=&status=`: organizations with bars, subscription, active users, last activity |
+| POST | `/api/admin/bars/:barId/support` | admin | `{ reason }`: opens the bar read-only in support mode (1 hour) |
+| DELETE | `/api/admin/support` | admin | leaves support mode |
+| GET | `/api/admin/bars/:barId/audit` | admin | the bar's audit log |
+
+Bar routes answer **402** when the bar's subscription on the hosted service doesn't allow the
+request (read-only, locked, or not started), with `subscriptionStatus` in the body. See
+`docs/hosted-service.md` for running the hosted service.
 | GET | `/api/invites/:token` | anyone | `{ name, email, barName, locale }` of a valid invitation |
 | POST | `/api/invites/:token/accept` | anyone | `{ password }`; creates the account, logs in |
 | POST | `/api/password-reset` | anyone | `{ email }`; emails a reset link if the account exists (always 202) |

@@ -26,4 +26,30 @@ const updateManager = (barId, userId, changes) =>
 
 const removeManager = (barId, userId) => api.delete(`/admin/bars/${barId}/managers/${userId}`)
 
-export default { getBars, getBar, createBar, updateBar, deleteBar, addManager, updateManager, removeManager }
+// Every organization with its bars, subscription status, trial end, active
+// users and last activity. filters = { search?, status? } ('none' = no status).
+const getOrganizations = ({ search = '', status = '' } = {}) =>
+  api.get('/admin/organizations', { params: { search: search || undefined, status: status || undefined } }).then((res) => res.data)
+
+// Opens the bar in read-only support mode; the reason goes to the audit log.
+const openSupport = (barId, reason) => api.post(`/admin/bars/${barId}/support`, { reason })
+
+const leaveSupport = () => api.delete('/admin/support')
+
+// The bar's audit log, newest first: [{ id, action, actorName, details, createdAt }]
+const getAuditLog = (barId) => api.get(`/admin/bars/${barId}/audit`).then((res) => res.data)
+
+export default {
+  getBars,
+  getBar,
+  createBar,
+  updateBar,
+  deleteBar,
+  addManager,
+  updateManager,
+  removeManager,
+  getOrganizations,
+  openSupport,
+  leaveSupport,
+  getAuditLog
+}

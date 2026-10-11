@@ -53,7 +53,7 @@ These appear in the footer of every page, including the login page.
 | `MIGRATE_ON_START` | `true` | Update the database tables when the app starts. Turn off only if you run migrations separately (`npm run migrate`). |
 | `COOKIE_SECURE` | `true` in production | Send the login cookie over HTTPS only. Set `false` only for testing without HTTPS. |
 | `DATABASE_SSL` | `false` | Set `true` when your database requires SSL, typically a managed database reached over the internet. |
-| `DEPLOYMENT_MODE` | `self-hosted` | `self-hosted` for your own copy. `hosted` is for the official hosted service and turns on its billing features (in a later version). |
+| `DEPLOYMENT_MODE` | `self-hosted` | `self-hosted` for your own copy. `hosted` is only for the official hosted service: it turns on billing through Stripe and needs its Stripe settings. Leave it as `self-hosted`. |
 
 ## Sign-up
 
