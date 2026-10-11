@@ -4,7 +4,7 @@
 # configuration reference.
 
 # --- Build the frontend (PWA) ---
-FROM node:22-alpine AS frontend
+FROM node:25-alpine AS frontend
 WORKDIR /build
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
@@ -12,7 +12,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # --- Runtime: backend + built frontend ---
-FROM node:22-alpine
+FROM node:25-alpine
 ENV NODE_ENV=production \
     PORT=3003
 WORKDIR /app
