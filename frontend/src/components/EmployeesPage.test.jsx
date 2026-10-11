@@ -137,3 +137,23 @@ test('nothing is removed when the confirmation is cancelled', async () => {
   expect(employeeService.remove).not.toHaveBeenCalled()
   confirm.mockRestore()
 })
+
+test('anonymises an employee after confirming, keeping their shifts', async () => {
+  const ANONYMISED = { ...MIKKO, name: 'Former employee 2', account: null, anonymised: true }
+  employeeService.anonymise.mockResolvedValue(ANONYMISED)
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
+  render(<EmployeesPage />)
+  const row = await rowOf('mikko')
+  employeeService.getDetails.mockResolvedValue([ANNA, ANONYMISED, LIISA])
+
+  await userEvent.click(within(row).getByRole('button', { name: 'Anonymise' }))
+  expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Their shifts stay'))
+  expect(employeeService.anonymise).toHaveBeenCalledWith(2)
+  expect(await screen.findByRole('status')).toHaveTextContent('Mikko was anonymised')
+
+  // An anonymised employee can't be invited or anonymised again.
+  const anonymisedRow = (await screen.findByText('Former employee 2')).closest('tr')
+  expect(within(anonymisedRow).queryByRole('button', { name: 'Anonymise' })).not.toBeInTheDocument()
+  expect(within(anonymisedRow).queryByRole('button', { name: 'Invite' })).not.toBeInTheDocument()
+  confirm.mockRestore()
+})

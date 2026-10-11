@@ -5,7 +5,7 @@ import AppFooter from './components/AppFooter'
 import BarSettingsPage from './components/BarSettingsPage'
 import BarsPage from './components/BarsPage'
 import BillingPage from './components/BillingPage'
-import { SubscriptionBanner, SubscriptionInactive, SupportBanner } from './components/StatusBanners'
+import { DeletionBanner, SubscriptionBanner, SubscriptionInactive, SupportBanner } from './components/StatusBanners'
 import EmployeesPage from './components/EmployeesPage'
 import GroupBadges from './components/GroupBadges'
 import LoginPage from './components/LoginPage'
@@ -206,6 +206,9 @@ const App = () => {
       {user.supportMode && <SupportBanner barName={barName} onLeave={handleLeaveSupport} />}
       {user.emailVerified === false && <VerifyEmailBanner email={user.email} />}
       <SubscriptionBanner user={user} onBilling={() => setPage('billing')} />
+      {bar?.scheduledDeletionAt && (
+        <DeletionBanner date={bar.scheduledDeletionAt} onSettings={user.role === 'owner' && !user.supportMode ? () => setPage('settings') : null} />
+      )}
       {billingResult && (
         <div className="notice-banner" role="status">
           <span>
@@ -237,7 +240,9 @@ const App = () => {
       {canEditSchedule(user) && online && <OnboardingChecklist key={activePage} onGo={setPage} />}
       {activePage === 'schedule' && <SchedulePage canEdit={canEditSchedule(user)} employeeId={user.employeeId} />}
       {activePage === 'employees' && <EmployeesPage />}
-      {activePage === 'settings' && bar && <BarSettingsPage bar={bar} onSaved={handleBarSaved} />}
+      {activePage === 'settings' && bar && (
+        <BarSettingsPage bar={bar} onSaved={handleBarSaved} isOwner={user.role === 'owner' && !user.supportMode} />
+      )}
       {activePage === 'billing' && <BillingPage key={user.subscriptionStatus} />}
       {activePage === 'bars' && <BarsPage hosted={appInfo?.deploymentMode === 'hosted'} onSupport={handleSupport} />}
       {!activePage && (user.barId && subscriptionAccess(user) === 'billing_only'

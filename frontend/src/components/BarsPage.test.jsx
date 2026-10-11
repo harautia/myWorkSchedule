@@ -150,21 +150,36 @@ test('removes a manager after confirmation', async () => {
   confirm.mockRestore()
 })
 
-test('the bar can only be deleted after typing its name', async () => {
-  adminService.deleteBar.mockResolvedValue()
+test('deleting is scheduled in 30 days and can be undone, after typing the name', async () => {
+  adminService.deleteBar.mockResolvedValue({ ...details([]).bar, scheduledDeletionAt: '2026-11-10T10:00:00Z' })
+  adminService.cancelDeletion.mockResolvedValue({ ...details([]).bar, scheduledDeletionAt: null })
+  await openBar()
+
+  const form = screen.getByRole('form', { name: 'Delete bar' })
+  const schedule = within(form).getByRole('button', { name: 'Delete in 30 days' })
+  expect(schedule).toBeDisabled()
+  await userEvent.type(within(form).getByLabelText('Type the bar name to confirm'), 'Imaginary')
+  expect(schedule).toBeDisabled()
+  await userEvent.type(within(form).getByLabelText('Type the bar name to confirm'), ' Bar')
+  await userEvent.click(schedule)
+
+  expect(adminService.deleteBar).toHaveBeenCalledWith(BAR_DETAILS_BAR.id)
+  expect(await within(form).findByText('This bar will be deleted on 10 Nov 2026.')).toBeInTheDocument()
+  await userEvent.click(within(form).getByRole('button', { name: 'Undo deletion' }))
+  expect(adminService.cancelDeletion).toHaveBeenCalledWith(BAR_DETAILS_BAR.id)
+  expect(await within(form).findByRole('button', { name: 'Delete in 30 days' })).toBeInTheDocument()
+})
+
+test('the admin can also delete a bar at once', async () => {
+  adminService.deleteBarNow.mockResolvedValue()
   await openBar()
   adminService.getOrganizations.mockResolvedValue([])
 
   const form = screen.getByRole('form', { name: 'Delete bar' })
-  const button = within(form).getByRole('button', { name: 'Delete bar permanently' })
-  expect(button).toBeDisabled()
+  await userEvent.type(within(form).getByLabelText('Type the bar name to confirm'), 'Imaginary Bar')
+  await userEvent.click(within(form).getByRole('button', { name: 'Delete permanently now' }))
 
-  await userEvent.type(within(form).getByLabelText('Type the bar name to confirm'), 'Imaginary')
-  expect(button).toBeDisabled()
-  await userEvent.type(within(form).getByLabelText('Type the bar name to confirm'), ' Bar')
-  await userEvent.click(button)
-
-  expect(adminService.deleteBar).toHaveBeenCalledWith(BAR_DETAILS_BAR.id)
+  expect(adminService.deleteBarNow).toHaveBeenCalledWith(BAR_DETAILS_BAR.id)
   expect(await screen.findByRole('status')).toHaveTextContent('Deleted Imaginary Bar')
   expect(await screen.findByText('Bars using the service (0)')).toBeInTheDocument()
 })

@@ -65,7 +65,7 @@ describe('sign-up', () => {
     const bar = await agent.get('/api/bar').expect(200)
     assert.deepStrictEqual(
       { ...bar.body, id: undefined },
-      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Helsinki', opensAt: '11:00', closesAt: '02:00', locale: 'fi', clock24h: true, accentColor: '#863bff' }
+      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Helsinki', opensAt: '11:00', closesAt: '02:00', locale: 'fi', clock24h: true, accentColor: '#863bff', scheduledDeletionAt: null }
     )
     const organization = await db('organizations').where({ id: response.body.organizationId }).first()
     assert.strictEqual(organization.name, 'Corner Pub')

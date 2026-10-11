@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { DataDownloads } from './BarDataSection'
 import billingService from '../services/billing'
 import { errorMessage } from '../utils/forms'
 import { formatDate, PRICES } from '../utils/billing'
@@ -96,6 +97,14 @@ const BillingPage = ({ navigate = (url) => window.location.assign(url) }) => {
         </div>
         <p className="field-hint">{t('billing.vatNote')}</p>
       </div>
+
+      {(status === 'read_only' || status === 'locked') && (
+        <section className="card" aria-label={t('barData.title')}>
+          <h3 className="card-title">{t('barData.title')}</h3>
+          <p className="field-hint">{t('barData.hint')}</p>
+          <DataDownloads />
+        </section>
+      )}
     </section>
   )
 }

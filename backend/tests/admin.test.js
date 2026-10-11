@@ -64,7 +64,7 @@ describe('creating a bar', () => {
     assert.deepStrictEqual(
       { ...response.body.bar, id: undefined },
       // A new bar gets the default display settings.
-      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Stockholm', opensAt: '12:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#863bff' }
+      { id: undefined, name: 'Corner Pub', timezone: 'Europe/Stockholm', opensAt: '12:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#863bff', scheduledDeletionAt: null }
     )
     assert.deepStrictEqual(
       response.body.users.map(({ username, groups, role }) => ({ username, groups, role })),
@@ -125,7 +125,7 @@ describe('creating a bar', () => {
   })
 
   test('a username is free again once its bar is deleted', async () => {
-    await admin.delete(`/api/admin/bars/${data.own.id}`).expect(204)
+    await admin.delete(`/api/admin/bars/${data.own.id}?now=true`).expect(204)
     await admin.post('/api/admin/bars').send({ bar: NEW_BAR, manager: { ...NEW_MANAGER, username: 'anna' } }).expect(201)
   })
 })
@@ -243,7 +243,7 @@ describe('deleting a bar', () => {
     const session = await loginAs('anna')
     const ownUserIds = await db('memberships').where({ bar_id: data.own.id }).pluck('user_id')
     const { organization_id: organizationId } = await db('bars').where({ id: data.own.id }).first()
-    await admin.delete(`/api/admin/bars/${data.own.id}`).expect(204)
+    await admin.delete(`/api/admin/bars/${data.own.id}?now=true`).expect(204)
 
     const [{ count: userCount }] = await db('users').whereIn('id', ownUserIds).count('* as count')
     assert.strictEqual(Number(userCount), 0, 'users')
@@ -267,7 +267,7 @@ describe('deleting a bar', () => {
     const [olli] = await db('users').where({ username: 'olli' }).pluck('id')
     await db('memberships').insert({ user_id: olli, bar_id: data.own.id, role: 'employee' })
 
-    await admin.delete(`/api/admin/bars/${data.other.id}`).expect(204)
+    await admin.delete(`/api/admin/bars/${data.other.id}?now=true`).expect(204)
 
     const session = await loginAs('olli')
     const me = await session.get('/api/me').expect(200)
@@ -276,7 +276,7 @@ describe('deleting a bar', () => {
   })
 
   test('other bars are untouched', async () => {
-    await admin.delete(`/api/admin/bars/${data.own.id}`).expect(204)
+    await admin.delete(`/api/admin/bars/${data.own.id}?now=true`).expect(204)
 
     const olli = await loginAs('olli')
     const shifts = await olli.get('/api/shifts').query({ from: '2026-09-21T00:00:00Z', to: '2026-09-28T00:00:00Z' })

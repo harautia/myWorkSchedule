@@ -1,0 +1,92 @@
+---
+title: Data processing agreement
+description: How the operator processes the bar's staff data on its behalf (GDPR article 28).
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import Operator from '../../../components/Operator.astro'
+import { SERVICE } from '../../../data/service.mjs'
+
+<Aside type="caution" title="Draft">
+This agreement is a draft and hasn't been reviewed by a lawyer yet.
+</Aside>
+
+This data processing agreement (DPA) is part of the [terms of service](../terms/). It
+applies when the Customer (the **controller**) uses the hosted Service, and the operator
+(the **processor**) processes personal data on the Customer's behalf, as required by
+article 28 of the GDPR.
+
+**Processor:**
+
+<Operator />
+
+## 1. What is processed
+
+| | |
+|---|---|
+| **Subject matter** | Providing the Service: planning, publishing and showing work shifts. |
+| **Duration** | While the Customer's subscription lasts, and the deletion periods after it (section 7). |
+| **Nature and purpose** | Storing, showing and transferring data so the Customer's staff can see and plan their shifts; sending invitations and notices by email; backups. |
+| **People concerned** | The Customer's employees and managers. |
+| **Kinds of data** | Name, email address, username, role, work shifts, login times, and what the Customer's users enter in the Service. No special categories of data. |
+
+## 2. The processor's duties
+
+The processor:
+
+1. processes the data only on the Customer's documented instructions, which are these
+   terms and the Customer's use of the Service, unless the law requires otherwise;
+2. ensures that the people processing the data are bound to confidentiality;
+3. takes the security measures described in section 4;
+4. uses subprocessors only as in section 5;
+5. helps the Customer answer requests from the people concerned (access, correction,
+   erasure), as far as possible through the Service's own tools: exporting the bar's
+   data, anonymising an employee, and deleting the bar;
+6. helps the Customer with security, breach notification, data protection impact
+   assessments and prior consultation, taking into account the nature of the processing;
+7. deletes or returns the data at the end, as in section 7;
+8. gives the Customer the information needed to show that these duties are met, and
+   allows audits by the Customer or an auditor it appoints, at the Customer's cost and
+   with reasonable notice.
+
+## 3. The Customer's duties
+
+The Customer has a lawful basis for the data it puts in the Service, tells its staff about
+the processing, and gives only lawful instructions.
+
+## 4. Security
+
+The data is protected with, among other things: encrypted connections (HTTPS); passwords
+stored only as salted one-way hashes; strict separation of each bar's data; access by the
+operator's staff only when needed for support, read-only, and recorded in an audit log;
+daily backups; and keeping the software up to date. The security review is published in
+the [source code repository](https://github.com/harautia/myWorkSchedule/blob/master/docs/security-review.md).
+
+## 5. Subprocessors
+
+The Customer gives general permission to use the subprocessors listed on the
+[subprocessors page](../subprocessors/). The processor tells the Customer at least 30 days
+before adding or replacing one; the Customer may object on reasonable grounds and, if no
+solution is found, cancel the Service. The processor imposes the same data protection
+duties on its subprocessors and remains responsible for them.
+
+## 6. Personal data breaches
+
+The processor tells the Customer without undue delay, and at the latest within 48 hours,
+after becoming aware of a breach affecting the Customer's data, with the information the
+Customer needs to notify the authority and the people concerned.
+
+## 7. When the Service ends
+
+When the subscription ends, the Customer can download its data until it's deleted:
+{SERVICE.deleteAfterDays} days after the end, or {SERVICE.deletionGraceDays} days after the
+Customer deletes the bar. Backups are overwritten within 30 days after that. Invoices are
+kept as accounting law requires.
+
+## 8. Transfers outside the EU
+
+Data is stored in the EU. If a subprocessor processes it outside the EU or EEA, the
+transfer relies on an adequacy decision or on the European Commission's standard
+contractual clauses.
+
+*Last updated: [date]*

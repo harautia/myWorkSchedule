@@ -96,6 +96,19 @@ const EmployeesPage = () => {
     }
   }
 
+  // GDPR erasure: the person's account and name go, their shifts stay.
+  const handleAnonymise = async (employee) => {
+    if (!window.confirm(t('employees.anonymiseConfirm', { name: employee.name }))) return
+    try {
+      await employeeService.anonymise(employee.id)
+      showNotice(t('employees.anonymised', { name: employee.name }))
+      await load()
+    } catch (err) {
+      setNotice(null)
+      setActionError(errorMessage(err))
+    }
+  }
+
   return (
     <section>
       <div className="page-heading">
@@ -145,9 +158,14 @@ const EmployeesPage = () => {
                           <button type="button" className="btn btn-nav" onClick={() => setEditingId(employee.id)}>
                             {t('common.edit')}
                           </button>
-                          {!employee.account && (
+                          {!employee.account && !employee.anonymised && (
                             <button type="button" className="btn btn-nav" onClick={() => handleInvite(employee)}>
                               {employee.invite ? t('employees.inviteAgain') : t('employees.invite')}
+                            </button>
+                          )}
+                          {!employee.anonymised && (
+                            <button type="button" className="btn btn-nav" onClick={() => handleAnonymise(employee)}>
+                              {t('employees.anonymise')}
                             </button>
                           )}
                           <button type="button" className="btn btn-danger" onClick={() => handleRemove(employee)}>

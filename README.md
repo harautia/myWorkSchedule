@@ -193,6 +193,15 @@ Log in with one of the seeded development accounts (password `secret` for all of
 | POST | `/api/verify-email/resend` | logged in | sends a new verification link |
 | GET | `/api/bar/onboarding` | manager | `{ invite, plan, lock, dismissed }`: the new bar's checklist |
 | POST | `/api/bar/onboarding/dismiss` | manager | hides the checklist |
+| GET | `/api/bar/export` | owner | `?format=json` (everything) or `csv` (shifts) as a download |
+| POST | `/api/bar/deletion` | owner | `{ confirmName }`: deletes the bar in 30 days |
+| DELETE | `/api/bar/deletion` | owner | undoes a scheduled deletion |
+| POST | `/api/employees/:id/anonymise` | manager | erases an employee's account and name; shifts stay |
+| DELETE | `/api/admin/bars/:barId` | admin | schedules deletion in 30 days; `?now=true` deletes at once |
+| DELETE | `/api/admin/bars/:barId/deletion` | admin | undoes a scheduled deletion |
+| GET | `/api/admin/people?email=` | admin | finds a person (GDPR requests) |
+| GET | `/api/admin/people/:personId/export` | admin | everything about the person, as a download |
+| POST | `/api/admin/people/:personId/erase` | admin | erases the person; their shifts stay, anonymised |
 | GET | `/api/billing` | owner, hosted only | the subscription: status, trial end, period, dates of read-only, lock and deletion |
 | POST | `/api/billing/checkout` | owner, hosted only | `{ interval: 'month' \| 'year' }` → `{ url }` of Stripe Checkout |
 | POST | `/api/billing/portal` | owner, hosted only | `{ url }` of Stripe's customer portal |
@@ -213,7 +222,6 @@ request (read-only, locked, or not started), with `subscriptionStatus` in the bo
 | POST | `/api/admin/bars` | admin | `{ bar: { name, timezone, opensAt, closesAt }, manager: { username, name, password } }` |
 | GET | `/api/admin/bars/:barId` | admin | `{ bar, users }`: every account in the bar with groups and linked employee |
 | PUT | `/api/admin/bars/:barId` | admin | `{ name, timezone, opensAt, closesAt }` |
-| DELETE | `/api/admin/bars/:barId` | admin | deletes the bar with its employees, shifts, day orders and accounts |
 | POST | `/api/admin/bars/:barId/managers` | admin | `{ username, name, password }`; also adds them to the schedule as a manager |
 | PUT | `/api/admin/bars/:barId/managers/:userId` | admin | `{ name?, password? }`; a new name also renames them on the schedule, a new password ends old sessions |
 | DELETE | `/api/admin/bars/:barId/managers/:userId` | admin | deletes the account (their schedule entry and shifts stay); refused for the bar's last manager |

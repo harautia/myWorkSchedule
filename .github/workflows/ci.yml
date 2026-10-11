@@ -96,6 +96,23 @@ jobs:
                 --onlyAllow "$ALLOWED" --summary)
           done
 
+  audit:
+    name: Known vulnerabilities in runtime dependencies
+    # Spec SEC-05. Development tools are checked by Dependabot instead, so a
+    # finding in a test tool doesn't block a release.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: npm audit (high and critical)
+        run: |
+          for dir in backend frontend; do
+            echo "== $dir"
+            (cd "$dir" && npm audit --omit=dev --audit-level=high)
+          done
+
   docker:
     name: Docker image builds
     runs-on: ubuntu-latest

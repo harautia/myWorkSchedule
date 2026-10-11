@@ -175,7 +175,10 @@
     "invited": "invited ({{email}})",
     "invite": "Invite",
     "inviteAgain": "Send invitation again",
-    "inviteEmailPrompt": "Email of {{name}}, for the invitation:"
+    "inviteEmailPrompt": "Email of {{name}}, for the invitation:",
+    "anonymise": "Anonymise",
+    "anonymiseConfirm": "Anonymise {{name}}? Their login account and name are erased for good (for example when they ask for their data to be deleted). Their shifts stay, under the name \"Former employee\".",
+    "anonymised": "{{name}} was anonymised"
   },
   "account": {
     "name": "Name",
@@ -249,14 +252,15 @@
     "passwordSet": "New password set for {{username}}",
     "saved": "Saved {{username}}",
     "deleteTitle": "Delete bar",
-    "deleteWarning": "Permanently deletes {{name}} with all its employees, shifts and user accounts. This cannot be undone.",
+    "deleteWarning": "Schedules the deletion of {{name}} with all its employees, shifts and user accounts 30 days from now; it can be undone until then. Deleting at once cannot be undone.",
     "deleteConfirmLabel": "Type the bar name to confirm",
-    "deleteButton": "Delete bar permanently",
+    "deleteButton": "Delete permanently now",
     "deleting": "Deleting…",
     "deleted": "Deleted {{name}}",
     "search": "Search",
     "allStatuses": "All",
-    "noMatches": "No organizations match."
+    "noMatches": "No organizations match.",
+    "scheduleDeletion": "Delete in 30 days"
   },
   "links": {
     "newPassword": "New password",
@@ -377,7 +381,35 @@
       "support.open": "Opened in support mode: {{reason}}",
       "support.close": "Left support mode",
       "bar.delete": "Bar deleted",
-      "subscription.status": "Subscription: {{from}} → {{to}}"
+      "subscription.status": "Subscription: {{from}} → {{to}}",
+      "bar.deletion_scheduled": "Deletion scheduled for {{deletionAt}}",
+      "bar.deletion_cancelled": "Deletion undone",
+      "bar.export": "Data downloaded ({{format}})",
+      "employee.anonymise": "Employee anonymised",
+      "person.erase": "Person erased",
+      "person.export": "Person's data downloaded"
     }
+  },
+  "barData": {
+    "title": "Your data",
+    "hint": "Download everything stored about this bar: the employees, accounts, shifts and published weeks as JSON, or the shifts as a spreadsheet (CSV).",
+    "downloadJson": "Download all data (JSON)",
+    "downloadCsv": "Download shifts (CSV)",
+    "deleteTitle": "Delete bar",
+    "deleteWarning": "Deletes {{name}} with all its employees, shifts and accounts 30 days from now. Until then the schedule works as before and the deletion can be undone. Download your data first if you want to keep it.",
+    "deleteButton": "Delete bar in 30 days",
+    "scheduled": "This bar will be deleted on {{date}}.",
+    "undo": "Undo deletion",
+    "banner": "This bar will be deleted on {{date}}.",
+    "toSettings": "Undo in Bar settings"
+  },
+  "people": {
+    "title": "Personal data requests",
+    "hint": "When someone asks for their data (GDPR), find them by email to download everything stored about them, or erase them: their account is deleted and their name on schedules anonymised, while the shifts stay.",
+    "find": "Find",
+    "export": "Download their data",
+    "erase": "Erase",
+    "eraseConfirm": "Erase {{name}} ({{email}}) for good? This can't be undone.",
+    "erased": "{{email}} was erased."
   }
 }

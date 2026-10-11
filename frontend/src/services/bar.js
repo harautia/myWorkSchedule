@@ -13,4 +13,12 @@ const getOnboarding = () => api.get('/bar/onboarding').then((res) => res.data)
 
 const dismissOnboarding = () => api.post('/bar/onboarding/dismiss').then((res) => res.data)
 
-export default { getBar, updateBar, getOnboarding, dismissOnboarding }
+// The owner's data downloads (plain links: the browser saves the file).
+export const EXPORT_URLS = { json: '/api/bar/export?format=json', csv: '/api/bar/export?format=csv' }
+
+// Owner only: schedules the bar's deletion in 30 days (confirmName = the
+// bar's name), or undoes it. Both return the bar with scheduledDeletionAt.
+const scheduleDeletion = (confirmName) => api.post('/bar/deletion', { confirmName }).then((res) => res.data)
+const cancelDeletion = () => api.delete('/bar/deletion').then((res) => res.data)
+
+export default { getBar, updateBar, getOnboarding, dismissOnboarding, scheduleDeletion, cancelDeletion }

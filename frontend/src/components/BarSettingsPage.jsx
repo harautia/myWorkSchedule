@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import BarDataSection from './BarDataSection'
 import BarFields from './admin/BarFields'
 import barService from '../services/bar'
 import { barSettings, errorMessage } from '../utils/forms'
 
 // managerGroup: the settings of the manager's own bar. onSaved(bar) applies
-// the saved settings to the whole app.
-const BarSettingsPage = ({ bar, onSaved }) => {
+// the saved settings to the whole app. The owner also gets the data
+// downloads and deleting the bar.
+const BarSettingsPage = ({ bar, onSaved, isOwner = false }) => {
   const { t } = useTranslation()
   const [form, setForm] = useState(() => barSettings(bar))
   const [error, setError] = useState(null)
@@ -40,6 +42,7 @@ const BarSettingsPage = ({ bar, onSaved }) => {
           </button>
         </div>
       </form>
+      {isOwner && <BarDataSection bar={bar} onChanged={onSaved} />}
     </section>
   )
 }

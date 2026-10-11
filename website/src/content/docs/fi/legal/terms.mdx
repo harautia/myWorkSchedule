@@ -1,0 +1,106 @@
+---
+title: Käyttöehdot
+description: myWorkSchedule-palvelun käyttöehdot.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import Operator from '../../../../components/Operator.astro'
+import Price from '../../../../components/Price.astro'
+import { SERVICE } from '../../../../data/service.mjs'
+
+<Aside type="caution" title="Luonnos">
+Nämä ehdot ovat luonnos, jota juristi ei ole vielä tarkastanut. Ne tulevat voimaan, kun
+palvelu avataan.
+</Aside>
+
+Nämä ehdot koskevat myWorkSchedule-palvelua osoitteessa {SERVICE.appUrl} ("Palvelu").
+Ne ovat sopimus sinun, eli rekisteröityvän yrityksen ("Asiakas"), ja Palvelun ylläpitäjän
+välillä:
+
+<Operator lang="fi" />
+
+Ehdot eivät koske avoimen lähdekoodin ohjelmiston omia asennuksia; niihin sovelletaan
+ohjelmiston lisenssiä, [GNU AGPL-3.0](https://github.com/harautia/myWorkSchedule/blob/master/LICENSE).
+
+## 1. Palvelu
+
+Palvelulla baari suunnittelee henkilökuntansa työvuorot, julkaisee ne ja näyttää jokaiselle
+työntekijälle tämän omat vuorot. Palveluun sisältyvät palvelin, varmuuskopiot, päivitykset
+ja sähköpostien lähetys. Ominaisuudet ovat samat kuin avoimen lähdekoodin ohjelmistossa ja
+voivat muuttua sen kehittyessä; keskeisiä ominaisuuksia (suunnittelu, julkaisu, vuorojen
+näyttäminen) ei poisteta ilmoittamatta 60 päivää etukäteen.
+
+Palvelu on tarkoitettu yrityksille. Rekisteröityessäsi vahvistat toimivasi yrityksen
+puolesta ja että voit hyväksyä nämä ehdot sen puolesta.
+
+## 2. Käyttäjätilit
+
+- Rekisteröityvästä henkilöstä tulee tilin **omistaja**, joka hoitaa laskutuksen.
+- Omistaja ja esihenkilöt kutsuvat työntekijät; jokainen pitää omat tunnuksensa omanaan.
+- Asiakas vastaa siitä, mitä baarin tileillä tehdään, ja siitä, että sillä on oikeus
+  tallentaa henkilökuntansa tiedot (kohta 6).
+
+## 3. Kokeilu, hinnat ja maksaminen
+
+- Uusi baari saa {SERVICE.trialDays} päivän ilmaisen kokeilun. Kortin tiedot pyydetään
+  rekisteröityessä; kokeilun aikana mitään ei veloiteta.
+- Kokeilun jälkeen tilaus jatkuu automaattisesti voimassa olevaan hintaan:
+  <Price interval="month" lang="fi" /> baaria kohden kuukaudessa tai
+  <Price interval="year" lang="fi" /> vuodessa, lisäksi arvonlisävero. Hinnat ovat
+  [hintasivulla](../../pricing/).
+- Maksut hoitaa Stripe. Baarin lisääminen tai poistaminen muuttaa hintaa jakson jäljellä
+  olevan ajan mukaan.
+- Voimme muuttaa hintoja ilmoittamalla siitä sähköpostilla vähintään 30 päivää etukäteen;
+  uusi hinta koskee seuraavaa laskutusjaksoa, ja voit perua tilauksen ennen sitä.
+
+## 4. Peruminen, maksamattomat tilaukset ja tietosi
+
+- Omistaja voi perua tilauksen milloin tahansa Laskutus-sivulla. Palvelu toimii jo
+  maksetun jakson loppuun; osittaisista jaksoista ei palauteta rahaa, ellei laki sitä
+  edellytä.
+- Jos maksu epäonnistuu, yritämme uudelleen muutaman päivän ajan ja kerromme siitä. Kun
+  tilaus päättyy (peruttu tai maksu lopullisesti epäonnistunut), baari on **vain
+  luettavissa** {SERVICE.readOnlyDays} päivää, sitten **lukittu**, ja sen tiedot
+  **poistetaan** {SERVICE.deleteAfterDays} päivää päättymisen jälkeen. Uusi tilaus ennen
+  sitä palauttaa kaiken.
+- Omistaja voi ladata kaikki baarin tiedot milloin tahansa, myös baarin ollessa lukittu.
+- Omistaja voi poistaa baarin; se poistetaan {SERVICE.deletionGraceDays} päivän kuluttua,
+  ja poiston voi perua siihen asti.
+
+## 5. Sallittu käyttö
+
+Palvelua ei saa käyttää lain vastaisesti, ei-toivottujen sähköpostien lähettämiseen,
+muun kuin työvuorotietojen tallentamiseen eikä muiden asiakkaiden tietojen tavoitteluun
+tai Palvelun häiritsemiseen. Voimme keskeyttää tällaisen tilin ja kerromme syyn.
+
+## 6. Henkilötiedot
+
+Asiakas päättää, mitä henkilökuntansa tietoja Palveluun tallennetaan, ja on niiden
+**rekisterinpitäjä**. Käsittelemme niitä Asiakkaan puolesta **käsittelijänä**
+[tietojenkäsittelysopimuksen](../dpa/) mukaisesti; se on osa näitä ehtoja. Omista
+asiakastiedoistamme kerromme [tietosuojaselosteessa](../privacy/).
+
+## 7. Käytettävyys ja tuki
+
+Tavoitteemme on, että Palvelu on käytettävissä 99,5 % ajasta kuukaudessa ilmoitettuja
+huoltokatkoja lukuun ottamatta. Tukea saa sähköpostilla arkipäivisin. Palvelu toimitetaan
+sellaisena kuin se on; emme lupaa sen olevan virheetön.
+
+## 8. Vastuu
+
+Kumpikaan osapuoli ei vastaa välillisistä vahingoista, kuten saamatta jääneestä
+voitosta. Vastuumme 12 kuukauden aikana on enintään se, mitä Asiakas maksoi Palvelusta
+näinä 12 kuukautena. Rajoitukset eivät koske tilanteita, joissa laki ei niitä salli,
+kuten tahallisesti tai törkeällä huolimattomuudella aiheutettua vahinkoa.
+
+## 9. Ehtojen muuttaminen
+
+Kerromme omistajalle sähköpostilla vähintään 30 päivää ennen muutosta, joka koskee
+Asiakasta. Jos et hyväksy muutosta, voit perua tilauksen ennen sen voimaantuloa.
+
+## 10. Sovellettava laki ja riidat
+
+Näihin ehtoihin sovelletaan Suomen lakia. Riidat ratkaistaan [ylläpitäjän kotipaikan]
+käräjäoikeudessa, ellei laki toisin edellytä.
+
+*Päivitetty: [päivämäärä]*

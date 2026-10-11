@@ -1,0 +1,65 @@
+---
+title: Työvuorot baareille
+description: Avoimen lähdekoodin työvuorolista baareille. Suunnittele viikko, julkaise se, ja jokainen työntekijä näkee vuoronsa puhelimestaan.
+template: splash
+hero:
+  tagline: Suunnittele viikko, julkaise se, ja jokainen työntekijä näkee omat vuoronsa puhelimestaan. Käytä palveluna tai asenna itse ilmaiseksi.
+  image:
+    file: ../../../assets/logo.png
+  actions:
+    - text: Hinnat ja ilmainen kokeilu
+      link: pricing/
+      icon: right-arrow
+    - text: Asenna itse
+      link: self-hosting/install/
+      variant: secondary
+    - text: Lähdekoodi GitHubissa
+      link: https://github.com/harautia/myWorkSchedule
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components'
+import Price from '../../../components/Price.astro'
+import { SERVICE, signupUrl } from '../../../data/service.mjs'
+
+## Mitä se tekee
+
+<CardGrid>
+  <Card title="Suunnittele viikko" icon="pencil">
+    Siirrä vuoroja vetämällä, muuta loppuaikaa alareunasta tai lisää sama vuoro usealle
+    päivälle kerralla. Puolenyön yli jatkuva vuoro kuuluu illalle, jolloin se alkaa,
+    niin kuin baarin päivä menee.
+  </Card>
+  <Card title="Julkaise, kun se on valmis" icon="approve-check">
+    Viikko on joko suunnitteilla tai lukittu. Työntekijät näkevät vain lukitut viikot,
+    ja jos avaat viikon korjataksesi jotain, he näkevät edellisen julkaistun version,
+    kunnes lukitset sen uudelleen.
+  </Card>
+  <Card title="Jokaisessa puhelimessa" icon="phone">
+    Työntekijä näkee "Omat vuoroni" -näkymästä, milloin hän on töissä. Sen voi asentaa
+    kotinäytölle kuin sovelluksen, ja viimeksi ladattu lista näkyy ilman yhteyttäkin.
+  </Card>
+  <Card title="Kutsu henkilökuntasi" icon="email">
+    Lisää työntekijä nimellä ja sähköpostilla; hän valitsee itse salasanansa ja kirjautuu
+    sähköpostillaan. Suomeksi ja englanniksi, baarisi aikavyöhykkeellä ja aukioloajoilla.
+  </Card>
+</CardGrid>
+
+## Valitse tapasi
+
+<CardGrid>
+  <Card title="Palveluna" icon="rocket">
+    Me hoidamme palvelimen, varmuuskopiot, päivitykset ja sähköpostit.
+    <Price interval="month" lang="fi" /> kuukaudessa baaria kohden tai
+    <Price interval="year" lang="fi" /> vuodessa, ilman arvonlisäveroa. Kokeile ilmaiseksi
+    {SERVICE.trialDays} päivää.
+
+    <LinkButton href={signupUrl}>Aloita ilmainen kokeilu</LinkButton>
+  </Card>
+  <Card title="Asenna itse" icon="setting">
+    Kaikki on avointa lähdekoodia AGPL-3.0-lisenssillä, täsmälleen samoin ominaisuuksin.
+    Yksi Docker Compose -tiedosto käynnistää sovelluksen ja tietokannan; katso
+    [asennusohje](self-hosting/install/) (englanniksi).
+  </Card>
+</CardGrid>

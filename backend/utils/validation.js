@@ -28,8 +28,16 @@ const isTimezone = (value) => {
   }
 }
 
+// Line breaks and other control characters: never part of a name, and they
+// could break email headers and exported files.
+const hasControlCharacters = (value) =>
+  [...value].some((character) => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127)
+
 const isNonEmptyText = (value, maxLength = 100) =>
-  typeof value === 'string' && value.trim().length > 0 && value.trim().length <= maxLength
+  typeof value === 'string' &&
+  value.trim().length > 0 &&
+  value.trim().length <= maxLength &&
+  !hasControlCharacters(value)
 
 const USERNAME_PATTERN = /^[a-z0-9._-]{3,32}$/
 const MIN_PASSWORD_LENGTH = 8

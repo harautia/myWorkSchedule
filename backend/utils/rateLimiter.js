@@ -32,4 +32,15 @@ const signupLimiter = rateLimit({
   message: { error: 'too many sign-ups from this address, please try again later' }
 })
 
-module.exports = { loginLimiter, accountLinkLimiter, signupLimiter }
+// Invitations send email to addresses a manager types in, so a stolen manager
+// account mustn't be able to send many (spec SEC-02).
+const inviteLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { error: 'too many invitations at once, please try again later' }
+})
+
+module.exports = { loginLimiter, accountLinkLimiter, signupLimiter, inviteLimiter }

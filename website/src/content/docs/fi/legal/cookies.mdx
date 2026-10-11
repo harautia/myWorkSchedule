@@ -1,0 +1,36 @@
+---
+title: Evästeet
+description: myWorkSchedulen käyttämät evästeet ja selaimen tallennustila.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+<Aside type="caution" title="Luonnos">
+Tämä evästeseloste on luonnos, jota juristi ei ole vielä tarkastanut.
+</Aside>
+
+## Tämä sivusto
+
+Sivusto **ei käytä evästeitä** eikä analytiikkaa, mainontaa tai seurantaa.
+
+## Sovellus
+
+Sovellus käyttää vain sitä, mitä se tarvitsee toimiakseen, joten se ei pyydä
+suostumusta.
+
+| Nimi | Mihin sitä käytetään | Kuinka kauan |
+|---|---|---|
+| `session` (eväste) | Pitää sinut kirjautuneena. Sivun skriptit eivät pysty lukemaan sitä. | 7 päivää tai uloskirjautumiseen asti |
+| `support` (eväste) | Vain palvelun ylläpitäjille, kun he katsovat baaria vain luku -tukitilassa. | 1 tunti |
+| Offline-kopio (selaimen välimuisti) | Sovellus säilyttää viimeksi lataamasi työvuorot, jotta näet ne ilman yhteyttäkin. | Uloskirjautumiseen asti |
+
+## Muut palvelut
+
+- **Stripe** näyttää maksu- ja laskutussivut. Stripe asettaa niillä omia evästeitään
+  maksuja ja väärinkäytösten estämistä varten; katso
+  [Stripen evästekäytäntö](https://stripe.com/cookie-settings).
+- **Cloudflare Turnstile** tarkistaa, että rekisteröitymislomakkeen täyttää ihminen. Se ei
+  käytä evästeitä seurantaan; katso
+  [Cloudflaren tietosuojakäytäntö](https://www.cloudflare.com/privacypolicy/).
+
+*Päivitetty: [päivämäärä]*

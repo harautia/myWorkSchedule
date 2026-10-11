@@ -1,0 +1,24 @@
+---
+// The hosted service's subprocessors, from src/data/service.mjs.
+import { SERVICE } from '../data/service.mjs'
+
+const { lang = 'en' } = Astro.props
+const headings = lang === 'fi'
+  ? ['Alihankkija', 'Käyttötarkoitus', 'Sijainti']
+  : ['Subprocessor', 'Purpose', 'Location']
+---
+
+<table>
+  <thead>
+    <tr>{headings.map((heading) => <th>{heading}</th>)}</tr>
+  </thead>
+  <tbody>
+    {SERVICE.subprocessors.map((item) => (
+      <tr>
+        <td>{item.url.startsWith('http') ? <a href={item.url}>{item.name}</a> : item.name}</td>
+        <td>{item.purpose[lang]}</td>
+        <td>{item.location[lang]}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

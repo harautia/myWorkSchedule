@@ -12,7 +12,9 @@ const toDto = (row) => ({
   closesAt: toHourMinute(row.closes_at),
   locale: row.locale,
   clock24h: row.clock_24h,
-  accentColor: row.accent_color
+  accentColor: row.accent_color,
+  // When the bar will be deleted, if its deletion is scheduled (DATA-02).
+  scheduledDeletionAt: row.scheduled_deletion_at?.toISOString() ?? null
 })
 
 const getById = async (barId) => {

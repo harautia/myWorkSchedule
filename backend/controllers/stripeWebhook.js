@@ -10,7 +10,7 @@ const stripe = require('../utils/stripe')
 
 const stripeWebhookRouter = express.Router()
 
-stripeWebhookRouter.post('/', express.raw({ type: 'application/json' }), async (request, response) => {
+stripeWebhookRouter.post('/', express.raw({ type: 'application/json', limit: '1mb' }), async (request, response) => {
   if (!billing.isHosted()) return response.status(404).json({ error: 'billing is not used on this server' })
 
   let event

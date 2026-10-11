@@ -11,6 +11,8 @@ const { requireGroup } = require('../utils/middleware')
 const { MANAGER } = require('../utils/groups')
 const { UNIQUE_VIOLATION, pickAccount, createStaffAccount } = require('../utils/accounts')
 const { hashPassword } = require('../utils/passwords')
+const { anonymiseEmployee } = require('../utils/erasure')
+const { inviteLimiter } = require('../utils/rateLimiter')
 const { newAccountError, accountChangesError, inviteError, isEmail, parseId } = require('../utils/validation')
 
 // Unlike the admin's message, this doesn't say which bar has the username:
@@ -103,7 +105,7 @@ employeesRouter.get('/details', requireGroup(MANAGER), async (request, response)
 // Adds an employee to the manager's own bar, on the schedule as a waiter.
 // - { name, email }: invites them; they set their own password (the usual way).
 // - { name, username, password, email? }: creates the login account directly.
-employeesRouter.post('/', requireGroup(MANAGER), async (request, response) => {
+employeesRouter.post('/', requireGroup(MANAGER), inviteLimiter, async (request, response) => {
   if (request.body.password === undefined) return addByInvitation(request, response)
 
   const account = pickAccount(request.body)
@@ -153,9 +155,12 @@ const addByInvitation = async (request, response) => {
 
 // Invites an employee who has no login account yet (again, e.g. when the
 // first invitation expired). { email? }: defaults to the open invitation's email.
-employeesRouter.post('/:employeeId/invite', manageEmployee, requireVerifiedEmail, async (request, response) => {
+employeesRouter.post('/:employeeId/invite', manageEmployee, requireVerifiedEmail, inviteLimiter, async (request, response) => {
   if (request.account) {
     return response.status(409).json({ error: `${request.employee.name} already has a login account` })
+  }
+  if (request.employee.anonymised) {
+    return response.status(409).json({ error: 'an anonymised employee can\'t be invited; add them again as a new employee' })
   }
   const pending = (await Invites.pendingByEmployee(request.barId)).get(request.employee.id)
   const raw = request.body.email ?? pending?.email
@@ -190,6 +195,16 @@ employeesRouter.put('/:employeeId', manageEmployee, async (request, response) =>
     if (request.account) await Users.update(request.account.id, { name: name?.trim(), email: address, passwordHash }, trx)
   })
 
+  const updated = (await details(request.barId)).find((employee) => employee.id === request.employee.id)
+  response.json(updated)
+})
+
+// Erases the employee's personal data on request (GDPR) but keeps their
+// shifts: their login account and invitations go, and their name becomes
+// "Former employee <id>". Cannot be undone.
+employeesRouter.post('/:employeeId/anonymise', manageEmployee, async (request, response) => {
+  if (request.employee.anonymised) return response.status(409).json({ error: 'this employee is already anonymised' })
+  await anonymiseEmployee(request.barId, request.employee.id, { actorUserId: request.user.id })
   const updated = (await details(request.barId)).find((employee) => employee.id === request.employee.id)
   response.json(updated)
 })

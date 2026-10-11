@@ -19,7 +19,7 @@ const requireAuth = async (request, response, next) => {
 
   let payload
   try {
-    payload = jwt.verify(token, config.SESSION_SECRET)
+    payload = jwt.verify(token, config.SESSION_SECRET, { algorithms: ['HS256'] })
   } catch {
     return response.status(401).json({ error: 'not authenticated' })
   }
@@ -78,7 +78,9 @@ const requireSubscription = async (request, response, next) => {
   if (access === 'read_only' && request.method !== 'GET') {
     return response.status(402).json({ error: 'this bar is read-only because its subscription has ended', subscriptionStatus: status })
   }
-  if (access === 'billing_only' && !(request.method === 'GET' && request.baseUrl === '/api/bar' && request.path === '/')) {
+  // A locked bar still loads its settings, and its owner can export the data.
+  const allowed = request.method === 'GET' && request.baseUrl === '/api/bar' && ['/', '/export'].includes(request.path)
+  if (access === 'billing_only' && !allowed) {
     return response.status(402).json({ error: 'this bar has no active subscription', subscriptionStatus: status })
   }
   next()
@@ -92,12 +94,20 @@ const requireGroup = (...groups) => (request, response, next) => {
   next()
 }
 
+// Fields never written to the log.
+const SECRET_FIELDS = ['password', 'token', 'captchaToken']
+
+// Logs each request. Bodies hold personal data (names, emails), so they are
+// only logged outside production, and never the secret fields.
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
   logger.info('Path:  ', request.path)
-  // Never log passwords.
-  const { password, ...body } = request.body || {}
-  logger.info('Body:  ', password === undefined ? body : { ...body, password: '***' })
+  if (!config.IS_PRODUCTION && request.body && typeof request.body === 'object' && !Buffer.isBuffer(request.body)) {
+    const body = Object.fromEntries(
+      Object.entries(request.body).map(([key, value]) => [key, SECRET_FIELDS.includes(key) ? '***' : value])
+    )
+    logger.info('Body:  ', body)
+  }
   logger.info('---')
   next()
 }

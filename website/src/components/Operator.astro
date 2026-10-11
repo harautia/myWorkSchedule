@@ -1,0 +1,17 @@
+---
+// Who runs the hosted service, from src/data/service.mjs.
+import { SERVICE } from '../data/service.mjs'
+
+const { lang = 'en' } = Astro.props
+const { name, businessId, address, email } = SERVICE.operator
+const labels = lang === 'fi'
+  ? { businessId: 'Y-tunnus', address: 'Osoite', email: 'Sähköposti' }
+  : { businessId: 'Business ID', address: 'Address', email: 'Email' }
+---
+
+<p>
+  <strong>{name}</strong><br />
+  {labels.businessId}: {businessId}<br />
+  {labels.address}: {address}<br />
+  {labels.email}: <a href={`mailto:${email}`}>{email}</a>
+</p>

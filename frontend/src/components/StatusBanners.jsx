@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { managesBilling } from '../utils/access'
+import { formatDate } from '../utils/billing'
 
 // Notices about the bar's subscription (spec BILL-06), shown above every page:
 // payment failed (past due) and read-only. The owner gets a way to the billing
@@ -30,6 +31,22 @@ export const SupportBanner = ({ barName, onLeave }) => {
       <button type="button" className="link-button" onClick={onLeave}>
         {t('support.leave')}
       </button>
+    </div>
+  )
+}
+
+// The bar is scheduled for deletion. The owner (onSettings) can undo it in
+// the bar settings.
+export const DeletionBanner = ({ date, onSettings }) => {
+  const { t, i18n } = useTranslation()
+  return (
+    <div className="notice-banner notice-warning" role="status">
+      <span>{t('barData.banner', { date: formatDate(date, i18n.language) })}</span>
+      {onSettings && (
+        <button type="button" className="link-button" onClick={onSettings}>
+          {t('barData.toSettings')}
+        </button>
+      )}
     </div>
   )
 }

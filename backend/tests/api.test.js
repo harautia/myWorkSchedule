@@ -29,7 +29,8 @@ describe('bar', () => {
       closesAt: '04:00',
       locale: 'en',
       clock24h: true,
-      accentColor: '#863bff'
+      accentColor: '#863bff',
+      scheduledDeletionAt: null
     })
   })
 
@@ -46,7 +47,7 @@ describe('bar', () => {
   test('a manager changes their own bar\'s settings', async () => {
     const response = await api.put('/api/bar').send(SETTINGS).expect(200)
 
-    assert.deepStrictEqual(response.body, { id: data.own.id, ...SETTINGS, accentColor: '#0ca678' })
+    assert.deepStrictEqual(response.body, { id: data.own.id, ...SETTINGS, accentColor: '#0ca678', scheduledDeletionAt: null })
     const other = await db('bars').where({ id: data.other.id }).first()
     assert.strictEqual(other.name, 'Other Bar')
   })

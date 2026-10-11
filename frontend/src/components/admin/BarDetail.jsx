@@ -182,7 +182,7 @@ const BarDetail = ({ barId, onBack, onDeleted, onSupport }) => {
       </p>
 
       <SupportSection bar={bar} onSupport={onSupport} />
-      <DeleteBarSection bar={bar} onDeleted={onDeleted} />
+      <DeleteBarSection bar={bar} onChanged={(saved) => setDetails((prev) => ({ ...prev, bar: saved }))} onDeleted={onDeleted} />
     </section>
   )
 }

@@ -7,7 +7,9 @@ const Users = require('../models/users')
 const Employees = require('../models/employees')
 const AuditLog = require('../models/auditLog')
 const Organizations = require('../models/organizations')
-const billing = require('../utils/billing')
+const dataExport = require('../utils/dataExport')
+const deletion = require('../utils/deletion')
+const { ErasureError, erasePerson } = require('../utils/erasure')
 const { startSupport, endSupport, supportedBarId } = require('../utils/support')
 const { UNIQUE_VIOLATION, pickAccount, createStaffAccount } = require('../utils/accounts')
 const { hashPassword } = require('../utils/passwords')
@@ -94,20 +96,63 @@ adminRouter.get('/bars/:barId', async (request, response) => {
   response.json(await barDetails(request.bar.id))
 })
 
-// Deletes the bar with everything in it: employees, shifts, day orders and
-// user accounts. Cannot be undone.
+// Schedules the bar's deletion in 30 days (DATA-02), as its owner can. With
+// ?now=true it is deleted at once, with everything in it: employees, shifts,
+// day orders and user accounts. That cannot be undone.
 adminRouter.delete('/bars/:barId', async (request, response) => {
-  const organization = await Organizations.getByBarId(request.bar.id)
-  await Bars.remove(request.bar.id)
-  await AuditLog.add({
-    action: 'bar.delete',
-    actorUserId: request.user.id,
-    organizationId: organization.id,
-    barId: request.bar.id,
-    details: { name: request.bar.name }
-  })
-  // The organization's other bars (if any) are what it pays for now.
-  await billing.syncBarCount(organization.id)
+  if (request.query.now === 'true') {
+    await deletion.deleteBarNow(request.bar.id, { actorUserId: request.user.id, reason: 'admin' })
+    return response.status(204).end()
+  }
+  if (!request.bar.scheduledDeletionAt) {
+    await deletion.scheduleBarDeletion(request.bar.id, { actorUserId: request.user.id })
+  }
+  response.json(await Bars.getById(request.bar.id))
+})
+
+// Undoes a scheduled deletion.
+adminRouter.delete('/bars/:barId/deletion', async (request, response) => {
+  await deletion.cancelBarDeletion(request.bar.id, { actorUserId: request.user.id })
+  response.json(await Bars.getById(request.bar.id))
+})
+
+// GDPR requests (DATA-04): a person found by email, with the bars they
+// belong to.
+adminRouter.get('/people', async (request, response) => {
+  const address = typeof request.query.email === 'string' ? request.query.email.trim().toLowerCase() : ''
+  if (!address) return response.status(400).json({ error: 'email is required' })
+  const user = await Users.findByEmail(address)
+  if (!user) return response.status(404).json({ error: 'nobody has this email' })
+  const bars = await db('memberships').join('bars', 'bars.id', 'memberships.bar_id').where('memberships.user_id', user.id)
+    .select('bars.id', 'bars.name', 'memberships.role')
+  response.json({ id: user.id, name: user.name, email: user.email, username: user.username, isAdmin: user.is_admin, bars })
+})
+
+// Loads a person (any account) from :personId into request.person, or answers 404.
+adminRouter.param('personId', async (request, response, next, value) => {
+  const id = parseId(value)
+  const person = id && await db('users').where({ id }).first('id')
+  if (!person) return response.status(404).json({ error: 'person not found' })
+  request.person = person
+  next()
+})
+
+// Everything stored about the person, as JSON (GDPR access request).
+adminRouter.get('/people/:personId/export', async (request, response) => {
+  await AuditLog.add({ action: 'person.export', actorUserId: request.user.id, details: { userId: request.person.id } })
+  response.attachment(`person-${request.person.id}-${new Date().toISOString().slice(0, 10)}.json`)
+  response.json(await dataExport.personExport(request.person.id))
+})
+
+// Erases the person (GDPR erasure request): their account goes and their
+// names on schedules are anonymised; shifts stay. Cannot be undone.
+adminRouter.post('/people/:personId/erase', async (request, response) => {
+  try {
+    await erasePerson(request.person.id, { actorUserId: request.user.id })
+  } catch (error) {
+    if (error instanceof ErasureError) return response.status(409).json({ error: error.message })
+    throw error
+  }
   response.status(204).end()
 })
 

@@ -1,0 +1,61 @@
+---
+title: Pricing
+description: One simple price per bar, with every feature included. Try it free for 30 days.
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components'
+import Price from '../../components/Price.astro'
+import { SERVICE, signupUrl } from '../../data/service.mjs'
+
+One price per bar, with every feature and as many employees as you have. Prices are
+without VAT; VAT is added at checkout according to your country.
+
+<CardGrid>
+  <Card title="Monthly" icon="calendar">
+    **<Price interval="month" /> per bar a month**
+
+    Change to yearly or cancel at any time.
+  </Card>
+  <Card title="Yearly" icon="star">
+    **<Price interval="year" /> per bar a year**
+
+    Two months free compared with monthly.
+  </Card>
+</CardGrid>
+
+<LinkButton href={signupUrl} icon="right-arrow">Start your {SERVICE.trialDays}-day free trial</LinkButton>
+
+## How the trial works
+
+- Sign up, set up your bar, and give your card details at checkout (payments are handled
+  by Stripe). Nothing is charged during the {SERVICE.trialDays}-day trial.
+- We email you 7 days before the trial ends. If you do nothing, your card is charged
+  automatically and the schedule keeps working.
+- Cancel any time on the Billing page. You keep access to the end of the period you paid
+  for.
+
+## Everything is included
+
+- Weekly and monthly schedule, drag and drop, the same shift on several days at once
+- Planning and locked weeks: employees only see what you publish
+- Email invitations; employees log in with their own password
+- "My shifts" on phones, installable like an app, readable offline
+- English and Finnish, your own timezone and opening hours
+- Export of all your data at any time
+
+## Questions
+
+**Several bars?** Each bar is one subscription item; adding a bar adds one more to your
+bill, prorated.
+
+**What if a payment fails?** Stripe tries again over a few days and we let you know. If
+it still fails, the subscription ends: the schedule is then read-only for
+{SERVICE.readOnlyDays} days, then locked, and the data is deleted
+{SERVICE.deleteAfterDays} days after the end. Subscribing again brings everything back
+until then.
+
+**Can I take my data with me?** Yes. The owner can download everything as JSON, and the
+shifts as a spreadsheet, at any time, also when the bar is locked.
+
+**Would you rather run it yourself?** The same software is free and open source; see
+[self-hosting](../self-hosting/install/).

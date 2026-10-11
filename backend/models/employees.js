@@ -4,7 +4,9 @@ const toDto = (row) => ({
   id: row.id,
   name: row.name,
   role: row.role,
-  color: row.color
+  color: row.color,
+  // Their personal data was erased on request; their shifts are kept.
+  anonymised: Boolean(row.anonymised_at)
 })
 
 // Legend order = insertion order.

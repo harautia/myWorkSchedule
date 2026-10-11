@@ -3,8 +3,9 @@ const db = require('./db/db')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const billing = require('./utils/billing')
+const deletion = require('./utils/deletion')
 
-const BILLING_JOB_INTERVAL_MS = 60 * 60 * 1000 // hourly
+const HOURLY_JOB_INTERVAL_MS = 60 * 60 * 1000
 
 const start = async () => {
   // Refuse to start with settings that are unsafe or can't work.
@@ -19,19 +20,21 @@ const start = async () => {
     if (applied.length) logger.info(`Applied database migrations: ${applied.join(', ')}`)
   }
 
-  // The hosted service's billing job: locks bars after their read-only period
-  // and sends the trial and deletion reminders.
-  if (config.DEPLOYMENT_MODE === 'hosted') {
-    const runBillingJobs = () =>
-      billing
-        .runJobs()
-        .then((done) => {
-          if (Object.values(done).some(Boolean)) logger.info('Billing job:', JSON.stringify(done))
-        })
-        .catch((error) => logger.error(`Billing job failed: ${error.message}`))
-    runBillingJobs()
-    setInterval(runBillingJobs, BILLING_JOB_INTERVAL_MS).unref()
+  // The hourly jobs: the hosted service's billing (locking bars after their
+  // read-only period, the trial and deletion reminders), then deleting bars
+  // whose deletion date has passed (every copy).
+  const runHourlyJobs = async () => {
+    for (const [name, job] of [['Billing', billing.runJobs], ['Deletion', deletion.runJobs]]) {
+      try {
+        const done = await job()
+        if (Object.values(done).some(Boolean)) logger.info(`${name} job:`, JSON.stringify(done))
+      } catch (error) {
+        logger.error(`${name} job failed: ${error.message}`)
+      }
+    }
   }
+  runHourlyJobs()
+  setInterval(runHourlyJobs, HOURLY_JOB_INTERVAL_MS).unref()
 
   // Express 5 passes listen errors (e.g. port already in use) to the callback.
   const server = app.listen(config.PORT, (error) => {

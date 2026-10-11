@@ -7,10 +7,11 @@ const db = require('../db/db')
 const MIGRATION = '20261010000011_create_organizations_and_memberships.js'
 // Newest first.
 const LATER_MIGRATIONS = [
+  '20261011000014_add_scheduled_deletion_and_anonymisation.js',
   '20261011000013_add_billing_and_audit_log.js',
   '20261010000012_add_signup_verification_and_onboarding.js'
 ]
-const MIGRATION_12 = LATER_MIGRATIONS[1]
+const MIGRATION_12 = LATER_MIGRATIONS.at(-1)
 
 // The test database as a 0.1.0 installation would have it.
 const insertVersion010Data = async () => {

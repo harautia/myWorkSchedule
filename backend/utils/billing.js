@@ -289,6 +289,7 @@ const runJobs = async (now = new Date()) => {
 module.exports = {
   isHosted,
   accessFor,
+  sendNotice,
   handleEvent,
   createCheckout,
   createPortal,

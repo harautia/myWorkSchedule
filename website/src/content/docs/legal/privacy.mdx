@@ -1,0 +1,70 @@
+---
+title: Privacy policy
+description: What personal data the myWorkSchedule hosted service and website handle, and why.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import Operator from '../../../components/Operator.astro'
+import { SERVICE } from '../../../data/service.mjs'
+
+<Aside type="caution" title="Draft">
+This privacy policy is a draft and hasn't been reviewed by a lawyer yet.
+</Aside>
+
+This policy explains how personal data is handled in the hosted myWorkSchedule service
+and on this website, under the EU General Data Protection Regulation (GDPR).
+
+## Who is responsible
+
+<Operator />
+
+There are two roles, depending on the data:
+
+- **The bar is the controller** of its work schedule data: its employees' names, email
+  addresses, roles and shifts. We process that data only on the bar's behalf, under the
+  [data processing agreement](../dpa/). If you're an employee, contact your bar first.
+- **We are the controller** of the data we need to run the Service for our customers:
+  the owner's account, billing, support requests and the security logs described below.
+
+## What we collect and why
+
+| Data | Why | Legal basis | Kept |
+|---|---|---|---|
+| Account: name, email, password (stored only as a one-way hash) | Logging in, invitations, password reset | Contract | While the account exists |
+| Bar details: name, country, timezone, opening hours | Running the Service | Contract | While the bar exists |
+| Billing: the owner's email, the subscription and its status. Card details go directly to Stripe; we never see them | Charging for the Service, VAT | Contract; legal obligation (accounting) | Invoices 6 years (Finnish Accounting Act); the rest while the subscription lasts |
+| Last time each user was active | Showing support who uses a bar; spotting problems | Legitimate interest | While the account exists |
+| Audit log: support access, exports, deletions, subscription changes | Security and accountability | Legitimate interest | 2 years |
+| Emails with us | Support | Contract; legitimate interest | 2 years after the matter closes |
+
+We don't sell personal data, don't use it for advertising, and don't do automated
+decision-making about people.
+
+## Who else handles it
+
+The companies that help us run the Service are listed on the
+[subprocessors page](../subprocessors/). Some of them may process data outside the EU;
+such transfers rely on the European Commission's adequacy decisions or its standard
+contractual clauses.
+
+## How long
+
+Data is kept as in the table above. When a bar's subscription ends, its data is deleted
+{SERVICE.deleteAfterDays} days after the end; when an owner deletes a bar, it's deleted
+after {SERVICE.deletionGraceDays} days. Backups are overwritten within 30 days after that.
+
+## Your rights
+
+You can ask to see your data, to get a copy, to correct it, to have it deleted, to limit
+its use, or object to it. Write to the address above. Bar owners can download their bar's
+data and delete the bar themselves in the app. We answer within a month.
+
+If you think we handle your data wrongly, you can complain to the Finnish Data Protection
+Ombudsman ([tietosuoja.fi](https://tietosuoja.fi/en)).
+
+## This website
+
+The website sets no cookies and uses no analytics or tracking. The server that hosts it
+(GitHub Pages) records technical data such as IP addresses in its own logs, for security.
+
+*Last updated: [date]*

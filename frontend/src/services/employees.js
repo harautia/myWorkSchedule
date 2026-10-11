@@ -21,4 +21,8 @@ const update = (id, changes) => api.put(`/employees/${id}`, changes).then((res) 
 // Deletes the employee, their login account and all their shifts.
 const remove = (id) => api.delete(`/employees/${id}`)
 
-export default { getDetails, create, invite, update, remove }
+// Erases the employee's personal data (GDPR) but keeps their shifts; returns
+// the updated employee row.
+const anonymise = (employeeId) => api.post(`/employees/${employeeId}/anonymise`).then((res) => res.data)
+
+export default { getDetails, create, invite, update, remove, anonymise }

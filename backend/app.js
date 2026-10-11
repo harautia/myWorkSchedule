@@ -1,6 +1,7 @@
 const express = require('express')
 const helmet = require('helmet')
 const cookieParser = require('cookie-parser')
+const config = require('./utils/config')
 const middleware = require('./utils/middleware')
 const { resolveBar } = require('./utils/tenant')
 const { ADMIN, MANAGER, EMPLOYEE } = require('./utils/groups')
@@ -23,9 +24,32 @@ const app = express()
 // login rate limiter.
 app.set('trust proxy', 1)
 
-// CSP is left off: a correct policy for the Vite-built frontend needs
-// testing against the actual production bundle, which is out of scope here.
-app.use(helmet({ contentSecurityPolicy: false }))
+// Content Security Policy (spec SEC-03). The built frontend has no inline
+// scripts; the only outside source is Cloudflare Turnstile on the sign-up
+// form. Stripe is reached by leaving the app, which the policy doesn't limit.
+const TURNSTILE = 'https://challenges.cloudflare.com'
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", TURNSTILE],
+      frameSrc: [TURNSTILE],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:'],
+      styleSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      workerSrc: ["'self'"],
+      manifestSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      // Only behind HTTPS: on plain HTTP (testing) it would break every request.
+      ...(config.COOKIE_SECURE ? { upgradeInsecureRequests: [] } : {})
+    }
+  }
+}))
 // Before express.json(): Stripe's signature is checked against the raw body.
 app.use('/api/stripe/webhook', stripeWebhookRouter)
 app.use(express.json())

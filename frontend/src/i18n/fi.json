@@ -175,7 +175,10 @@
     "invited": "kutsuttu ({{email}})",
     "invite": "Kutsu",
     "inviteAgain": "Lähetä kutsu uudelleen",
-    "inviteEmailPrompt": "Henkilön {{name}} sähköposti kutsua varten:"
+    "inviteEmailPrompt": "Henkilön {{name}} sähköposti kutsua varten:",
+    "anonymise": "Anonymisoi",
+    "anonymiseConfirm": "Anonymisoidaanko {{name}}? Käyttäjätili ja nimi poistetaan pysyvästi (esimerkiksi kun henkilö pyytää tietojensa poistoa). Vuorot jäävät nimellä \"Entinen työntekijä\".",
+    "anonymised": "{{name}} anonymisoitiin"
   },
   "account": {
     "name": "Nimi",
@@ -249,14 +252,15 @@
     "passwordSet": "Uusi salasana asetettu käyttäjälle {{username}}",
     "saved": "{{username}} tallennettu",
     "deleteTitle": "Poista baari",
-    "deleteWarning": "Poistaa baarin {{name}} pysyvästi kaikkine työntekijöineen, vuoroineen ja käyttäjätileineen. Tätä ei voi perua.",
+    "deleteWarning": "Ajastaa baarin {{name}} poiston kaikkine työntekijöineen, vuoroineen ja tileineen 30 päivän päähän; sen voi perua siihen asti. Heti poistamista ei voi perua.",
     "deleteConfirmLabel": "Vahvista kirjoittamalla baarin nimi",
-    "deleteButton": "Poista baari pysyvästi",
+    "deleteButton": "Poista pysyvästi nyt",
     "deleting": "Poistetaan…",
     "deleted": "{{name}} poistettu",
     "search": "Haku",
     "allStatuses": "Kaikki",
-    "noMatches": "Hakua vastaavia organisaatioita ei ole."
+    "noMatches": "Hakua vastaavia organisaatioita ei ole.",
+    "scheduleDeletion": "Poista 30 päivän kuluttua"
   },
   "links": {
     "newPassword": "Uusi salasana",
@@ -377,7 +381,35 @@
       "support.open": "Avattu tukitilassa: {{reason}}",
       "support.close": "Poistuttu tukitilasta",
       "bar.delete": "Baari poistettu",
-      "subscription.status": "Tilaus: {{from}} → {{to}}"
+      "subscription.status": "Tilaus: {{from}} → {{to}}",
+      "bar.deletion_scheduled": "Poisto ajastettu: {{deletionAt}}",
+      "bar.deletion_cancelled": "Poisto peruttu",
+      "bar.export": "Tiedot ladattu ({{format}})",
+      "employee.anonymise": "Työntekijä anonymisoitu",
+      "person.erase": "Henkilö poistettu",
+      "person.export": "Henkilön tiedot ladattu"
     }
+  },
+  "barData": {
+    "title": "Tietosi",
+    "hint": "Lataa kaikki baarin tiedot: työntekijät, tilit, vuorot ja julkaistut viikot JSON-muodossa, tai vuorot taulukkona (CSV).",
+    "downloadJson": "Lataa kaikki tiedot (JSON)",
+    "downloadCsv": "Lataa vuorot (CSV)",
+    "deleteTitle": "Poista baari",
+    "deleteWarning": "Poistaa baarin {{name}} kaikkine työntekijöineen, vuoroineen ja tileineen 30 päivän kuluttua. Siihen asti työvuorot toimivat kuten ennenkin, ja poiston voi perua. Lataa tiedot ensin, jos haluat säilyttää ne.",
+    "deleteButton": "Poista baari 30 päivän kuluttua",
+    "scheduled": "Baari poistetaan {{date}}.",
+    "undo": "Peru poisto",
+    "banner": "Baari poistetaan {{date}}.",
+    "toSettings": "Peru baarin asetuksissa"
+  },
+  "people": {
+    "title": "Henkilötietopyynnöt",
+    "hint": "Kun joku pyytää tietojaan (GDPR), hae hänet sähköpostilla ja lataa kaikki hänestä tallennettu, tai poista hänet: tili poistetaan ja nimi työvuoroissa anonymisoidaan, mutta vuorot jäävät.",
+    "find": "Hae",
+    "export": "Lataa henkilön tiedot",
+    "erase": "Poista",
+    "eraseConfirm": "Poistetaanko {{name}} ({{email}}) pysyvästi? Tätä ei voi perua.",
+    "erased": "{{email}} poistettiin."
   }
 }

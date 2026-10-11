@@ -3,20 +3,25 @@ title: Work schedules for bars
 description: Open-source work schedules for bars. Plan the week, publish it, and every employee sees their shifts on their phone.
 template: splash
 hero:
-  tagline: Plan the week, publish it, and every employee sees their own shifts on their phone. Free and open source, so you can run it yourself.
+  tagline: Plan the week, publish it, and every employee sees their own shifts on their phone. Use the hosted service, or run it yourself for free.
   image:
     file: ../../assets/logo.png
   actions:
+    - text: Pricing and free trial
+      link: pricing/
+      icon: right-arrow
     - text: Self-host it
       link: self-hosting/install/
-      icon: right-arrow
+      variant: secondary
     - text: Source code on GitHub
       link: https://github.com/harautia/myWorkSchedule
       icon: external
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components'
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components'
+import Price from '../../components/Price.astro'
+import { SERVICE, signupUrl } from '../../data/service.mjs'
 
 ## What it does
 
@@ -35,21 +40,25 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
     Employees open "My shifts" to see when they work. It installs on the home screen
     like an app and shows the last loaded schedule even offline.
   </Card>
-  <Card title="Several bars, clear roles" icon="building">
-    One installation can serve several bars, each fully separated. Admins create bars,
-    managers plan their own bar, and employees see the schedule.
+  <Card title="Invite your staff" icon="email">
+    Add employees by name and email; they choose their own password and log in with
+    their email. In English and Finnish, in your bar's own timezone and opening hours.
   </Card>
 </CardGrid>
 
 ## Run it your way
 
 <CardGrid>
-  <Card title="Host it yourself" icon="setting">
-    Everything is open source under the AGPL-3.0 licence. One Docker Compose file runs the
-    app and its database; see the [installation guide](self-hosting/install/).
-  </Card>
   <Card title="Hosted service" icon="rocket">
-    A hosted service, run by the author, is planned for bars that would rather not
-    maintain a server. It will have exactly the same features.
+    We run it for you: hosting, backups, updates and email. <Price interval="month" /> a
+    month per bar, or <Price interval="year" /> a year, without VAT. Try it free for
+    {SERVICE.trialDays} days.
+
+    <LinkButton href={signupUrl}>Start free trial</LinkButton>
+  </Card>
+  <Card title="Host it yourself" icon="setting">
+    Everything is open source under the AGPL-3.0 licence, with exactly the same features.
+    One Docker Compose file runs the app and its database; see the
+    [installation guide](self-hosting/install/).
   </Card>
 </CardGrid>

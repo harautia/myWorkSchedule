@@ -1,0 +1,91 @@
+---
+title: Tietojenkäsittelysopimus
+description: Miten ylläpitäjä käsittelee baarin henkilökunnan tietoja baarin puolesta (GDPR 28 artikla).
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import Operator from '../../../../components/Operator.astro'
+import { SERVICE } from '../../../../data/service.mjs'
+
+<Aside type="caution" title="Luonnos">
+Tämä sopimus on luonnos, jota juristi ei ole vielä tarkastanut.
+</Aside>
+
+Tämä tietojenkäsittelysopimus on osa [käyttöehtoja](../terms/). Sitä sovelletaan, kun
+Asiakas (**rekisterinpitäjä**) käyttää Palvelua ja ylläpitäjä (**käsittelijä**)
+käsittelee henkilötietoja Asiakkaan puolesta, kuten GDPR:n 28 artikla edellyttää.
+
+**Käsittelijä:**
+
+<Operator lang="fi" />
+
+## 1. Mitä käsitellään
+
+| | |
+|---|---|
+| **Kohde** | Palvelun tarjoaminen: työvuorojen suunnittelu, julkaisu ja näyttäminen. |
+| **Kesto** | Asiakkaan tilauksen ajan sekä sen jälkeiset poistoajat (kohta 7). |
+| **Luonne ja tarkoitus** | Tietojen tallennus, näyttäminen ja siirto, jotta Asiakkaan henkilökunta näkee ja suunnittelee vuoronsa; kutsujen ja ilmoitusten lähetys sähköpostilla; varmuuskopiot. |
+| **Rekisteröidyt** | Asiakkaan työntekijät ja esihenkilöt. |
+| **Tietoryhmät** | Nimi, sähköpostiosoite, käyttäjätunnus, rooli, työvuorot, kirjautumisajat sekä mitä Asiakkaan käyttäjät Palveluun syöttävät. Ei erityisiä henkilötietoryhmiä. |
+
+## 2. Käsittelijän velvollisuudet
+
+Käsittelijä:
+
+1. käsittelee tietoja vain Asiakkaan dokumentoitujen ohjeiden mukaan, joita ovat nämä
+   ehdot ja Asiakkaan tapa käyttää Palvelua, ellei laki muuta edellytä;
+2. varmistaa, että tietoja käsittelevät henkilöt ovat sitoutuneet salassapitoon;
+3. toteuttaa kohdan 4 mukaiset turvatoimet;
+4. käyttää alihankkijoita vain kohdan 5 mukaisesti;
+5. auttaa Asiakasta vastaamaan rekisteröityjen pyyntöihin (pääsy, oikaisu, poisto)
+   mahdollisuuksien mukaan Palvelun omilla työkaluilla: baarin tietojen lataus,
+   työntekijän anonymisointi ja baarin poisto;
+6. auttaa Asiakasta tietoturvassa, tietoturvaloukkauksista ilmoittamisessa,
+   vaikutustenarvioinneissa ja ennakkokuulemisessa käsittelyn luonne huomioiden;
+7. poistaa tai palauttaa tiedot lopuksi kohdan 7 mukaisesti;
+8. antaa Asiakkaalle tiedot, joilla osoitetaan velvollisuuksien täyttyminen, ja sallii
+   Asiakkaan tai sen valtuuttaman tarkastajan auditoinnit Asiakkaan kustannuksella ja
+   kohtuullisella varoitusajalla.
+
+## 3. Asiakkaan velvollisuudet
+
+Asiakkaalla on lainmukainen peruste Palveluun tallentamilleen tiedoille, se kertoo
+henkilökunnalleen käsittelystä ja antaa vain lainmukaisia ohjeita.
+
+## 4. Tietoturva
+
+Tietoja suojataan muun muassa salatuilla yhteyksillä (HTTPS); salasanat tallennetaan vain
+suolattuina yksisuuntaisina tiivisteinä; kunkin baarin tiedot erotetaan tiukasti
+toisistaan; ylläpitäjän henkilöstö pääsee tietoihin vain tukea varten, vain lukuoikeudella
+ja tapahtumalokiin kirjattuna; tiedoista otetaan päivittäiset varmuuskopiot; ja ohjelmisto
+pidetään ajan tasalla. Tietoturvakatselmus on julkaistu
+[lähdekoodissa](https://github.com/harautia/myWorkSchedule/blob/master/docs/security-review.md).
+
+## 5. Alihankkijat
+
+Asiakas antaa yleisen luvan käyttää [alihankkijasivulla](../subprocessors/) lueteltuja
+alihankkijoita. Käsittelijä ilmoittaa Asiakkaalle vähintään 30 päivää ennen alihankkijan
+lisäämistä tai vaihtamista; Asiakas voi vastustaa sitä perustellusta syystä ja, jos
+ratkaisua ei löydy, perua Palvelun. Käsittelijä asettaa alihankkijoilleen samat
+tietosuojavelvoitteet ja vastaa niistä.
+
+## 6. Tietoturvaloukkaukset
+
+Käsittelijä ilmoittaa Asiakkaalle ilman aiheetonta viivytystä ja viimeistään 48 tunnin
+kuluessa siitä, kun se on saanut tietää Asiakkaan tietoja koskevasta loukkauksesta, ja
+antaa tiedot, joita Asiakas tarvitsee ilmoittaakseen viranomaiselle ja rekisteröidyille.
+
+## 7. Palvelun päättyessä
+
+Kun tilaus päättyy, Asiakas voi ladata tietonsa siihen asti, kunnes ne poistetaan:
+{SERVICE.deleteAfterDays} päivää päättymisen jälkeen tai {SERVICE.deletionGraceDays}
+päivää sen jälkeen, kun Asiakas poisti baarin. Varmuuskopiot korvautuvat uusilla 30 päivän
+kuluessa siitä. Laskut säilytetään kirjanpitolain edellyttämän ajan.
+
+## 8. Siirrot EU:n ulkopuolelle
+
+Tiedot tallennetaan EU:ssa. Jos alihankkija käsittelee niitä EU:n tai ETA:n ulkopuolella,
+siirto perustuu riittävyyspäätökseen tai Euroopan komission vakiosopimuslausekkeisiin.
+
+*Päivitetty: [päivämäärä]*

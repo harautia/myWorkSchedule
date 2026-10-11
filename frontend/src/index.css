@@ -1327,3 +1327,7 @@ nav {
 .audit-log time {
   color: var(--color-text-muted);
 }
+
+.person-result {
+  margin-top: var(--space-3);
+}

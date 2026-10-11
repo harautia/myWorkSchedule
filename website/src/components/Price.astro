@@ -1,0 +1,13 @@
+---
+// A price from src/data/service.mjs, formatted for the page's language.
+import { SERVICE } from '../data/service.mjs'
+
+const { interval = 'month', lang = 'en' } = Astro.props
+const amount = new Intl.NumberFormat(lang === 'fi' ? 'fi-FI' : 'en-IE', {
+  style: 'currency',
+  currency: SERVICE.currency,
+  maximumFractionDigits: 0
+}).format(SERVICE.prices[interval])
+---
+
+<span>{amount}</span>

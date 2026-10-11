@@ -33,8 +33,29 @@ breaking changes, which are always described under **Upgrading**.
 - **Admin: support mode** opens a bar read-only, as its managers see it, after giving a
   reason. Each bar has an audit log of support access, subscription changes and
   deletion.
+- **Data export:** the owner downloads all the bar's data as JSON, or the shifts as CSV,
+  in Bar settings (also when the bar is locked).
+- **Scheduled deletion:** deleting a bar happens 30 days later and can be undone until
+  then; a banner shows the date. The admin can still delete at once. Organizations are
+  deleted 90 days after their subscription ended.
+- **Personal data requests (GDPR):** managers can anonymise an employee (account and name
+  erased, shifts kept); the admin can find anyone by email, download their data, or
+  erase them.
+- **Project website:** pricing, contact and legal pages (drafts), and Finnish versions of
+  the home, pricing, contact and legal pages.
+
+### Security
+- Content Security Policy turned on.
+- nodemailer upgraded to 10 (several advisories); Vitest upgraded to 5.
+- Names refuse line breaks and other control characters.
+- Request bodies are no longer logged in production; tokens are never logged.
+- Rate limit on sending invitations (50 an hour).
+- CI checks runtime dependencies for known vulnerabilities; Dependabot proposes updates.
+- See `docs/security-review.md`.
 
 ### Changed
+- **Deleting a bar from the admin page now schedules the deletion** (30 days) instead of
+  deleting at once; `DELETE /api/admin/bars/:barId?now=true` deletes at once.
 - `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
   `employee`); `/api/me` also returns `organizationId`.
 - Deleting a bar keeps the accounts of people who also belong to another bar.
@@ -49,6 +70,9 @@ breaking changes, which are always described under **Upgrading**.
 - To open sign-up on your installation, see "Sign-up" in the configuration reference.
 - A third migration adds the billing columns, the audit log and users' last activity.
   Nothing changes for self-hosted installations.
+- A fourth migration adds scheduled bar deletion and anonymised employees. The app now
+  runs an hourly job on every installation, which deletes bars whose deletion date has
+  passed.
 
 ## [0.1.0] – 2026-10-10
 

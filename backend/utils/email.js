@@ -102,6 +102,16 @@ const TEMPLATES = {
       text: `Hei ${name},\n\nBaarin ${barName} tiedot (työntekijät, vuorot ja tilit) poistetaan pysyvästi ${deletionDate}, koska tilaus päättyi.\n\nSäilyttääksesi ne kirjaudu sisään ja tilaa uudelleen ennen sitä:\n\n${url}\n`
     })
   },
+  barDeletionScheduled: {
+    en: ({ name, barName, deletionDate, url }) => ({
+      subject: `${barName} will be deleted on ${deletionDate}`,
+      text: `Hi ${name},\n\n${barName} and all its data (employees, shifts and accounts) will be permanently deleted on ${deletionDate}, as was asked.\n\nUntil then the schedule works as before, and the deletion can be undone in the bar settings. To keep a copy of the data, download it there before the deletion:\n\n${url}\n`
+    }),
+    fi: ({ name, barName, deletionDate, url }) => ({
+      subject: `${barName} poistetaan ${deletionDate}`,
+      text: `Hei ${name},\n\n${barName} ja kaikki sen tiedot (työntekijät, vuorot ja tilit) poistetaan pysyvästi ${deletionDate} pyynnön mukaisesti.\n\nSiihen asti työvuorot toimivat kuten ennenkin, ja poiston voi perua baarin asetuksista. Jos haluat säilyttää tiedot, lataa ne sieltä ennen poistoa:\n\n${url}\n`
+    })
+  },
   passwordReset: {
     en: ({ name, url, minutes }) => ({
       subject: 'Reset your work schedule password',

@@ -1,0 +1,72 @@
+---
+title: Tietosuojaseloste
+description: Mitä henkilötietoja myWorkSchedule-palvelu ja tämä sivusto käsittelevät ja miksi.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+import Operator from '../../../../components/Operator.astro'
+import { SERVICE } from '../../../../data/service.mjs'
+
+<Aside type="caution" title="Luonnos">
+Tämä tietosuojaseloste on luonnos, jota juristi ei ole vielä tarkastanut.
+</Aside>
+
+Tässä selosteessa kerrotaan, miten myWorkSchedule-palvelu ja tämä sivusto käsittelevät
+henkilötietoja EU:n yleisen tietosuoja-asetuksen (GDPR) mukaisesti.
+
+## Kuka vastaa
+
+<Operator lang="fi" />
+
+Rooleja on kaksi tiedoista riippuen:
+
+- **Baari on rekisterinpitäjä** työvuorotiedoissaan: työntekijöiden nimet,
+  sähköpostiosoitteet, roolit ja vuorot. Käsittelemme niitä vain baarin puolesta
+  [tietojenkäsittelysopimuksen](../dpa/) mukaisesti. Jos olet työntekijä, ota ensin
+  yhteyttä baariisi.
+- **Me olemme rekisterinpitäjä** tiedoissa, joita tarvitsemme Palvelun tarjoamiseen
+  asiakkaillemme: omistajan tili, laskutus, tukipyynnöt ja alla kuvatut tietoturvalokit.
+
+## Mitä keräämme ja miksi
+
+| Tieto | Miksi | Peruste | Säilytys |
+|---|---|---|---|
+| Tili: nimi, sähköposti, salasana (vain yksisuuntaisena tiivisteenä) | Kirjautuminen, kutsut, salasanan vaihto | Sopimus | Niin kauan kuin tili on olemassa |
+| Baarin tiedot: nimi, maa, aikavyöhyke, aukioloajat | Palvelun toiminta | Sopimus | Niin kauan kuin baari on olemassa |
+| Laskutus: omistajan sähköposti, tilaus ja sen tila. Korttitiedot menevät suoraan Stripelle; me emme näe niitä | Palvelun laskutus, arvonlisävero | Sopimus; lakisääteinen velvoite (kirjanpito) | Laskut 6 vuotta (kirjanpitolaki); muu tilauksen ajan |
+| Kunkin käyttäjän viimeisin käyttöaika | Tuki näkee, ketkä baaria käyttävät; ongelmien havaitseminen | Oikeutettu etu | Niin kauan kuin tili on olemassa |
+| Tapahtumaloki: tukikäynnit, tietojen lataukset, poistot, tilauksen muutokset | Tietoturva ja osoitusvelvollisuus | Oikeutettu etu | 2 vuotta |
+| Sähköpostit kanssamme | Asiakastuki | Sopimus; oikeutettu etu | 2 vuotta asian päättymisestä |
+
+Emme myy henkilötietoja, emme käytä niitä mainontaan emmekä tee niiden perusteella
+automaattisia päätöksiä ihmisistä.
+
+## Kuka muu käsittelee tietoja
+
+Palvelun ylläpidossa avustavat yritykset on lueteltu [alihankkijasivulla](../subprocessors/).
+Osa niistä voi käsitellä tietoja EU:n ulkopuolella; siirrot perustuvat Euroopan komission
+tietosuojan riittävyyttä koskeviin päätöksiin tai sen vakiosopimuslausekkeisiin.
+
+## Kuinka kauan
+
+Tiedot säilytetään yllä olevan taulukon mukaisesti. Kun baarin tilaus päättyy, sen tiedot
+poistetaan {SERVICE.deleteAfterDays} päivää päättymisen jälkeen; kun omistaja poistaa
+baarin, tiedot poistetaan {SERVICE.deletionGraceDays} päivän kuluttua. Varmuuskopiot
+korvautuvat uusilla 30 päivän kuluessa siitä.
+
+## Oikeutesi
+
+Voit pyytää nähdä tietosi, saada niistä kopion, oikaista ne, poistaa ne, rajoittaa niiden
+käsittelyä tai vastustaa sitä. Kirjoita yllä olevaan osoitteeseen. Baarin omistaja voi
+ladata baarin tiedot ja poistaa baarin itse sovelluksessa. Vastaamme kuukauden kuluessa.
+
+Jos katsot, että käsittelemme tietojasi väärin, voit tehdä valituksen
+tietosuojavaltuutetulle ([tietosuoja.fi](https://tietosuoja.fi)).
+
+## Tämä sivusto
+
+Sivusto ei käytä evästeitä eikä analytiikkaa tai seurantaa. Sivuston palvelin (GitHub
+Pages) tallentaa omiin lokeihinsa teknisiä tietoja, kuten IP-osoitteita, tietoturvan
+vuoksi.
+
+*Päivitetty: [päivämäärä]*

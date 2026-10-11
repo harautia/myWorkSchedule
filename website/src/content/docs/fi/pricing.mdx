@@ -1,0 +1,60 @@
+---
+title: Hinnat
+description: Yksi selkeä hinta baaria kohden, kaikki ominaisuudet mukana. Kokeile ilmaiseksi 30 päivää.
+---
+
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components'
+import Price from '../../../components/Price.astro'
+import { SERVICE, signupUrl } from '../../../data/service.mjs'
+
+Yksi hinta baaria kohden, kaikki ominaisuudet mukana ja niin monta työntekijää kuin
+sinulla on. Hinnat ovat ilman arvonlisäveroa; vero lisätään maksaessa maasi mukaan.
+
+<CardGrid>
+  <Card title="Kuukausittain" icon="calendar">
+    **<Price interval="month" lang="fi" /> / baari / kuukausi**
+
+    Vaihda vuosittaiseen tai peru milloin tahansa.
+  </Card>
+  <Card title="Vuosittain" icon="star">
+    **<Price interval="year" lang="fi" /> / baari / vuosi**
+
+    Kaksi kuukautta ilmaiseksi kuukausihintaan verrattuna.
+  </Card>
+</CardGrid>
+
+<LinkButton href={signupUrl} icon="right-arrow">Aloita {SERVICE.trialDays} päivän ilmainen kokeilu</LinkButton>
+
+## Näin kokeilu toimii
+
+- Rekisteröidy, perusta baarisi ja anna korttisi tiedot maksusivulla (maksut hoitaa
+  Stripe). Kokeilun {SERVICE.trialDays} päivän aikana mitään ei veloiteta.
+- Muistutamme sähköpostilla 7 päivää ennen kokeilun päättymistä. Jos et tee mitään,
+  korttia veloitetaan automaattisesti ja työvuorot toimivat edelleen.
+- Voit perua milloin tahansa Laskutus-sivulla. Käyttö jatkuu maksetun jakson loppuun.
+
+## Kaikki sisältyy hintaan
+
+- Viikko- ja kuukausinäkymä, vedä ja pudota, sama vuoro usealle päivälle kerralla
+- Suunnitteilla olevat ja lukitut viikot: työntekijät näkevät vain julkaistun
+- Kutsut sähköpostilla; työntekijät kirjautuvat omalla salasanallaan
+- "Omat vuoroni" puhelimessa, asennettavissa kuin sovellus, luettavissa ilman yhteyttä
+- Suomi ja englanti, oma aikavyöhyke ja aukioloajat
+- Kaikki tietosi ladattavissa milloin tahansa
+
+## Kysymyksiä
+
+**Useampi baari?** Jokainen baari on oma tilausrivinsä; uusi baari lisää laskuun yhden
+rivin, suhteutettuna jakson jäljellä olevaan aikaan.
+
+**Entä jos maksu epäonnistuu?** Stripe yrittää uudelleen muutaman päivän ajan, ja
+kerromme siitä sinulle. Jos maksu ei onnistu, tilaus päättyy: työvuorot ovat silloin vain
+luettavissa {SERVICE.readOnlyDays} päivää, sitten lukittuina, ja tiedot poistetaan
+{SERVICE.deleteAfterDays} päivää tilauksen päättymisen jälkeen. Siihen asti uusi tilaus
+palauttaa kaiken.
+
+**Saanko tietoni mukaani?** Kyllä. Omistaja voi ladata kaikki tiedot JSON-muodossa ja
+vuorot taulukkona milloin tahansa, myös baarin ollessa lukittuna.
+
+**Haluatko mieluummin ajaa sen itse?** Sama ohjelmisto on ilmaista ja avointa
+lähdekoodia; katso [oma asennus](../self-hosting/install/).

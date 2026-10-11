@@ -25,7 +25,7 @@ const supportedBarId = (request, userId) => {
   const token = request.cookies?.[SUPPORT_COOKIE]
   if (!token) return null
   try {
-    const payload = jwt.verify(token, config.SESSION_SECRET)
+    const payload = jwt.verify(token, config.SESSION_SECRET, { algorithms: ['HS256'] })
     return payload.kind === 'support' && payload.userId === userId ? payload.barId : null
   } catch {
     return null

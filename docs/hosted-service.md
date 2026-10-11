@@ -108,7 +108,35 @@ to each organization's owners, in their bar's language.
 Bars the platform admin creates (rather than sign-up) have no subscription and are
 free; use this for your own test bars or for partners.
 
-## 6. Support
+## 6. Before opening to customers
+
+- [ ] Replace every `[placeholder]` in `website/src/data/service.mjs`: the app's address,
+      the operator's name, business ID, address and contact email, and the hosting and
+      email providers in the subprocessor list.
+- [ ] Fill in the `[placeholders]` left in the legal pages (`website/src/content/docs/legal/`
+      and `fi/legal/`): the court district and the "Last updated" dates.
+- [ ] Have a lawyer review the terms, privacy policy, cookie policy, data processing
+      agreement and subprocessor list; then remove the "Draft" notice from each page.
+- [ ] In the app's settings: `APP_OPERATOR_NAME`, `APP_CONTACT_EMAIL`, and
+      `APP_PRIVACY_URL` pointing to the website's privacy policy.
+- [ ] Two-factor login for the platform admin (spec AUTH-05; see `docs/security-review.md`).
+- [ ] After deploying, open the app with the browser's console showing and check that the
+      Content Security Policy blocks nothing: sign-up with Turnstile, Stripe Checkout and
+      back, installing the PWA.
+
+## 7. Data requests and deletion
+
+- **Owners** download their bar's data (JSON, or the shifts as CSV) and delete the bar in
+  Bar settings. Deletion happens 30 days later and can be undone until then; while the
+  last bar of an organization waits for deletion, its subscription is set to end at the
+  end of the period.
+- **Managers** can anonymise an employee: the account and name go, the shifts stay.
+- **Personal data requests** (GDPR) come to you: on the admin's Bars page, find the person
+  by email, download their data, or erase them.
+- The hourly job deletes bars whose deletion date has passed, and organizations 90 days
+  after their subscription ended. Every export, deletion and erasure is in the audit log.
+
+## 8. Support
 
 The admin's Bars page lists every organization with its subscription status, trial end,
 active users (logged in during the last 30 days) and last activity, with search and a
