@@ -51,6 +51,9 @@ breaking changes, which are always described under **Upgrading**.
 - Request bodies are no longer logged in production; tokens are never logged.
 - Rate limit on sending invitations (50 an hour).
 - CI checks runtime dependencies for known vulnerabilities; Dependabot proposes updates.
+- Dependencies with known vulnerabilities updated: body-parser 2.4.0 (denial of
+  service via compressed request bodies), follow-redirects 1.16.3 (credential headers
+  on redirects), nodemailer 10.5.0, qs 6.17.1 and ip-address 10.7.6.
 - See `docs/security-review.md`.
 
 ### Changed
