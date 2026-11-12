@@ -48,19 +48,18 @@ const LOCALES = ['en', 'fi']
 const isHexColor = (value) => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)
 
 // The bar settings a request may change; anything else in the body is ignored.
-const pickBarSettings = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor } = {}) =>
-  ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor })
+const pickBarSettings = ({ name, timezone, opensAt, closesAt, locale, accentColor } = {}) =>
+  ({ name, timezone, opensAt, closesAt, locale, accentColor })
 
-// Checks bar settings { name, timezone, opensAt, closesAt, locale?, clock24h?,
+// Checks bar settings { name, timezone, opensAt, closesAt, locale?,
 // accentColor? }; returns an error message or null. The optional display
 // settings keep their current value when left out.
-const barError = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor }) => {
+const barError = ({ name, timezone, opensAt, closesAt, locale, accentColor }) => {
   if (!isNonEmptyText(name)) return 'name is required (max 100 characters)'
   if (!isTimezone(timezone)) return 'timezone must be an IANA timezone, e.g. Europe/Helsinki'
   if (!isTime(opensAt) || !isTime(closesAt)) return 'opensAt and closesAt must be times (HH:mm)'
   if (opensAt === closesAt) return 'opensAt and closesAt must differ'
   if (locale !== undefined && !LOCALES.includes(locale)) return `locale must be one of: ${LOCALES.join(', ')}`
-  if (clock24h !== undefined && typeof clock24h !== 'boolean') return 'clock24h must be true or false'
   if (accentColor !== undefined && !isHexColor(accentColor)) return 'accentColor must be a colour like #863bff'
   return null
 }

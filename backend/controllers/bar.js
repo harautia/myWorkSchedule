@@ -7,8 +7,8 @@ const { requireGroup } = require('../utils/middleware')
 const { MANAGER } = require('../utils/groups')
 const { barError, pickBarSettings } = require('../utils/validation')
 
-// Settings of the current bar: name, timezone, opening hours, language,
-// clock and accent colour. The app uses them for everything it shows.
+// Settings of the current bar: name, timezone, opening hours, language
+// and accent colour. The app uses them for everything it shows.
 barRouter.get('/', async (request, response) => {
   const bar = await Bars.getById(request.barId)
   if (!bar) {

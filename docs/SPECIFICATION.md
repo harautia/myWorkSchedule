@@ -99,7 +99,7 @@ The codebase already covers most of the scheduling product. Summary as of 2026-1
 | Mobile | ✅ PWA, "My shifts" list, one-day view on phones, tap to edit on touch screens, last schedule shown offline. |
 | Security basics | ✅ scrypt password hashes, JWT in an httpOnly cookie (7 days), all sessions ended on password change, login rate limit, helmet. |
 | Login | ✅ By email or username (AUTH-01). Managers invite employees by email; the invited person sets their own password (AUTH-02). "Forgot password" by email (AUTH-03). Email through any SMTP server; without one, managers get invitation links to pass on (NOT-01). |
-| Per-bar settings in the UI | ✅ The app uses each bar's timezone, opening hours, 12/24-hour clock and accent colour; managers edit them on a Bar settings page (TEN-01–02). Logo and first day of week are still to do. |
+| Per-bar settings in the UI | ✅ The app uses each bar's timezone, opening hours and accent colour (times are always on the 24-hour clock); managers edit them on a Bar settings page (TEN-01–02). Logo and first day of week are still to do. |
 | Translations | ✅ The app is in English and Finnish (react-i18next). A bar's users see the bar's language; admins and the login page get the browser's language. Weekday and month names follow it. ⚠️ Error messages from the server are still English only. |
 | Sign-up, billing, project website, email | ❌ Not started. |
 | Deleting a bar | ⚠️ Immediate hard delete, with no export and no grace period. |
@@ -283,7 +283,7 @@ Each bar works in its own view, which uses that bar's settings, staff and schedu
 
 | ID | Requirement | Priority |
 |---|---|---|
-| TEN-01 | Bar settings: name, logo, accent colour, country, language, timezone, opening and closing time (closing may be after midnight), first day of week, 12/24-hour clock. | Must |
+| TEN-01 | Bar settings: name, logo, accent colour, country, language, timezone, opening and closing time (closing may be after midnight), first day of week. Times are always shown on the 24-hour clock. | Must |
 | TEN-02 | **The frontend uses the bar's timezone and opening hours everywhere** instead of the current constants in `frontend/src/utils/dates.js`. All times are shown in the bar's timezone, wherever the user is. | Must |
 | TEN-03 | The bar's logo and name in the app header and in emails. | Should |
 | TEN-04 | An organization with several bars: managers of the organization can switch between bars; an employee can belong to several bars. | Should |
@@ -419,7 +419,7 @@ In self-hosted mode the self-hoster is the platform admin, and billing-related a
 | Table | Purpose | Key columns |
 |---|---|---|
 | `organizations` (new) | The paying customer. One or more bars. | `id`, `name`, `country`, `region` (default `eu`), `billing_email`, `stripe_customer_id`, `stripe_subscription_id`, `subscription_status`, `trial_ends_at`, `current_period_ends_at`, `scheduled_deletion_at` |
-| `bars` (changed) | A venue. | + `organization_id`, `locale`, `week_starts_on`, `clock_24h`, `logo_url`, `accent_color`, `slug` (for later subdomains), `scheduled_deletion_at` |
+| `bars` (changed) | A venue. | + `organization_id`, `locale`, `week_starts_on`, `logo_url`, `accent_color`, `slug` (for later subdomains), `scheduled_deletion_at` |
 | `users` (changed) | A person who logs in. | + `email` (unique), `email_verified_at`, `totp_secret`. `username` becomes optional and is phased out. `bar_id` moves to memberships. |
 | `memberships` (new) | Which bars a user belongs to, with which role. | `user_id`, `bar_id`, `employee_id`, `role` (owner / manager / employee). Replaces `user_groups` for bar roles; `adminGroup` stays as a platform flag. |
 | `invites` (new) | Pending invites. | `bar_id`, `email`, `role`, `token_hash`, `expires_at`, `accepted_at`, `invited_by` |

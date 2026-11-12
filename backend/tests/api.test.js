@@ -28,7 +28,6 @@ describe('bar', () => {
       opensAt: '10:00',
       closesAt: '04:00',
       locale: 'en',
-      clock24h: true,
       accentColor: '#863bff',
       scheduledDeletionAt: null
     })
@@ -40,7 +39,6 @@ describe('bar', () => {
     opensAt: '16:00',
     closesAt: '02:30',
     locale: 'fi',
-    clock24h: false,
     accentColor: '#0CA678'
   }
 
@@ -59,15 +57,14 @@ describe('bar', () => {
 
   test('display settings left out keep their value', async () => {
     await api.put('/api/bar').send(SETTINGS).expect(200)
-    const { locale, clock24h, accentColor, ...core } = SETTINGS
+    const { locale, accentColor, ...core } = SETTINGS
     const response = await api.put('/api/bar').send({ ...core, name: 'Renamed' }).expect(200)
     assert.strictEqual(response.body.locale, 'fi')
-    assert.strictEqual(response.body.clock24h, false)
+    assert.strictEqual(response.body.accentColor, '#0ca678')
   })
 
   test('invalid settings are refused', async () => {
     await api.put('/api/bar').send({ ...SETTINGS, locale: 'sv' }).expect(400)
-    await api.put('/api/bar').send({ ...SETTINGS, clock24h: 'yes' }).expect(400)
     await api.put('/api/bar').send({ ...SETTINGS, accentColor: 'purple' }).expect(400)
     await api.put('/api/bar').send({ ...SETTINGS, timezone: 'Mars/Base' }).expect(400)
     await api.put('/api/bar').send({ ...SETTINGS, closesAt: '16:00' }).expect(400)

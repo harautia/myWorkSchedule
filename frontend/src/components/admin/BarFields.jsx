@@ -3,7 +3,7 @@ import TimezoneSelect from '../TimezoneSelect'
 import { LANGUAGES } from '../../utils/forms'
 
 // Controlled inputs for a bar's settings. value = { name, timezone, opensAt,
-// closesAt, locale, clock24h, accentColor }
+// closesAt, locale, accentColor }
 const BarFields = ({ value, onChange }) => {
   const { t } = useTranslation()
   const set = (field) => (event) => onChange({ ...value, [field]: event.target.value })
@@ -28,16 +28,6 @@ const BarFields = ({ value, onChange }) => {
           {LANGUAGES.map(({ code, label }) => (
             <option key={code} value={code}>{label}</option>
           ))}
-        </select>
-      </label>
-      <label className="form-field">
-        {t('barSettings.clock')}
-        <select
-          value={value.clock24h ? '24' : '12'}
-          onChange={(event) => onChange({ ...value, clock24h: event.target.value === '24' })}
-        >
-          <option value="24">{t('barSettings.clock24')}</option>
-          <option value="12">{t('barSettings.clock12')}</option>
         </select>
       </label>
       <label className="form-field">

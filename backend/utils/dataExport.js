@@ -41,7 +41,6 @@ const barExport = async (barId) => {
       opensAt: bar.opens_at.slice(0, 5),
       closesAt: bar.closes_at.slice(0, 5),
       locale: bar.locale,
-      clock24h: bar.clock_24h,
       accentColor: bar.accent_color,
       createdAt: iso(bar.created_at)
     },

@@ -15,13 +15,12 @@ export const EMPTY_BAR = {
   opensAt: '10:00',
   closesAt: '04:00',
   locale: 'en',
-  clock24h: true,
   accentColor: DEFAULT_ACCENT
 }
 
 // The editable settings of a bar, e.g. to fill a form from GET /api/bar.
-export const barSettings = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor }) =>
-  ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor })
+export const barSettings = ({ name, timezone, opensAt, closesAt, locale, accentColor }) =>
+  ({ name, timezone, opensAt, closesAt, locale, accentColor })
 
 // Languages the app is available in (D15).
 export const LANGUAGES = [

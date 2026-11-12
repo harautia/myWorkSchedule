@@ -225,8 +225,8 @@ request (read-only, locked, or not started), with `subscriptionStatus` in the bo
 | POST | `/api/admin/bars/:barId/managers` | admin | `{ username, name, password }`; also adds them to the schedule as a manager |
 | PUT | `/api/admin/bars/:barId/managers/:userId` | admin | `{ name?, password? }`; a new name also renames them on the schedule, a new password ends old sessions |
 | DELETE | `/api/admin/bars/:barId/managers/:userId` | admin | deletes the account (their schedule entry and shifts stay); refused for the bar's last manager |
-| GET | `/api/bar` | manager, employee | name, timezone, opensAt, closesAt, locale, clock24h, accentColor |
-| PUT | `/api/bar` | manager | the same fields; changes the manager's own bar (locale, clock24h and accentColor optional) |
+| GET | `/api/bar` | manager, employee | name, timezone, opensAt, closesAt, locale, accentColor |
+| PUT | `/api/bar` | manager | the same fields; changes the manager's own bar (locale and accentColor optional) |
 | GET | `/api/employees` | manager, employee | legend order |
 | GET | `/api/employees/details` | manager | employees with their login account, open invitation and shift count |
 | POST | `/api/employees` | manager | `{ name, email }`: adds a waiter and invites them (`inviteSent: { email, sent, url? }`); or `{ name, username, password, email? }` to create the login directly |

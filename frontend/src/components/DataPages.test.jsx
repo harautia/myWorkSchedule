@@ -18,7 +18,7 @@ vi.mock('../services/bar', async (importOriginal) => ({ ...(await importOriginal
   cancelDeletion: vi.fn()
 } }))
 
-const BAR = { id: 1, name: 'Own Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff', scheduledDeletionAt: null }
+const BAR = { id: 1, name: 'Own Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', accentColor: '#863bff', scheduledDeletionAt: null }
 
 beforeEach(() => {
   vi.clearAllMocks()

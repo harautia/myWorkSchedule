@@ -31,9 +31,9 @@ const users = {
 beforeEach(() => {
   vi.resetAllMocks()
   i18n.changeLanguage('en')
-  setBarSettings({ timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: true, locale: 'en' })
+  setBarSettings({ timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en' })
   barService.getBar.mockResolvedValue({
-    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff'
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', accentColor: '#863bff'
   })
   barService.getOnboarding.mockResolvedValue({ invite: true, plan: true, lock: true, dismissed: true })
   appInfoService.getAppInfo.mockResolvedValue({ version: '0.1.0', sourceUrl: 'https://example.org/src' })
@@ -128,7 +128,7 @@ test('the login page shows the version and the source code link', async () => {
 
 test('the bar\'s settings are applied, and a manager can change them', async () => {
   barService.getBar.mockResolvedValue({
-    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '16:00', closesAt: '02:00', locale: 'en', clock24h: true, accentColor: '#0ca678'
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '16:00', closesAt: '02:00', locale: 'en', accentColor: '#0ca678'
   })
   barService.updateBar.mockImplementation((settings) => Promise.resolve({ id: 1, ...settings }))
   authService.getCurrentUser.mockResolvedValue(users.anna)
@@ -143,14 +143,13 @@ test('the bar\'s settings are applied, and a manager can change them', async () 
   const name = screen.getByLabelText('Bar name')
   await userEvent.clear(name)
   await userEvent.type(name, 'Imaginary Bar & Grill')
-  await userEvent.selectOptions(screen.getByLabelText('Clock'), '12-hour (6:30 PM)')
   await userEvent.click(screen.getByRole('button', { name: 'Save settings' }))
 
-  expect(barService.updateBar).toHaveBeenCalledWith(expect.objectContaining({ name: 'Imaginary Bar & Grill', clock24h: false }))
+  expect(barService.updateBar).toHaveBeenCalledWith(expect.objectContaining({ name: 'Imaginary Bar & Grill' }))
   expect(await screen.findByRole('heading', { name: 'Imaginary Bar & Grill Work Schedule' })).toBeInTheDocument()
 
   await userEvent.click(screen.getByRole('button', { name: 'Schedule' }))
-  expect(container.querySelector('.week-hour-label')).toHaveTextContent('4:00 PM')
+  expect(container.querySelector('.week-hour-label')).toHaveTextContent('16:00')
 })
 
 test('employees don\'t get the bar settings page', async () => {
@@ -162,7 +161,7 @@ test('employees don\'t get the bar settings page', async () => {
 
 test('a Finnish bar gets the app in Finnish, with Finnish weekday names', async () => {
   barService.getBar.mockResolvedValue({
-    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'fi', clock24h: true, accentColor: '#863bff'
+    id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'fi', accentColor: '#863bff'
   })
   authService.getCurrentUser.mockResolvedValue(users.anna)
   const { container } = render(<App />)
@@ -242,7 +241,7 @@ test('a new owner sees the verification reminder and the onboarding checklist', 
 test('an admin opens a bar in support mode, sees it read-only, and leaves', async () => {
   const supportUser = { ...users.admin, groups: ['adminGroup', 'managerGroup'], barId: 1, barName: 'Imaginary Bar', supportMode: true }
   authService.getCurrentUser.mockResolvedValueOnce(users.admin).mockResolvedValueOnce(supportUser).mockResolvedValue(users.admin)
-  adminService.getBar.mockResolvedValue({ bar: { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff' }, users: [] })
+  adminService.getBar.mockResolvedValue({ bar: { id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', accentColor: '#863bff' }, users: [] })
   adminService.openSupport.mockResolvedValue()
   adminService.leaveSupport.mockResolvedValue()
   render(<App />)

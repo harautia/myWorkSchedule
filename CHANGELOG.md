@@ -59,6 +59,9 @@ breaking changes, which are always described under **Upgrading**.
 - `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
   `employee`); `/api/me` also returns `organizationId`.
 - Deleting a bar keeps the accounts of people who also belong to another bar.
+- **Times are always shown on the 24-hour clock** (18:30). The 12/24-hour clock setting
+  is removed from the bar settings, and `clock24h` from `GET`/`PUT /api/bar`, the admin
+  bar API and the data export; a `clock24h` sent to the API is ignored.
 
 ### Upgrading
 - **Back up the database first** (see the upgrade guide). A database migration moves
@@ -73,6 +76,8 @@ breaking changes, which are always described under **Upgrading**.
 - A fourth migration adds scheduled bar deletion and anonymised employees. The app now
   runs an hourly job on every installation, which deletes bars whose deletion date has
   passed.
+- A fifth migration removes the bars' `clock_24h` column. Bars that used the 12-hour
+  clock switch to the 24-hour clock.
 
 ## [0.1.0] – 2026-10-10
 

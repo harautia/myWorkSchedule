@@ -7,7 +7,7 @@ import barService from '../services/bar'
 vi.mock('../services/bar')
 
 const BAR = {
-  id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', clock24h: true, accentColor: '#863bff'
+  id: 1, name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', locale: 'en', accentColor: '#863bff'
 }
 
 beforeEach(() => vi.resetAllMocks())
@@ -24,7 +24,7 @@ test('shows the current settings and saves the changes', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Save settings' }))
 
   expect(barService.updateBar).toHaveBeenCalledWith({
-    name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '16:00', closesAt: '04:00', locale: 'fi', clock24h: true, accentColor: '#863bff'
+    name: 'Imaginary Bar', timezone: 'Europe/Helsinki', opensAt: '16:00', closesAt: '04:00', locale: 'fi', accentColor: '#863bff'
   })
   expect(onSaved).toHaveBeenCalledWith(expect.objectContaining({ locale: 'fi', opensAt: '16:00' }))
   expect(await screen.findByRole('status')).toHaveTextContent('Settings saved')

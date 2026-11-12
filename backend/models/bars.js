@@ -11,7 +11,6 @@ const toDto = (row) => ({
   opensAt: toHourMinute(row.opens_at),
   closesAt: toHourMinute(row.closes_at),
   locale: row.locale,
-  clock24h: row.clock_24h,
   accentColor: row.accent_color,
   // When the bar will be deleted, if its deletion is scheduled (DATA-02).
   scheduledDeletionAt: row.scheduled_deletion_at?.toISOString() ?? null
@@ -40,10 +39,9 @@ const getAllWithCounts = async () => {
 }
 
 // Display settings left out keep their current value (or the default for a new bar).
-const toRow = ({ name, timezone, opensAt, closesAt, locale, clock24h, accentColor }) => {
+const toRow = ({ name, timezone, opensAt, closesAt, locale, accentColor }) => {
   const row = { name: name.trim(), timezone, opens_at: opensAt, closes_at: closesAt }
   if (locale !== undefined) row.locale = locale
-  if (clock24h !== undefined) row.clock_24h = clock24h
   if (accentColor !== undefined) row.accent_color = accentColor.toLowerCase()
   return row
 }

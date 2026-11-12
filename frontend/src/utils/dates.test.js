@@ -100,7 +100,7 @@ describe('timeOnBarDay', () => {
 })
 
 describe('bar settings', () => {
-  const HELSINKI = { timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00', clock24h: true }
+  const HELSINKI = { timezone: 'Europe/Helsinki', opensAt: '10:00', closesAt: '04:00' }
   afterEach(() => setBarSettings(HELSINKI))
 
   test('times are shown in the bar\'s timezone, not the computer\'s', () => {
@@ -134,11 +134,12 @@ describe('bar settings', () => {
     expect(dayKey(barDay(new Date(2026, 8, 25, 1)))).toBe('2026-09-25')
   })
 
-  test('the 12-hour clock', () => {
-    setBarSettings({ ...HELSINKI, clock24h: false })
-    expect(formatTime(new Date(2026, 8, 25, 18, 30))).toBe('6:30 PM')
-    expect(formatShortTime(new Date(2026, 8, 25, 18))).toBe('6PM')
-    expect(openingHourLabels()[0]).toBe('10:00 AM')
+  test('times use the 24-hour clock', () => {
+    setBarSettings(HELSINKI)
+    expect(formatTime(new Date(2026, 8, 25, 18, 30))).toBe('18:30')
+    expect(formatShortTime(new Date(2026, 8, 25, 18))).toBe('18')
+    expect(formatShortTime(new Date(2026, 8, 25, 18, 30))).toBe('18:30')
+    expect(openingHourLabels()[0]).toBe('10:00')
   })
 
   test('the opening time is right on the day the clocks change', () => {
