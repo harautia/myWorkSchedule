@@ -6,6 +6,12 @@ breaking changes, which are always described under **Upgrading**.
 
 ## [Unreleased]
 
+## [0.2.0] – 2026-11-13
+
+Organizations, sign-up, billing for the hosted service, data export and scheduled
+deletion. Times are now always shown on the 24-hour clock: the 12-hour clock option is
+removed. **Back up your database before upgrading**: see Upgrading below.
+
 ### Added
 - **Organizations and memberships**, the groundwork for sign-up and for chains of bars.
   Every bar belongs to an organization, and a user's bars and roles are kept as
@@ -62,9 +68,12 @@ breaking changes, which are always described under **Upgrading**.
 - `GET /api/me` and the account lists also return `role` (`owner`, `manager` or
   `employee`); `/api/me` also returns `organizationId`.
 - Deleting a bar keeps the accounts of people who also belong to another bar.
-- **Times are always shown on the 24-hour clock** (18:30). The 12/24-hour clock setting
-  is removed from the bar settings, and `clock24h` from `GET`/`PUT /api/bar`, the admin
-  bar API and the data export; a `clock24h` sent to the API is ignored.
+- **The 12-hour clock option is removed: times are always shown on the 24-hour clock**
+  (18:30). The 12/24-hour clock setting is removed from the bar settings, and `clock24h`
+  from `GET`/`PUT /api/bar`, the admin bar API and the data export; a `clock24h` sent to
+  the API is ignored.
+- The Docker image runs on Node.js 26 (LTS) instead of 22.
+- Dependencies updated, among them Express 5.3, Vite 8, React 19.3.1 and Stripe 23.1.
 
 ### Upgrading
 - **Back up the database first** (see the upgrade guide). A database migration moves
