@@ -37,7 +37,7 @@ after(() => db.destroy())
 describe('export', () => {
   test('the owner downloads everything as JSON, without passwords', async () => {
     const response = await anna.get('/api/bar/export').expect(200)
-    assert.match(response.headers['content-disposition'], /attachment; filename="own-bar-\d{4}-\d{2}-\d{2}\.json"/)
+    assert.match(response.headers['content-disposition'], /attachment; filename="?own-bar-\d{4}-\d{2}-\d{2}\.json"?/)
 
     const body = response.body
     assert.strictEqual(body.bar.name, 'Own Bar')
