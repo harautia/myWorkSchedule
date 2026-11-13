@@ -41,7 +41,8 @@ const App = () => {
   // The user's bar with its settings, and which bar it was loaded for: the
   // pages wait until it matches the logged-in user's bar.
   const [loadedBar, setLoadedBar] = useState({ forBarId: null, bar: null })
-  const bar = loadedBar.bar
+  // Only the bar loaded for the current user counts (none after logging out).
+  const bar = loadedBar.forBarId === user?.barId ? loadedBar.bar : null
   const online = useOnline()
 
   useEffect(() => {
@@ -58,7 +59,6 @@ const App = () => {
   const barId = user?.barId
   useEffect(() => {
     if (!barId) {
-      setLoadedBar({ forBarId: null, bar: null })
       document.documentElement.style.removeProperty('--accent')
       return
     }
